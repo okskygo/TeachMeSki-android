@@ -391,6 +391,7 @@
     <string name="explore_card_resort_more_suffix">+%1$d resorts</string>
     <string name="explore_card_resort_collapse">Collapse</string>
     <string name="explore_card_all_resorts">All Resorts</string>
+    <string name="explore_card_language_other">%1$s</string>
     <string name="explore_card_show_more">Show more</string>
     <string name="explore_card_show_less">Show less</string>
     <string name="explore_card_slots_full">Fully Booked</string>

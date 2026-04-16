@@ -121,7 +121,8 @@ private fun formatRelativeTime(createdAt: String): String {
             when {
                 days < 7 -> stringResource(R.string.explore_time_days_ago, days)
                 days < 30 -> stringResource(R.string.explore_time_weeks_ago, (days / 7).coerceAtLeast(1))
-                else -> stringResource(R.string.explore_time_months_ago, (days / 30).coerceAtLeast(1))
+                days < 365 -> stringResource(R.string.explore_time_months_ago, (days / 30).coerceAtLeast(1))
+                else -> SimpleDateFormat("yyyy/MM/dd", Locale.US).format(Date(parsed))
             }
         }
     }
@@ -430,9 +431,9 @@ internal fun ExploreRequestCard(
         }
     }
 
-    val languageLine = preferredLanguages.mapNotNull { code ->
+    val languageLine = preferredLanguages.map { code ->
         languageLabelRes(code)?.let { stringResource(it) }
-            ?: code
+            ?: stringResource(R.string.explore_card_language_other, code)
     }.joinToString(", ")
 
     val cardShape = RoundedCornerShape(12.dp)

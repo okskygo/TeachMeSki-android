@@ -391,6 +391,7 @@
     <string name="explore_card_resort_more_suffix">+%1$d 個雪場</string>
     <string name="explore_card_resort_collapse">收起</string>
     <string name="explore_card_all_resorts">所有雪場</string>
+    <string name="explore_card_language_other">%1$s</string>
     <string name="explore_card_show_more">顯示更多</string>
     <string name="explore_card_show_less">收起</string>
     <string name="explore_card_slots_full">名額已滿</string>
