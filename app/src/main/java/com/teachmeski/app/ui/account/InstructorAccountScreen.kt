@@ -52,6 +52,7 @@ fun InstructorAccountScreen(
     viewModel: InstructorAccountViewModel = hiltViewModel(),
     onNavigateToWallet: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
+    onNavigateToWizard: () -> Unit = {},
     onNavigateToContact: () -> Unit = {},
     onNavigateToLegal: () -> Unit = {},
     onSignedOut: () -> Unit = {},
@@ -212,6 +213,10 @@ fun InstructorAccountScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    InstructorAccountMenuRow(
+                        title = stringResource(R.string.instructor_account_become_instructor),
+                        onClick = onNavigateToWizard,
+                    )
                     InstructorAccountMenuRow(
                         title = stringResource(R.string.instructor_account_wallet_entry),
                         onClick = onNavigateToWallet,

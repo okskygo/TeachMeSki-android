@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AccountScreen(
     onAccountSettingsClick: () -> Unit,
+    onNavigateToWizard: () -> Unit = {},
     onContactClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
@@ -77,6 +78,10 @@ fun AccountScreen(
             AccountMenuRow(
                 title = stringResource(R.string.account_title),
                 onClick = onAccountSettingsClick,
+            )
+            AccountMenuRow(
+                title = stringResource(R.string.instructor_account_become_instructor),
+                onClick = onNavigateToWizard,
             )
             AccountMenuRow(
                 title = stringResource(R.string.contact_title),

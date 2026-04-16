@@ -80,7 +80,19 @@ private fun AuthenticatedApp(
             route.contains("ForgotPassword") || route.contains("VerifyEmail")
     } ?: !isAuthenticated
 
-    val showBottomBar = isAuthenticated && !isOnAuthScreen
+    val fullscreenRoutes =
+        setOf(
+            Route.LessonRequestWizard::class,
+            Route.InstructorWizard::class,
+        )
+    val isFullscreenRoute =
+        currentDestRoute?.let { route ->
+            fullscreenRoutes.any { kClass ->
+                kClass.simpleName?.let { route.contains(it) } == true
+            }
+        } == true
+
+    val showBottomBar = isAuthenticated && !isOnAuthScreen && !isFullscreenRoute
 
     val currentTabRoute: Route? = when {
         currentDestRoute?.contains("MyRequests") == true -> Route.MyRequests

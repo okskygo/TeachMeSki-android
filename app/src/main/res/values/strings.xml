@@ -18,6 +18,7 @@
     <string name="placeholder_signup">註冊</string>
     <string name="placeholder_my_requests">我的課程需求</string>
     <string name="placeholder_inbox">訊息列表</string>
+    <string name="chat_placeholder_room_fmt">對話室：%1$s</string>
     <string name="placeholder_account">帳號設定</string>
     <string name="placeholder_explore">探索需求</string>
     <string name="placeholder_unlocked">已解鎖需求</string>

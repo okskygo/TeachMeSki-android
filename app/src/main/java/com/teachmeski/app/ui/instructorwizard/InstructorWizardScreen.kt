@@ -111,10 +111,11 @@ fun InstructorWizardScreen(
                 CompleteStep(
                     profileAlreadyExists = state.profileAlreadyExists,
                     onStartExploring = {
-                        if (!state.profileAlreadyExists) {
+                        if (state.profileAlreadyExists) {
+                            onClose()
+                        } else {
                             onSuccess()
                         }
-                        onClose()
                     },
                     modifier = Modifier.fillMaxSize(),
                 )

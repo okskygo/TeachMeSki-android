@@ -18,6 +18,7 @@
     <string name="placeholder_signup">Sign Up</string>
     <string name="placeholder_my_requests">My Lesson Requests</string>
     <string name="placeholder_inbox">Messages</string>
+    <string name="chat_placeholder_room_fmt">Room: %1$s</string>
     <string name="placeholder_account">Account Settings</string>
     <string name="placeholder_explore">Explore Requests</string>
     <string name="placeholder_unlocked">Unlocked Requests</string>

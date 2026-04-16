@@ -59,6 +59,11 @@ fun NavGraphBuilder.studentNavGraph(navController: NavHostController) {
         composable<Route.Account> {
             AccountScreen(
                 onAccountSettingsClick = { navController.navigate(Route.AccountSettings) },
+                onNavigateToWizard = {
+                    navController.navigate(Route.InstructorWizard) {
+                        launchSingleTop = true
+                    }
+                },
                 onContactClick = { navController.navigate(Route.Contact) },
                 onTermsClick = { navController.navigate(Route.Legal(type = "terms")) },
                 onPrivacyClick = { navController.navigate(Route.Legal(type = "privacy")) },
