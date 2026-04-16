@@ -1,3 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TeachMeSki</string>
+    <string name="app_name">教我滑雪</string>
+
+    <!-- Bottom Nav — Student -->
+    <string name="nav_my_requests">課程</string>
+    <string name="nav_inbox">訊息</string>
+    <string name="nav_account">我的</string>
+
+    <!-- Bottom Nav — Instructor -->
+    <string name="nav_explore">探索</string>
+    <string name="nav_unlocked">已解鎖</string>
+    <string name="nav_conversation">訊息</string>
+    <string name="nav_instructor_account">我的</string>
+
+    <!-- Placeholder screens -->
+    <string name="placeholder_login">登入</string>
+    <string name="placeholder_signup">註冊</string>
+    <string name="placeholder_my_requests">我的課程需求</string>
+    <string name="placeholder_inbox">訊息列表</string>
+    <string name="placeholder_account">帳號設定</string>
+    <string name="placeholder_explore">探索需求</string>
+    <string name="placeholder_unlocked">已解鎖需求</string>
+    <string name="placeholder_instructor_account">教練帳號</string>
+
+    <!-- Role -->
+    <string name="role_switch_to_student">切換為學員</string>
+    <string name="role_switch_to_instructor">切換為教練</string>
 </resources>
