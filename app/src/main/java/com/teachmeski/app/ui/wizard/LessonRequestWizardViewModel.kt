@@ -155,7 +155,7 @@ class LessonRequestWizardViewModel @Inject constructor(
         _uiState.update { s ->
             val idsInPref =
                 s.regions
-                    .filter { it.prefectureEn == prefectureEn }
+                    .filter { (it.prefectureEn ?: "") == prefectureEn }
                     .flatMap { it.resorts.map { r -> r.id } }
                     .toSet()
             if (idsInPref.isEmpty()) return@update s

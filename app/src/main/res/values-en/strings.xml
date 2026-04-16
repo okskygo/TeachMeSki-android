@@ -162,6 +162,10 @@
     <string name="wizard_discipline_ski">Ski</string>
     <string name="wizard_discipline_snowboard">Snowboard</string>
     <string name="wizard_group_size_label">Group Size</string>
+    <string name="wizard_group_size_decrease_cd">Decrease group size</string>
+    <string name="wizard_group_size_increase_cd">Increase group size</string>
+    <string name="wizard_resort_section_expand_cd">Expand prefecture section</string>
+    <string name="wizard_resort_section_collapse_cd">Collapse prefecture section</string>
     <string name="wizard_has_children_label">Children included</string>
     <string name="wizard_has_children_desc">Under 12 years old</string>
 

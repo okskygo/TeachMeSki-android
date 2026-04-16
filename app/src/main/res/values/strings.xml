@@ -162,6 +162,10 @@
     <string name="wizard_discipline_ski">雙板 Ski</string>
     <string name="wizard_discipline_snowboard">單板 Snowboard</string>
     <string name="wizard_group_size_label">上課人數</string>
+    <string name="wizard_group_size_decrease_cd">減少人數</string>
+    <string name="wizard_group_size_increase_cd">增加人數</string>
+    <string name="wizard_resort_section_expand_cd">展開地區</string>
+    <string name="wizard_resort_section_collapse_cd">收合地區</string>
     <string name="wizard_has_children_label">是否有兒童</string>
     <string name="wizard_has_children_desc">12 歲以下的小朋友</string>
 
