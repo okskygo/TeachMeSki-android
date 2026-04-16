@@ -130,7 +130,7 @@ private fun formatRelativeTime(createdAt: String): String {
 @Composable
 private fun ExploreCardSectionLabel(text: String) {
     Text(
-        text = text,
+        text = text.uppercase(),
         style = MaterialTheme.typography.labelSmall.copy(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
@@ -145,8 +145,8 @@ private fun ExploreCardNotesSection(notes: String) {
     val trimmed = notes.trim()
     if (trimmed.isEmpty()) return
     var expanded by remember(notes) { mutableStateOf(false) }
+    var isOverflowing by remember(notes) { mutableStateOf(false) }
     val quoted = "\u201c$trimmed\u201d"
-    val long = trimmed.length > 120
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -159,10 +159,11 @@ private fun ExploreCardNotesSection(notes: String) {
             style = MaterialTheme.typography.bodySmall,
             fontStyle = FontStyle.Italic,
             color = TmsColor.OnSurfaceVariant,
-            maxLines = if (long && !expanded) 3 else Int.MAX_VALUE,
+            maxLines = if (expanded) Int.MAX_VALUE else 3,
             overflow = TextOverflow.Ellipsis,
+            onTextLayout = { result -> isOverflowing = result.hasVisualOverflow },
         )
-        if (long) {
+        if (isOverflowing || expanded) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stringResource(if (expanded) R.string.explore_card_show_less else R.string.explore_card_show_more),
