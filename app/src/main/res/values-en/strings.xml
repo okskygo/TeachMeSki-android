@@ -297,6 +297,8 @@
     <string name="request_detail_recommended_none">No recommended instructors at the moment</string>
     <string name="request_detail_recommended_contact">Contact Now</string>
     <string name="request_detail_recommended_rating">Rating</string>
+    <string name="request_detail_resort_more_suffix">more</string>
+    <string name="request_detail_resort_collapse">Show less</string>
 
     <!-- Account -->
     <string name="account_title">Account Settings</string>

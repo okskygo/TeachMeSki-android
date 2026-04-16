@@ -367,24 +367,7 @@ private fun OrderInfoCard(
                             )
                         }
                     } else if (detail.resortNames.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            detail.resortNames.forEach { name ->
-                                Surface(
-                                    shape = RoundedCornerShape(4.dp),
-                                    color = TmsColor.SurfaceLow,
-                                ) {
-                                    Text(
-                                        text = name,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = TmsColor.OnSurface,
-                                    )
-                                }
-                            }
-                        }
+                        ResortTagsCollapsible(names = detail.resortNames)
                     }
                 }
             }
@@ -434,6 +417,55 @@ private fun OrderInfoCard(
                 value = detail.additionalNotes?.trim().takeUnless { it.isNullOrEmpty() }
                     ?: stringResource(R.string.common_empty_value),
             )
+        }
+    }
+}
+
+private const val RESORT_VISIBLE_THRESHOLD = 5
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ResortTagsCollapsible(names: List<String>) {
+    var expanded by remember { mutableStateOf(false) }
+    val showToggle = names.size > RESORT_VISIBLE_THRESHOLD
+    val visible = if (expanded || !showToggle) names else names.take(RESORT_VISIBLE_THRESHOLD)
+    val remaining = names.size - RESORT_VISIBLE_THRESHOLD
+
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        visible.forEach { name ->
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = TmsColor.SurfaceLow,
+            ) {
+                Text(
+                    text = name,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TmsColor.OnSurface,
+                )
+            }
+        }
+        if (showToggle) {
+            Surface(
+                modifier = Modifier.clickable { expanded = !expanded },
+                shape = RoundedCornerShape(4.dp),
+                color = TmsColor.PrimaryFixed.copy(alpha = 0.3f),
+            ) {
+                Text(
+                    text = if (expanded) {
+                        stringResource(R.string.request_detail_resort_collapse)
+                    } else {
+                        "+$remaining ${stringResource(R.string.request_detail_resort_more_suffix)}"
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = TmsColor.Primary,
+                )
+            }
         }
     }
 }

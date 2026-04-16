@@ -297,6 +297,8 @@
     <string name="request_detail_recommended_none">目前無推薦教練</string>
     <string name="request_detail_recommended_contact">立即聯繫</string>
     <string name="request_detail_recommended_rating">評分</string>
+    <string name="request_detail_resort_more_suffix">個雪場</string>
+    <string name="request_detail_resort_collapse">收起</string>
 
     <!-- Account -->
     <string name="account_title">帳號設定</string>
