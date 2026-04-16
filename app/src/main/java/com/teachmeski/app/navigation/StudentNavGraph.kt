@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.teachmeski.app.ui.account.AccountScreen
+import com.teachmeski.app.ui.account.AccountSettingsScreen
 import com.teachmeski.app.ui.account.ContactScreen
 import com.teachmeski.app.ui.account.LegalScreen
 import com.teachmeski.app.ui.chat.ChatRoomListScreen
@@ -57,10 +58,16 @@ fun NavGraphBuilder.studentNavGraph(navController: NavHostController) {
         composable<Route.ChatRoomList> { ChatRoomListScreen() }
         composable<Route.Account> {
             AccountScreen(
+                onAccountSettingsClick = { navController.navigate(Route.AccountSettings) },
                 onContactClick = { navController.navigate(Route.Contact) },
                 onTermsClick = { navController.navigate(Route.Legal(type = "terms")) },
                 onPrivacyClick = { navController.navigate(Route.Legal(type = "privacy")) },
                 onSignedOut = { },
+            )
+        }
+        composable<Route.AccountSettings> {
+            AccountSettingsScreen(
+                onBack = { navController.popBackStack() },
             )
         }
         composable<Route.Contact> {

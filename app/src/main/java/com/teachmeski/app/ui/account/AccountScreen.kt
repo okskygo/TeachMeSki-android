@@ -1,6 +1,5 @@
 package com.teachmeski.app.ui.account
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +25,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,19 +34,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
-import com.teachmeski.app.ui.component.TmsLoadingButton
-import com.teachmeski.app.ui.component.TmsTextField
 import com.teachmeski.app.ui.component.UserAvatar
+import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.util.Resource
-import kotlinx.coroutines.delay
+import androidx.compose.foundation.BorderStroke
 import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(
+    onAccountSettingsClick: () -> Unit,
     onContactClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
@@ -60,105 +59,71 @@ fun AccountScreen(
     val scope = rememberCoroutineScope()
     val scroll = rememberScrollState()
 
-    LaunchedEffect(uiState.saveSuccess) {
-        if (uiState.saveSuccess) {
-            delay(2500)
-            viewModel.consumeSaveSuccess()
-        }
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scroll)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = stringResource(R.string.account_title),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                UserAvatar(
-                    displayName = uiState.displayName.ifBlank { null },
-                    avatarUrl = uiState.avatarUrl,
-                    size = 96.dp,
-                )
-            }
-
-            TmsTextField(
-                value = uiState.displayName,
-                onValueChange = viewModel::onDisplayNameChange,
-                label = stringResource(R.string.account_display_name_label),
-                placeholder = stringResource(R.string.account_display_name_placeholder),
-            )
-            TmsLoadingButton(
-                text = stringResource(R.string.account_save_button),
-                onClick = { viewModel.updateDisplayName(uiState.displayName) },
-                isLoading = uiState.isSaving,
-                enabled = !uiState.isLoading,
-            )
-
-            if (uiState.saveSuccess) {
-                Text(
-                    text = stringResource(R.string.account_save_success),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            uiState.error?.let { err ->
-                Text(
-                    text = err.asString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
-            Text(
-                text = stringResource(R.string.account_email_label),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = uiState.email,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                text = stringResource(R.string.nav_account),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = TmsColor.OnSurface,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        MaterialTheme.colorScheme.surfaceContainerLow,
-                        MaterialTheme.shapes.medium,
-                    )
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                    .padding(bottom = 16.dp),
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            AccountMenuRow(
-                title = stringResource(R.string.contact_title),
-                onClick = onContactClick,
-            )
-            AccountMenuRow(
-                title = stringResource(R.string.legal_terms_title),
-                onClick = onTermsClick,
-            )
-            AccountMenuRow(
-                title = stringResource(R.string.legal_privacy_title),
-                onClick = onPrivacyClick,
+            UserAvatar(
+                displayName = uiState.displayName.ifBlank { null },
+                avatarUrl = uiState.avatarUrl,
+                size = 96.dp,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = uiState.displayName.ifBlank { stringResource(R.string.account_display_name_placeholder) },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (uiState.displayName.isBlank()) TmsColor.Outline else TmsColor.OnSurface,
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                AccountMenuRow(
+                    title = stringResource(R.string.account_title),
+                    onClick = onAccountSettingsClick,
+                )
+                AccountMenuRow(
+                    title = stringResource(R.string.contact_title),
+                    onClick = onContactClick,
+                )
+                AccountMenuRow(
+                    title = stringResource(R.string.legal_terms_title),
+                    onClick = onTermsClick,
+                )
+                AccountMenuRow(
+                    title = stringResource(R.string.legal_privacy_title),
+                    onClick = onPrivacyClick,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedButton(
                 onClick = { showLogoutDialog = true },
                 enabled = !uiState.isLoading,
                 shape = MaterialTheme.shapes.small,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = TmsColor.Error),
+                border = BorderStroke(1.dp, TmsColor.Error),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -171,10 +136,10 @@ fun AccountScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75f)),
+                    .background(TmsColor.Surface.copy(alpha = 0.75f)),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = TmsColor.Primary)
             }
         }
     }
@@ -223,14 +188,14 @@ private fun AccountMenuRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.outline,
+                tint = TmsColor.Outline,
             )
         },
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .background(
-                MaterialTheme.colorScheme.surfaceContainerLowest,
+                TmsColor.SurfaceLowest,
                 MaterialTheme.shapes.medium,
             ),
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),

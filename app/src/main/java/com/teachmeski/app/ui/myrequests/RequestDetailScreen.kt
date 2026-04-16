@@ -74,7 +74,7 @@ fun RequestDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TmsTopBar(
-                title = stringResource(R.string.my_requests_title),
+                title = stringResource(R.string.request_detail_screen_title),
                 onBack = onBack,
             )
         },

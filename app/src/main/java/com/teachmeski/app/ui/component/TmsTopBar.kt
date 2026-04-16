@@ -1,5 +1,6 @@
 package com.teachmeski.app.ui.component
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -29,5 +30,6 @@ fun TmsTopBar(
         },
         actions = { actions() },
         modifier = modifier,
+        windowInsets = WindowInsets(0, 0, 0, 0),
     )
 }

@@ -20,6 +20,7 @@ sealed interface Route {
     @Serializable data class Chat(val roomId: String) : Route
 
     @Serializable data object Account : Route
+    @Serializable data object AccountSettings : Route
     @Serializable data object InstructorAccount : Route
     @Serializable data object InstructorProfile : Route
     @Serializable data object InstructorWizard : Route
