@@ -107,6 +107,21 @@
     <string name="error_close_request">Failed to close request</string>
     <string name="error_load_instructors">Failed to load instructors</string>
     <string name="error_submit_contact">Failed to submit contact form</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_no_instructor_profile">No instructor profile found. Complete instructor registration first.</string>
+    <string name="error_load_instructor_profile">Failed to load instructor profile</string>
+    <string name="error_update_profile">Failed to update profile</string>
+    <string name="error_upload_certificate">Failed to upload certificate</string>
+    <string name="error_delete_certificate">Failed to delete certificate</string>
+    <string name="error_create_instructor_profile">Failed to create instructor profile</string>
+    <string name="error_load_explore">Failed to load explore requests</string>
+    <string name="explore_error_message_required">Please enter an unlock message</string>
+    <string name="explore_error_message_too_long">Message cannot exceed 500 characters</string>
+    <string name="explore_error_insufficient_balance">Insufficient token balance</string>
+    <string name="explore_error_already_unlocked">You have already unlocked this request</string>
+    <string name="explore_error_quota_full">This request has reached the instructor quota</string>
+    <string name="explore_error_request_not_active">This request can no longer be unlocked</string>
+    <string name="error_load_wallet">Failed to load wallet</string>
 
     <!-- Common -->
     <string name="common_loading">Loading…</string>

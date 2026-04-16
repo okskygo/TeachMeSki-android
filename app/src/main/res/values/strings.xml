@@ -107,6 +107,21 @@
     <string name="error_close_request">關閉需求失敗</string>
     <string name="error_load_instructors">載入教練資料失敗</string>
     <string name="error_submit_contact">送出聯絡表單失敗</string>
+    <string name="error_generic">發生錯誤，請稍後再試</string>
+    <string name="error_no_instructor_profile">找不到教練檔案，請先完成教練註冊</string>
+    <string name="error_load_instructor_profile">載入教練檔案失敗</string>
+    <string name="error_update_profile">更新檔案失敗</string>
+    <string name="error_upload_certificate">上傳證照失敗</string>
+    <string name="error_delete_certificate">刪除證照失敗</string>
+    <string name="error_create_instructor_profile">建立教練檔案失敗</string>
+    <string name="error_load_explore">載入探索需求失敗</string>
+    <string name="explore_error_message_required">請輸入解鎖訊息</string>
+    <string name="explore_error_message_too_long">訊息不可超過 500 字</string>
+    <string name="explore_error_insufficient_balance">代幣餘額不足</string>
+    <string name="explore_error_already_unlocked">您已解鎖此需求</string>
+    <string name="explore_error_quota_full">此需求的教練名額已滿</string>
+    <string name="explore_error_request_not_active">此需求已無法解鎖</string>
+    <string name="error_load_wallet">載入錢包失敗</string>
 
     <!-- Common -->
     <string name="common_loading">載入中…</string>
