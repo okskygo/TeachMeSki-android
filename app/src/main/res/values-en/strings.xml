@@ -438,6 +438,9 @@
     <string name="instructor_profile_phone_not_verified">Phone Not Verified</string>
     <string name="instructor_profile_edit_dialog_save">Save changes</string>
     <string name="instructor_profile_edit_dialog_cancel">Cancel</string>
+    <string name="instructor_profile_cert_delete_cd">Remove this certificate photo</string>
+    <string name="instructor_profile_service_on">Yes</string>
+    <string name="instructor_profile_service_off">No</string>
 
     <!-- Phase 4: Instructor wizard (strings from teachmeski-web/content/en/instructor-wizard.json) -->
     <string name="instructor_wizard_title">Become an Instructor</string>

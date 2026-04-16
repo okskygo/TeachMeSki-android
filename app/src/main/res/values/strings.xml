@@ -438,6 +438,9 @@
     <string name="instructor_profile_phone_not_verified">未驗證手機號碼</string>
     <string name="instructor_profile_edit_dialog_save">儲存變更</string>
     <string name="instructor_profile_edit_dialog_cancel">取消</string>
+    <string name="instructor_profile_cert_delete_cd">移除這張證照照片</string>
+    <string name="instructor_profile_service_on">有</string>
+    <string name="instructor_profile_service_off">無</string>
 
     <!-- Phase 4: Instructor wizard (strings from teachmeski-web/content/zh-TW/instructor-wizard.json) -->
     <string name="instructor_wizard_title">成為教練</string>
