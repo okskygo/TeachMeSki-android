@@ -9,14 +9,18 @@ import com.teachmeski.app.ui.component.ActiveRole
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
+    isAuthenticated: Boolean,
     activeRole: ActiveRole,
     modifier: Modifier = Modifier,
 ) {
-    val startDestination: Route =
+    val startDestination: Route = if (!isAuthenticated) {
+        Route.AuthGraph
+    } else {
         when (activeRole) {
             ActiveRole.Student -> Route.StudentGraph
             ActiveRole.Instructor -> Route.InstructorGraph
         }
+    }
 
     NavHost(
         navController = navController,

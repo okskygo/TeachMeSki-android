@@ -7,8 +7,7 @@ sealed interface Route {
     @Serializable data object Login : Route
     @Serializable data object Signup : Route
     @Serializable data object ForgotPassword : Route
-    @Serializable data object ResetPassword : Route
-    @Serializable data object VerifyEmail : Route
+    @Serializable data class VerifyEmail(val email: String) : Route
 
     @Serializable data object MyRequests : Route
     @Serializable data class RequestDetail(val id: String) : Route

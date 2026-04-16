@@ -4,19 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.teachmeski.app.navigation.AppNavGraph
 import com.teachmeski.app.navigation.Route
+import com.teachmeski.app.ui.MainUiState
+import com.teachmeski.app.ui.MainViewModel
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.ui.component.TmsBottomBar
 import com.teachmeski.app.ui.theme.TeachMeSkiTheme
@@ -36,43 +42,97 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun TeachMeSkiRoot() {
-    val navController = rememberNavController()
-    var activeRole by rememberSaveable { mutableStateOf(ActiveRole.Student) }
+private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
+    val mainState by mainViewModel.uiState.collectAsStateWithLifecycle()
 
+    when (val state = mainState) {
+        is MainUiState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is MainUiState.Unauthenticated -> {
+            AuthenticatedApp(
+                isAuthenticated = false,
+                activeRole = ActiveRole.Student,
+            )
+        }
+        is MainUiState.Authenticated -> {
+            AuthenticatedApp(
+                isAuthenticated = true,
+                activeRole = state.activeRole,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AuthenticatedApp(
+    isAuthenticated: Boolean,
+    activeRole: ActiveRole,
+) {
+    val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestRoute = navBackStackEntry?.destination?.route
 
-    val currentTabRoute: Route? =
-        when {
-            currentDestRoute?.contains("MyRequests") == true -> Route.MyRequests
-            currentDestRoute?.contains("Explore") == true -> Route.Explore
-            currentDestRoute?.contains("Unlocked") == true -> Route.Unlocked
-            currentDestRoute?.contains("ChatRoomList") == true -> Route.ChatRoomList
-            currentDestRoute?.contains("Account") == true && activeRole == ActiveRole.Student -> Route.Account
-            currentDestRoute?.contains("InstructorAccount") == true -> Route.InstructorAccount
-            else -> null
+    val isOnAuthScreen = currentDestRoute?.let { route ->
+        route.contains("Login") || route.contains("Signup") ||
+            route.contains("ForgotPassword") || route.contains("VerifyEmail")
+    } ?: !isAuthenticated
+
+    val showBottomBar = isAuthenticated && !isOnAuthScreen
+
+    val currentTabRoute: Route? = when {
+        currentDestRoute?.contains("MyRequests") == true -> Route.MyRequests
+        currentDestRoute?.contains("Explore") == true -> Route.Explore
+        currentDestRoute?.contains("Unlocked") == true -> Route.Unlocked
+        currentDestRoute?.contains("ChatRoomList") == true -> Route.ChatRoomList
+        currentDestRoute?.contains("Account") == true &&
+            activeRole == ActiveRole.Student -> Route.Account
+        currentDestRoute?.contains("InstructorAccount") == true -> Route.InstructorAccount
+        else -> null
+    }
+
+    LaunchedEffect(isAuthenticated) {
+        if (isAuthenticated) {
+            val startRoute: Route = when (activeRole) {
+                ActiveRole.Student -> Route.StudentGraph
+                ActiveRole.Instructor -> Route.InstructorGraph
+            }
+            navController.navigate(startRoute) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
+            navController.navigate(Route.AuthGraph) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
         }
+    }
 
     Scaffold(
         bottomBar = {
-            TmsBottomBar(
-                activeRole = activeRole,
-                currentRoute = currentTabRoute,
-                onTabSelected = { route ->
-                    navController.navigate(route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+            if (showBottomBar) {
+                TmsBottomBar(
+                    activeRole = activeRole,
+                    currentRoute = currentTabRoute,
+                    onTabSelected = { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-            )
+                    },
+                )
+            }
         },
     ) { innerPadding ->
         AppNavGraph(
             navController = navController,
+            isAuthenticated = isAuthenticated,
             activeRole = activeRole,
             modifier = Modifier.padding(innerPadding),
         )
