@@ -43,6 +43,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
+import com.teachmeski.app.ui.wizard.steps.ConfirmStep
+import com.teachmeski.app.ui.wizard.steps.DurationStep
+import com.teachmeski.app.ui.wizard.steps.GroupInfoStep
+import com.teachmeski.app.ui.wizard.steps.LanguageStep
+import com.teachmeski.app.ui.wizard.steps.NotesStep
+import com.teachmeski.app.ui.wizard.steps.PreferencesStep
+import com.teachmeski.app.ui.wizard.steps.ResortStep
+import com.teachmeski.app.ui.wizard.steps.ScheduleStep
+import com.teachmeski.app.ui.wizard.steps.SkillLevelStep
 import kotlinx.coroutines.delay
 
 private const val SUCCESS_AUTO_DISMISS_MS = 2_800L
@@ -219,18 +228,56 @@ fun LessonRequestWizardScreen(
                                 fadeIn(animationSpec = tween(220)) togetherWith
                                     fadeOut(animationSpec = tween(220))
                             },
-                            label = "wizard_step_placeholder",
+                            label = "wizard_step",
                             modifier = Modifier.weight(1f),
                         ) { step ->
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.wizard_step_placeholder_fmt, step),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            when (step) {
+                                1 -> ResortStep(
+                                    state = state,
+                                    onToggleAllRegions = viewModel::toggleAllRegions,
+                                    onResortToggle = viewModel::toggleResort,
+                                    onPrefectureToggle = viewModel::togglePrefecture,
                                 )
+                                2 -> GroupInfoStep(
+                                    state = state,
+                                    onDisciplineChange = viewModel::setDiscipline,
+                                    onGroupSizeChange = viewModel::setGroupSize,
+                                    onHasChildrenChange = viewModel::setHasChildren,
+                                )
+                                3 -> SkillLevelStep(
+                                    state = state,
+                                    onSkillLevelChange = viewModel::setSkillLevel,
+                                )
+                                4 -> ScheduleStep(
+                                    state = state,
+                                    onDatesFlexibleChange = viewModel::setDatesFlexible,
+                                    onDateStartChange = viewModel::setDateStart,
+                                    onDateEndChange = viewModel::setDateEnd,
+                                )
+                                5 -> DurationStep(
+                                    state = state,
+                                    onDurationChange = viewModel::setDurationDays,
+                                )
+                                6 -> LanguageStep(
+                                    state = state,
+                                    onToggleLanguage = viewModel::toggleLanguage,
+                                )
+                                7 -> PreferencesStep(
+                                    state = state,
+                                    onEquipmentRentalChange = viewModel::setEquipmentRental,
+                                    onNeedsTransportChange = viewModel::setNeedsTransport,
+                                    onTransportNoteChange = viewModel::setTransportNote,
+                                    onToggleCertPreference = viewModel::toggleCertPreference,
+                                )
+                                8 -> NotesStep(
+                                    state = state,
+                                    onNotesChange = viewModel::setAdditionalNotes,
+                                )
+                                9 -> ConfirmStep(
+                                    state = state,
+                                    onEditStep = viewModel::goToStep,
+                                )
+                                else -> Box(Modifier.fillMaxSize())
                             }
                         }
                     }
