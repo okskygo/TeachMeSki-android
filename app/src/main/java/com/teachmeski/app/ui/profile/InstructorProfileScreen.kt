@@ -31,15 +31,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DownhillSkiing
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -60,7 +66,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -71,6 +79,7 @@ import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.Discipline
 import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.model.Region
+import com.teachmeski.app.domain.model.SkiResort
 import com.teachmeski.app.ui.account.MAX_DISPLAY_NAME_LENGTH
 import com.teachmeski.app.ui.component.PhoneVerificationBadge
 import com.teachmeski.app.ui.component.TmsTopBar
@@ -78,6 +87,7 @@ import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.ui.wizard.ResortSelector
 import com.teachmeski.app.util.UiText
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -96,6 +106,38 @@ private fun certificationLabelRes(id: String): Int =
         else -> R.string.instructor_wizard_step4_cert_other
     }
 
+private fun levelDescriptionRes(level: Int): Int =
+    when (level) {
+        0 -> R.string.instructor_profile_level_0
+        1 -> R.string.instructor_profile_level_1
+        2 -> R.string.instructor_profile_level_2
+        3 -> R.string.instructor_profile_level_3
+        4 -> R.string.instructor_profile_level_4
+        5 -> R.string.instructor_profile_level_5
+        6 -> R.string.instructor_profile_level_6
+        else -> R.string.instructor_profile_level_6
+    }
+
+private fun regionDisplayName(
+    region: Region,
+    locale: Locale,
+): String =
+    if (locale.language.startsWith("zh")) {
+        region.nameZh
+    } else {
+        region.nameEn
+    }
+
+private fun resortDisplayName(
+    resort: SkiResort,
+    locale: Locale,
+): String =
+    if (locale.language.startsWith("zh")) {
+        resort.nameZh
+    } else {
+        resort.nameEn
+    }
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun InstructorProfileScreen(
@@ -106,6 +148,7 @@ fun InstructorProfileScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var certPendingDelete by remember { mutableStateOf<String?>(null) }
     val saveSuccessMessage = stringResource(R.string.account_save_success)
 
     LaunchedEffect(state.saveSuccess) {
@@ -201,6 +244,7 @@ fun InstructorProfileScreen(
             }
             else -> {
                 val profile = state.profile!!
+                val regions = state.regions
                 Column(
                     modifier =
                         Modifier
@@ -210,60 +254,64 @@ fun InstructorProfileScreen(
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            onClick = { /* preview placeholder */ },
+                            colors =
+                                ButtonDefaults.outlinedButtonColors(
+                                    contentColor = TmsColor.Primary,
+                                ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Visibility,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(stringResource(R.string.instructor_profile_preview))
+                        }
+                        OutlinedButton(
+                            onClick = { /* share placeholder */ },
+                            colors =
+                                ButtonDefaults.outlinedButtonColors(
+                                    contentColor = TmsColor.Primary,
+                                ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Share,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(stringResource(R.string.instructor_profile_share))
+                        }
+                    }
                     HeaderCard(
                         profile = profile,
                         isSaving = state.isSaving,
                         onAvatarClick = { avatarPicker.launch("image/*") },
                         onEditName = { viewModel.openDialog(ProfileEditDialog.DisplayName) },
+                        onEditDiscipline = { viewModel.openDialog(ProfileEditDialog.Discipline) },
                         onToggleAccepting = { viewModel.toggleAccepting(it) },
                     )
-                    ProfileSectionCard(
-                        title = stringResource(R.string.instructor_profile_discipline_label),
-                        onEdit = { viewModel.openDialog(ProfileEditDialog.Discipline) },
-                    ) {
-                        Text(
-                            text = disciplineLabel(profile.discipline),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = TmsColor.OnSurface,
-                        )
-                    }
                     ProfileSectionCard(
                         title = stringResource(R.string.instructor_profile_levels_label),
                         onEdit = { viewModel.openDialog(ProfileEditDialog.Levels) },
                     ) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            profile.teachableLevels.sorted().forEach { lv ->
-                                FilterChip(
-                                    selected = true,
-                                    onClick = {},
-                                    enabled = false,
-                                    label = {
-                                        Text(
-                                            text =
-                                                stringResource(
-                                                    R.string.explore_card_skill_level_fmt,
-                                                    lv.toString(),
-                                                ),
-                                        )
-                                    },
-                                )
-                            }
-                        }
+                        InstructorLevelsList(levels = profile.teachableLevels.sorted())
                     }
                     ProfileSectionCard(
                         title = stringResource(R.string.instructor_profile_resorts_label),
                         onEdit = { viewModel.openDialog(ProfileEditDialog.Resorts) },
                     ) {
-                        Text(
-                            text =
-                                profile.resortNames
-                                    .ifEmpty { listOf(stringResource(R.string.instructor_wizard_step7_not_set)) }
-                                    .joinToString("\n"),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TmsColor.OnSurfaceVariant,
+                        ResortsGroupedDisplay(
+                            regions = regions,
+                            selectedResortIds = profile.resortIds.toSet(),
                         )
                     }
                     ProfileSectionCard(
@@ -339,68 +387,23 @@ fun InstructorProfileScreen(
                         title = stringResource(R.string.instructor_profile_services_label),
                         onEdit = { viewModel.openDialog(ProfileEditDialog.Services) },
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = stringResource(R.string.instructor_profile_offers_transport),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TmsColor.OnSurface,
-                            )
-                            Text(
-                                text =
-                                    if (profile.offersTransport) {
-                                        stringResource(R.string.instructor_profile_service_on)
-                                    } else {
-                                        stringResource(R.string.instructor_profile_service_off)
-                                    },
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TmsColor.OnSurfaceVariant,
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = stringResource(R.string.instructor_profile_offers_photography),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TmsColor.OnSurface,
-                            )
-                            Text(
-                                text =
-                                    if (profile.offersPhotography) {
-                                        stringResource(R.string.instructor_profile_service_on)
-                                    } else {
-                                        stringResource(R.string.instructor_profile_service_off)
-                                    },
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TmsColor.OnSurfaceVariant,
-                            )
-                        }
+                        InstructorServicesRows(
+                            offersTransport = profile.offersTransport,
+                            offersPhotography = profile.offersPhotography,
+                        )
                     }
                     ProfileSectionCard(
                         title = stringResource(R.string.instructor_profile_bio_label),
                         onEdit = { viewModel.openDialog(ProfileEditDialog.Bio) },
                     ) {
-                        Text(
-                            text =
-                                profile.bio?.takeIf { it.isNotBlank() }
-                                    ?: stringResource(R.string.instructor_profile_bio_empty),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TmsColor.OnSurfaceVariant,
-                        )
+                        Spacer(modifier = Modifier.height(0.dp))
                     }
 
                     CertificatesSection(
                         urls = profile.certificateUrls,
                         isBusy = state.isUploadingCert,
                         onAdd = { certPicker.launch("image/*") },
-                        onDelete = { viewModel.deleteCertificate(it) },
+                        onRequestDelete = { certPendingDelete = it },
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -411,6 +414,32 @@ fun InstructorProfileScreen(
 
     val profile = state.profile
     if (profile != null) {
+        certPendingDelete?.let { url ->
+            AlertDialog(
+                onDismissRequest = { certPendingDelete = null },
+                title = { Text(stringResource(R.string.instructor_profile_delete_cert_title)) },
+                text = { Text(stringResource(R.string.instructor_profile_delete_cert_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteCertificate(url)
+                            certPendingDelete = null
+                        },
+                        colors =
+                            ButtonDefaults.textButtonColors(
+                                contentColor = TmsColor.Error,
+                            ),
+                    ) {
+                        Text(stringResource(R.string.common_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { certPendingDelete = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                },
+            )
+        }
         ProfileEditDialogs(
             openDialog = state.openDialog,
             profile = profile,
@@ -536,6 +565,7 @@ private fun HeaderCard(
     isSaving: Boolean,
     onAvatarClick: () -> Unit,
     onEditName: () -> Unit,
+    onEditDiscipline: () -> Unit,
     onToggleAccepting: (Boolean) -> Unit,
 ) {
     Surface(
@@ -627,6 +657,163 @@ private fun HeaderCard(
                     enabled = !isSaving,
                 )
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = disciplineLabel(profile.discipline),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TmsColor.OnSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = onEditDiscipline, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = stringResource(R.string.common_edit),
+                        tint = TmsColor.Primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            Text(
+                text =
+                    profile.bio?.takeIf { it.isNotBlank() }
+                        ?: stringResource(R.string.instructor_profile_bio_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TmsColor.OnSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InstructorLevelsList(levels: List<Int>) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        levels.forEach { lv ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.DownhillSkiing,
+                    contentDescription = null,
+                    tint = TmsColor.Primary,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    text = stringResource(R.string.explore_card_skill_level_fmt, lv.toString()),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = TmsColor.OnSurface,
+                )
+                Text(
+                    text = " · ${stringResource(levelDescriptionRes(lv))}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TmsColor.OnSurface,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun InstructorServicesRows(
+    offersTransport: Boolean,
+    offersPhotography: Boolean,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        InstructorServiceRow(
+            enabled = offersTransport,
+            labelRes = R.string.instructor_profile_offers_transport,
+        )
+        InstructorServiceRow(
+            enabled = offersPhotography,
+            labelRes = R.string.instructor_profile_offers_photography,
+        )
+    }
+}
+
+@Composable
+private fun InstructorServiceRow(
+    enabled: Boolean,
+    labelRes: Int,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            imageVector = if (enabled) Icons.Filled.Check else Icons.Filled.Close,
+            contentDescription = null,
+            tint = if (enabled) TmsColor.Success else TmsColor.Outline,
+            modifier = Modifier.size(20.dp),
+        )
+        Text(
+            text = stringResource(labelRes),
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) TmsColor.OnSurface else TmsColor.Outline,
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ResortsGroupedDisplay(
+    regions: List<Region>,
+    selectedResortIds: Set<String>,
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val blocks =
+        remember(regions, selectedResortIds, locale.language) {
+            regions.mapNotNull { region ->
+                val names =
+                    region.resorts
+                        .filter { it.id in selectedResortIds }
+                        .sortedBy { it.sortOrder }
+                        .map { resortDisplayName(it, locale) }
+                if (names.isEmpty()) null else region to names
+            }
+        }
+    if (blocks.isEmpty()) {
+        Text(
+            text = stringResource(R.string.instructor_wizard_step7_not_set),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TmsColor.OnSurfaceVariant,
+        )
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            blocks.forEach { (region, names) ->
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = regionDisplayName(region, locale),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = TmsColor.OnSurface,
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        names.forEach { name ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = TmsColor.SurfaceLow,
+                            ) {
+                                Text(
+                                    text = name,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TmsColor.OnSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -636,7 +823,7 @@ private fun CertificatesSection(
     urls: List<String>,
     isBusy: Boolean,
     onAdd: () -> Unit,
-    onDelete: (String) -> Unit,
+    onRequestDelete: (String) -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -685,7 +872,7 @@ private fun CertificatesSection(
                                     .size(28.dp)
                                     .clip(CircleShape)
                                     .background(TmsColor.Error)
-                                    .clickable(onClick = { onDelete(url) }),
+                                    .clickable(onClick = { onRequestDelete(url) }),
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
