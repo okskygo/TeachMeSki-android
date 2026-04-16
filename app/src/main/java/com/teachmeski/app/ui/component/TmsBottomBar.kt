@@ -8,12 +8,14 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.teachmeski.app.R
 import com.teachmeski.app.navigation.Route
+import com.teachmeski.app.ui.theme.TmsColor
 
 enum class ActiveRole { Student, Instructor }
 
@@ -50,13 +52,24 @@ fun TmsBottomBar(
             ActiveRole.Instructor -> instructorTabs
         }
 
-    NavigationBar {
+    val navItemColors = NavigationBarItemDefaults.colors(
+        selectedIconColor = TmsColor.Primary,
+        selectedTextColor = TmsColor.Primary,
+        indicatorColor = TmsColor.PrimaryFixed,
+        unselectedIconColor = TmsColor.OnSurfaceVariant,
+        unselectedTextColor = TmsColor.OnSurfaceVariant,
+    )
+
+    NavigationBar(
+        containerColor = TmsColor.SurfaceLowest,
+    ) {
         tabs.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = { onTabSelected(item.route) },
                 icon = { Icon(item.icon, contentDescription = null) },
                 label = { Text(stringResource(item.labelResId)) },
+                colors = navItemColors,
             )
         }
     }

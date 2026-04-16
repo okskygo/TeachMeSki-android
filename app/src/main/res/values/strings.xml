@@ -265,6 +265,7 @@
     <string name="my_requests_created_at_label">發佈於</string>
     <string name="my_requests_dates_undecided">日期尚未確定</string>
     <string name="my_requests_dates_flexible_suffix">（彈性）</string>
+    <string name="my_requests_view_request">查看課程需求</string>
 
     <!-- Request Detail -->
     <string name="request_detail_screen_title">課程需求詳情</string>

@@ -265,6 +265,7 @@
     <string name="my_requests_created_at_label">Posted</string>
     <string name="my_requests_dates_undecided">Dates not decided</string>
     <string name="my_requests_dates_flexible_suffix">(Flexible)</string>
+    <string name="my_requests_view_request">View Request</string>
 
     <!-- Request Detail -->
     <string name="request_detail_screen_title">Lesson request</string>

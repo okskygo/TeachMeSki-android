@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -31,11 +33,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
@@ -43,12 +48,16 @@ import com.teachmeski.app.domain.model.Discipline
 import com.teachmeski.app.domain.model.LessonRequestListItem
 import com.teachmeski.app.domain.model.LessonRequestStatus
 import com.teachmeski.app.ui.component.EmptyState
-import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+
+private val DIMMED_STATUSES = setOf(
+    LessonRequestStatus.ClosedByUser,
+    LessonRequestStatus.Expired,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,9 +70,6 @@ fun MyRequestsScreen(
     val loadError = uiState.error
 
     Scaffold(
-        topBar = {
-            TmsTopBar(title = stringResource(R.string.my_requests_title))
-        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNewRequest,
@@ -130,9 +136,23 @@ fun MyRequestsScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 8.dp,
+                            bottom = 88.dp,
+                        ),
                     ) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.nav_my_requests),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = TmsColor.OnSurface,
+                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                            )
+                        }
                         uiState.error?.let { err ->
                             item {
                                 Row(
@@ -153,7 +173,7 @@ fun MyRequestsScreen(
                             }
                         }
                         items(uiState.requests, key = { it.id }) { request ->
-                            LessonRequestCard(
+                            OrderCard(
                                 request = request,
                                 onClick = { onRequestClick(request.id) },
                             )
@@ -166,78 +186,167 @@ fun MyRequestsScreen(
 }
 
 @Composable
-private fun LessonRequestCard(
+private fun OrderCard(
     request: LessonRequestListItem,
     onClick: () -> Unit,
 ) {
+    val isDimmed = request.status in DIMMED_STATUSES
+    val isGhostCta = request.status in DIMMED_STATUSES
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .alpha(if (isDimmed) 0.65f else 1f)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shadowElevation = 2.dp,
+        shape = RoundedCornerShape(16.dp),
+        color = TmsColor.SurfaceLowest,
+        shadowElevation = 4.dp,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
             ) {
+                StatusPill(status = request.status)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = when (request.discipline) {
+                            Discipline.Snowboard -> R.drawable.ic_snowboard
+                            Discipline.Ski -> R.drawable.ic_ski
+                        },
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = TmsColor.Primary,
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = disciplineLabel(request.discipline),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = TmsColor.OnSurface,
                 )
-                StatusBadge(status = request.status)
             }
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
-                text = lessonRequestDateSummary(request),
+                text = formatLessonDates(request),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = TmsColor.OnSurfaceVariant,
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = lessonRequestDurationText(request.durationDays),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = chatCountLabel(request.chatCount),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(
-                    R.string.my_requests_created_at_label,
-                ) + " " + formatCreatedAt(request.createdAt),
-                style = MaterialTheme.typography.labelSmall,
-                color = TmsColor.Outline,
-            )
-            if (request.instructorPreviews.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (request.instructorPreviews.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.my_requests_chat_count_zero),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TmsColor.Outline,
+                    modifier = Modifier.padding(vertical = 8.dp),
+                )
+            } else {
                 Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
                 ) {
-                    request.instructorPreviews.take(3).forEachIndexed { index, preview ->
-                        if (index > 0) {
-                            Spacer(modifier = Modifier.width((-8).dp))
-                        }
+                    val maxVisible = 4
+                    request.instructorPreviews.take(maxVisible).forEach { preview ->
                         UserAvatar(
                             displayName = preview.displayName,
                             avatarUrl = preview.avatarUrl,
-                            size = 32.dp,
+                            size = 36.dp,
                         )
+                    }
+                    val overflow = request.instructorPreviews.size - maxVisible
+                    if (overflow > 0) {
+                        Surface(
+                            modifier = Modifier.size(36.dp),
+                            shape = CircleShape,
+                            color = TmsColor.Background,
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.5.dp,
+                                TmsColor.Outline,
+                            ),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "+$overflow",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = TmsColor.OnSurfaceVariant,
+                                )
+                            }
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Surface(
+                shape = CircleShape,
+                color = if (isGhostCta) Color.Transparent else TmsColor.Primary,
+                border = if (isGhostCta) {
+                    androidx.compose.foundation.BorderStroke(1.dp, TmsColor.OutlineVariant)
+                } else {
+                    null
+                },
+            ) {
+                Text(
+                    text = stringResource(R.string.my_requests_view_request),
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (isGhostCta) FontWeight.Normal else FontWeight.SemiBold,
+                    color = if (isGhostCta) TmsColor.OnSurfaceVariant else TmsColor.OnPrimary,
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun StatusPill(status: LessonRequestStatus) {
+    val (label, color) = statusPillStyle(status)
+    Surface(
+        shape = CircleShape,
+        color = color.copy(alpha = 0.12f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.3f)),
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = color,
+        )
+    }
+}
+
+@Composable
+private fun statusPillStyle(status: LessonRequestStatus): Pair<String, Color> {
+    val label = when (status) {
+        LessonRequestStatus.Active -> stringResource(R.string.my_requests_status_active)
+        LessonRequestStatus.Expired -> stringResource(R.string.my_requests_status_expired)
+        LessonRequestStatus.ClosedByUser -> stringResource(R.string.my_requests_status_closed)
+    }
+    val color = when (status) {
+        LessonRequestStatus.Active -> TmsColor.Primary
+        LessonRequestStatus.Expired,
+        LessonRequestStatus.ClosedByUser,
+        -> TmsColor.Outline
+    }
+    return label to color
 }
 
 @Composable
@@ -248,103 +357,41 @@ private fun disciplineLabel(discipline: Discipline): String =
     }
 
 @Composable
-private fun lessonRequestDateSummary(request: LessonRequestListItem): String {
+private fun formatLessonDates(request: LessonRequestListItem): String {
     val undecided = stringResource(R.string.my_requests_dates_undecided)
     val flexSuffix = stringResource(R.string.my_requests_dates_flexible_suffix)
+    val locale = LocalConfiguration.current.locales[0]
     val start = request.dateStart?.takeIf { it.isNotBlank() }
     val end = request.dateEnd?.takeIf { it.isNotBlank() }
+
     return when {
         request.datesFlexible && start == null -> undecided
         request.datesFlexible && start != null -> {
-            val endPart = (end ?: start)
-            "$start ~ $endPart $flexSuffix"
+            val dt = parseDate(start)
+            if (dt != null) {
+                val fmt = SimpleDateFormat("yyyy年M月", locale)
+                "${fmt.format(dt)} $flexSuffix"
+            } else {
+                "$start $flexSuffix"
+            }
         }
         start == null -> undecided
-        end == null || start == end -> start
-        else -> "$start ~ $end"
+        end == null || start == end -> formatDate(start, locale) ?: start
+        else -> "${formatDate(start, locale) ?: start} – ${formatDate(end, locale) ?: end}"
     }
 }
 
-@Composable
-private fun lessonRequestDurationText(durationDays: Double): String {
-    if (kotlin.math.abs(durationDays - 0.5) < 1e-6) {
-        return stringResource(R.string.wizard_duration_half_day)
-    }
-    val daysWord = stringResource(R.string.wizard_confirm_days)
-    val numStr =
-        if (kotlin.math.abs(durationDays - durationDays.toInt().toDouble()) < 1e-6) {
-            durationDays.toInt().toString()
-        } else {
-            durationDays.toString()
-        }
-    return "$numStr $daysWord"
-}
-
-@Composable
-private fun chatCountLabel(chatCount: Int): String =
-    if (chatCount == 0) {
-        stringResource(R.string.my_requests_chat_count_zero)
-    } else {
-        stringResource(R.string.my_requests_chat_count_fmt, chatCount)
-    }
-
-@Composable
-private fun StatusBadge(status: LessonRequestStatus) {
-    val (label, color) = statusBadgeStyle(status)
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = color.copy(alpha = 0.12f),
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = color,
-        )
+private fun parseDate(dateStr: String): java.util.Date? {
+    return try {
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.parse(dateStr)
+    } catch (_: Exception) {
+        null
     }
 }
 
-@Composable
-private fun statusBadgeStyle(status: LessonRequestStatus): Pair<String, Color> {
-    val label =
-        when (status) {
-            LessonRequestStatus.Active ->
-                stringResource(R.string.my_requests_status_active)
-            LessonRequestStatus.Expired ->
-                stringResource(R.string.my_requests_status_expired)
-            LessonRequestStatus.ClosedByUser ->
-                stringResource(R.string.my_requests_status_closed)
-        }
-    val color =
-        when (status) {
-            LessonRequestStatus.Active -> TmsColor.Success
-            LessonRequestStatus.Expired,
-            LessonRequestStatus.ClosedByUser,
-            -> TmsColor.Outline
-        }
-    return label to color
-}
-
-@Composable
-private fun formatCreatedAt(iso: String): String {
-    val locale = LocalConfiguration.current.locales[0]
-    val utcParser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
-    val date =
-        try {
-            val normalized = if (iso.length >= 19) iso.take(19) else iso
-            utcParser.parse(normalized)
-        } catch (_: Exception) {
-            null
-        }
-    if (date == null) return iso
-    val out =
-        SimpleDateFormat.getDateTimeInstance(
-            SimpleDateFormat.MEDIUM,
-            SimpleDateFormat.SHORT,
-            locale,
-        )
-    return out.format(date)
+private fun formatDate(dateStr: String, locale: Locale): String? {
+    val date = parseDate(dateStr) ?: return null
+    return SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM, locale).format(date)
 }
