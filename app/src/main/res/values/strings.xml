@@ -107,4 +107,222 @@
     <string name="error_close_request">關閉需求失敗</string>
     <string name="error_load_instructors">載入教練資料失敗</string>
     <string name="error_submit_contact">送出聯絡表單失敗</string>
+
+    <!-- Common -->
+    <string name="common_loading">載入中…</string>
+    <string name="common_retry">重試</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_confirm">確認</string>
+    <string name="common_save">儲存</string>
+    <string name="common_back">返回</string>
+    <string name="common_close">關閉</string>
+    <string name="common_edit">修改</string>
+    <string name="common_skip">跳過</string>
+    <string name="common_logout">登出</string>
+    <string name="common_logout_confirm_title">確定要登出嗎？</string>
+    <string name="common_logout_confirm_desc">登出後需重新登入才能使用。</string>
+    <string name="common_list_separator">、</string>
+    <string name="common_empty_value">—</string>
+
+    <!-- Wizard — Title & Nav -->
+    <string name="wizard_title">建立課程需求</string>
+    <string name="wizard_nav_next">下一步</string>
+    <string name="wizard_nav_prev">上一步</string>
+    <string name="wizard_nav_close">關閉</string>
+    <string name="wizard_nav_skip">跳過</string>
+    <string name="wizard_close_confirm_title">確定要離開嗎？</string>
+    <string name="wizard_close_confirm_desc">填寫的內容將不會被儲存。</string>
+    <string name="wizard_close_confirm_leave">確定離開</string>
+    <string name="wizard_close_confirm_stay">繼續填寫</string>
+
+    <!-- Wizard — Step Labels -->
+    <string name="wizard_step_resort">雪場</string>
+    <string name="wizard_step_activity">項目</string>
+    <string name="wizard_step_level">程度</string>
+    <string name="wizard_step_dates">日期</string>
+    <string name="wizard_step_duration">天數</string>
+    <string name="wizard_step_language">語言</string>
+    <string name="wizard_step_preferences">偏好</string>
+    <string name="wizard_step_notes">備註</string>
+    <string name="wizard_step_confirm">確認</string>
+
+    <!-- Wizard — Step 1: Resort -->
+    <string name="wizard_resort_heading">選擇滑雪場</string>
+    <string name="wizard_resort_subheading">選擇你計畫前往的雪場（可複選）</string>
+    <string name="wizard_resort_all_regions">不限雪場</string>
+    <string name="wizard_resort_all_regions_desc">還沒決定去哪？沒關係，可以跟教練討論</string>
+    <string name="wizard_resort_select_all">全選</string>
+    <string name="wizard_resort_other">其他</string>
+
+    <!-- Wizard — Step 2: Discipline & Group -->
+    <string name="wizard_group_heading">滑行項目與人數</string>
+    <string name="wizard_group_subheading">選擇項目和上課人數</string>
+    <string name="wizard_discipline_ski">雙板 Ski</string>
+    <string name="wizard_discipline_snowboard">單板 Snowboard</string>
+    <string name="wizard_group_size_label">上課人數</string>
+    <string name="wizard_has_children_label">是否有兒童</string>
+    <string name="wizard_has_children_desc">12 歲以下的小朋友</string>
+
+    <!-- Wizard — Step 3: Skill Level -->
+    <string name="wizard_level_heading">滑行程度</string>
+    <string name="wizard_level_hint">若為團體，請選擇團體中最低的程度</string>
+    <string name="wizard_level_ski_0">完全初學，從未滑過雪</string>
+    <string name="wizard_level_ski_1">能做基本犁式煞車（Pizza Stop）</string>
+    <string name="wizard_level_ski_2">能平行轉彎，可滑中級雪道</string>
+    <string name="wizard_level_ski_3">能應對多數雪道與鬆雪</string>
+    <string name="wizard_level_ski_4">專家級，饅頭、樹林、陡坡皆可</string>
+    <string name="wizard_level_snowboard_0">完全初學，從未滑過雪</string>
+    <string name="wizard_level_snowboard_1">能做落葉飄，基本煞車</string>
+    <string name="wizard_level_snowboard_2">能連續轉彎，可滑中級雪道</string>
+    <string name="wizard_level_snowboard_3">能應對多數雪道、跳台與鬆雪</string>
+    <string name="wizard_level_snowboard_4">專家級，公園、粉雪、陡坡皆可</string>
+
+    <!-- Wizard — Step 4: Schedule -->
+    <string name="wizard_schedule_heading">上課日期</string>
+    <string name="wizard_schedule_subheading">選擇你的上課時間</string>
+    <string name="wizard_dates_flexible_label">日期尚未確定</string>
+    <string name="wizard_strategy_not_fixed">日期未定</string>
+    <string name="wizard_strategy_specific">已確定日期</string>
+    <string name="wizard_strategy_flexible_month">整個月彈性</string>
+    <string name="wizard_select_month_heading">選擇月份</string>
+
+    <!-- Wizard — Step 5: Duration -->
+    <string name="wizard_duration_heading">課程天數</string>
+    <string name="wizard_duration_subheading">選擇你的上課天數</string>
+    <string name="wizard_duration_label">課程天數</string>
+    <string name="wizard_duration_half_day">半天</string>
+    <string name="wizard_duration_1">1 天</string>
+    <string name="wizard_duration_1_5">1.5 天</string>
+    <string name="wizard_duration_2">2 天</string>
+    <string name="wizard_duration_3">3 天</string>
+    <string name="wizard_duration_other">其它</string>
+    <string name="wizard_duration_unit">天</string>
+
+    <!-- Wizard — Step 6: Language -->
+    <string name="wizard_language_heading">教學語言</string>
+    <string name="wizard_language_subheading">選擇你希望的教學語言（可複選）</string>
+    <string name="wizard_lang_zh">中文</string>
+    <string name="wizard_lang_en">英文</string>
+    <string name="wizard_lang_ja">日文</string>
+
+    <!-- Wizard — Step 7: Preferences -->
+    <string name="wizard_preferences_optional_hint">以下皆為選填，可直接跳過</string>
+    <string name="wizard_equipment_label">裝備租借</string>
+    <string name="wizard_equipment_all">全套租借</string>
+    <string name="wizard_equipment_partial">部分租借</string>
+    <string name="wizard_equipment_none">自備裝備</string>
+    <string name="wizard_transport_label">交通接送</string>
+    <string name="wizard_transport_yes">需要接送</string>
+    <string name="wizard_transport_no">自行前往</string>
+    <string name="wizard_transport_note_placeholder">請填寫出發地點或飯店名稱</string>
+    <string name="wizard_cert_label">教練證照偏好</string>
+
+    <!-- Wizard — Step 8: Notes -->
+    <string name="wizard_notes_heading">補充說明</string>
+    <string name="wizard_notes_subheading">有什麼想讓教練知道的嗎？</string>
+    <string name="wizard_notes_placeholder">例如：希望教練能拍照紀錄、有特殊需求等…</string>
+
+    <!-- Wizard — Step 9: Confirm -->
+    <string name="wizard_confirm_label_resort">滑雪場</string>
+    <string name="wizard_confirm_label_group">項目與人數</string>
+    <string name="wizard_confirm_label_level">程度</string>
+    <string name="wizard_confirm_label_date">上課日期</string>
+    <string name="wizard_confirm_label_duration">課程天數</string>
+    <string name="wizard_confirm_label_language">教學語言</string>
+    <string name="wizard_confirm_label_preferences">偏好設定</string>
+    <string name="wizard_confirm_label_notes">補充說明</string>
+    <string name="wizard_confirm_people">人</string>
+    <string name="wizard_confirm_with_children">（含兒童）</string>
+    <string name="wizard_confirm_level_prefix">Lv </string>
+    <string name="wizard_confirm_dates_undecided">日期尚未確定</string>
+    <string name="wizard_confirm_half_day">半天</string>
+    <string name="wizard_confirm_days">天</string>
+    <string name="wizard_submit">送出課程需求</string>
+    <string name="wizard_submit_loading">送出中…</string>
+
+    <!-- Wizard — Success -->
+    <string name="wizard_success_title">課程需求已送出！</string>
+    <string name="wizard_success_subtitle">教練即將看到你的課程需求，請留意通知。</string>
+
+    <!-- My Requests -->
+    <string name="my_requests_title">我的課程需求</string>
+    <string name="my_requests_new_button">＋ 發布新的課程需求</string>
+    <string name="my_requests_empty_title">還沒有課程需求</string>
+    <string name="my_requests_empty_desc">發布你的第一個課程需求，找到你的滑雪教練</string>
+    <string name="my_requests_empty_cta">發布課程需求</string>
+    <string name="my_requests_status_active">開放中</string>
+    <string name="my_requests_status_closed">已關閉</string>
+    <string name="my_requests_status_expired">已過期</string>
+    <string name="my_requests_chat_count_zero">尚無對話</string>
+    <string name="my_requests_chat_count_fmt">%1$d 個對話</string>
+    <string name="my_requests_created_at_label">發佈於</string>
+    <string name="my_requests_dates_undecided">日期尚未確定</string>
+    <string name="my_requests_dates_flexible_suffix">（彈性）</string>
+
+    <!-- Request Detail -->
+    <string name="request_detail_resort_label">滑雪場</string>
+    <string name="request_detail_created_at_label">建立時間</string>
+    <string name="request_detail_lesson_date_label">上課日期</string>
+    <string name="request_detail_dates_undecided">日期尚未確定</string>
+    <string name="request_detail_dates_flexible_suffix">（彈性）</string>
+    <string name="request_detail_description_label">補充說明</string>
+    <string name="request_detail_discipline_label">滑行項目</string>
+    <string name="request_detail_level_label">滑行程度</string>
+    <string name="request_detail_duration_label">課程天數</string>
+    <string name="request_detail_language_label">教學語言</string>
+    <string name="request_detail_group_size_label">上課人數</string>
+    <string name="request_detail_close_button">結束此課程需求</string>
+    <string name="request_detail_close_dialog_title">確認結束此課程需求</string>
+    <string name="request_detail_close_dialog_desc">結束後，此課程需求將不再對外開放，現有的對話紀錄仍可查閱。確定要結束嗎？</string>
+    <string name="request_detail_close_dialog_confirm">確認關閉</string>
+    <string name="request_detail_close_success">課程需求已結束</string>
+    <string name="request_detail_section_user_initiated">我主動聯繫的教練</string>
+    <string name="request_detail_section_expert_initiated">想與你聯繫的教練</string>
+    <string name="request_detail_no_experts_yet">尚無教練與您聯繫</string>
+    <string name="request_detail_no_user_initiated_yet">您尚未主動聯繫任何教練</string>
+    <string name="request_detail_last_message_empty">尚無訊息</string>
+    <string name="request_detail_go_to_chat">前往對話</string>
+    <string name="request_detail_phone_verified">已驗證手機號碼</string>
+    <string name="request_detail_phone_unverified">未驗證手機號碼</string>
+    <string name="request_detail_recommended_title">為您推薦的教練</string>
+    <string name="request_detail_recommended_none">目前無推薦教練</string>
+    <string name="request_detail_recommended_contact">立即聯繫</string>
+    <string name="request_detail_recommended_rating">評分</string>
+
+    <!-- Account -->
+    <string name="account_title">帳號設定</string>
+    <string name="account_avatar_label">頭像</string>
+    <string name="account_avatar_hint">點擊更換頭像（JPG/PNG，最大 10MB）</string>
+    <string name="account_avatar_uploading">上傳中…</string>
+    <string name="account_avatar_too_large">圖片過大，請選擇小於 10MB 的圖片</string>
+    <string name="account_avatar_upload_error">上傳失敗，請稍後再試</string>
+    <string name="account_display_name_label">顯示名稱</string>
+    <string name="account_display_name_placeholder">輸入你的名字</string>
+    <string name="account_display_name_max_error">顯示名稱不能超過 50 個字元</string>
+    <string name="account_email_label">電子郵件</string>
+    <string name="account_save_button">儲存變更</string>
+    <string name="account_save_success">變更已儲存！</string>
+    <string name="account_save_error">儲存失敗，請稍後再試</string>
+
+    <!-- Contact -->
+    <string name="contact_title">聯絡我們</string>
+    <string name="contact_subtitle">有任何問題或建議？歡迎隨時與我們聯繫。</string>
+    <string name="contact_name_label">姓名</string>
+    <string name="contact_name_placeholder">你的姓名</string>
+    <string name="contact_email_label">電子郵件</string>
+    <string name="contact_email_placeholder">your@email.com</string>
+    <string name="contact_message_label">訊息內容</string>
+    <string name="contact_message_placeholder">請描述您的問題或建議（至少 10 個字）</string>
+    <string name="contact_submit">送出訊息</string>
+    <string name="contact_submitting">傳送中…</string>
+    <string name="contact_error_name_required">請填寫姓名</string>
+    <string name="contact_error_email_invalid">請輸入有效的 Email 格式</string>
+    <string name="contact_error_message_too_short">問題描述至少請填寫 10 個字</string>
+    <string name="contact_success_title">訊息已送出</string>
+    <string name="contact_success_body">感謝您的來信，我們將盡快回覆您。</string>
+
+    <!-- Legal -->
+    <string name="legal_terms_title">服務條款</string>
+    <string name="legal_privacy_title">隱私權政策</string>
+    <string name="legal_back_home">返回</string>
 </resources>

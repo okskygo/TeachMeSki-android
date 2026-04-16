@@ -107,4 +107,222 @@
     <string name="error_close_request">Failed to close request</string>
     <string name="error_load_instructors">Failed to load instructors</string>
     <string name="error_submit_contact">Failed to submit contact form</string>
+
+    <!-- Common -->
+    <string name="common_loading">Loading…</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_confirm">Confirm</string>
+    <string name="common_save">Save</string>
+    <string name="common_back">Back</string>
+    <string name="common_close">Close</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_skip">Skip</string>
+    <string name="common_logout">Log Out</string>
+    <string name="common_logout_confirm_title">Log out?</string>
+    <string name="common_logout_confirm_desc">You will need to log in again to use the app.</string>
+    <string name="common_list_separator">, </string>
+    <string name="common_empty_value">—</string>
+
+    <!-- Wizard — Title & Nav -->
+    <string name="wizard_title">Create Lesson Request</string>
+    <string name="wizard_nav_next">Next</string>
+    <string name="wizard_nav_prev">Back</string>
+    <string name="wizard_nav_close">Close</string>
+    <string name="wizard_nav_skip">Skip</string>
+    <string name="wizard_close_confirm_title">Are you sure you want to leave?</string>
+    <string name="wizard_close_confirm_desc">Your progress will not be saved.</string>
+    <string name="wizard_close_confirm_leave">Leave</string>
+    <string name="wizard_close_confirm_stay">Continue editing</string>
+
+    <!-- Wizard — Step Labels -->
+    <string name="wizard_step_resort">Resort</string>
+    <string name="wizard_step_activity">Activity</string>
+    <string name="wizard_step_level">Level</string>
+    <string name="wizard_step_dates">Dates</string>
+    <string name="wizard_step_duration">Duration</string>
+    <string name="wizard_step_language">Language</string>
+    <string name="wizard_step_preferences">Preferences</string>
+    <string name="wizard_step_notes">Notes</string>
+    <string name="wizard_step_confirm">Confirm</string>
+
+    <!-- Wizard — Step 1: Resort -->
+    <string name="wizard_resort_heading">Choose Ski Resorts</string>
+    <string name="wizard_resort_subheading">Select the resorts you plan to visit (multi-select)</string>
+    <string name="wizard_resort_all_regions">Any Resort</string>
+    <string name="wizard_resort_all_regions_desc">Not sure yet? No worries — discuss with your instructor</string>
+    <string name="wizard_resort_select_all">Select All</string>
+    <string name="wizard_resort_other">Other</string>
+
+    <!-- Wizard — Step 2: Discipline & Group -->
+    <string name="wizard_group_heading">Discipline &amp; Group Size</string>
+    <string name="wizard_group_subheading">Choose your activity and number of participants</string>
+    <string name="wizard_discipline_ski">Ski</string>
+    <string name="wizard_discipline_snowboard">Snowboard</string>
+    <string name="wizard_group_size_label">Group Size</string>
+    <string name="wizard_has_children_label">Children included</string>
+    <string name="wizard_has_children_desc">Under 12 years old</string>
+
+    <!-- Wizard — Step 3: Skill Level -->
+    <string name="wizard_level_heading">Skill Level</string>
+    <string name="wizard_level_hint">For groups, select the lowest skill level in your group</string>
+    <string name="wizard_level_ski_0">Complete beginner, never skied before</string>
+    <string name="wizard_level_ski_1">Can do basic snowplow / pizza stop</string>
+    <string name="wizard_level_ski_2">Can make parallel turns on intermediate runs</string>
+    <string name="wizard_level_ski_3">Comfortable on most terrain and powder</string>
+    <string name="wizard_level_ski_4">Expert — moguls, trees, steeps</string>
+    <string name="wizard_level_snowboard_0">Complete beginner, never snowboarded before</string>
+    <string name="wizard_level_snowboard_1">Can do falling leaf, basic stops</string>
+    <string name="wizard_level_snowboard_2">Can link turns on intermediate runs</string>
+    <string name="wizard_level_snowboard_3">Comfortable on most terrain, jumps, and powder</string>
+    <string name="wizard_level_snowboard_4">Expert — park, powder, steeps</string>
+
+    <!-- Wizard — Step 4: Schedule -->
+    <string name="wizard_schedule_heading">Lesson Dates</string>
+    <string name="wizard_schedule_subheading">Choose when you\'d like your lesson</string>
+    <string name="wizard_dates_flexible_label">Dates not yet decided</string>
+    <string name="wizard_strategy_not_fixed">Dates Not Fixed</string>
+    <string name="wizard_strategy_specific">Specific Date</string>
+    <string name="wizard_strategy_flexible_month">Flexible Month</string>
+    <string name="wizard_select_month_heading">Select Month</string>
+
+    <!-- Wizard — Step 5: Duration -->
+    <string name="wizard_duration_heading">Lesson Duration</string>
+    <string name="wizard_duration_subheading">Choose how many days you\'d like</string>
+    <string name="wizard_duration_label">Lesson Duration</string>
+    <string name="wizard_duration_half_day">Half day</string>
+    <string name="wizard_duration_1">1 day</string>
+    <string name="wizard_duration_1_5">1.5 days</string>
+    <string name="wizard_duration_2">2 days</string>
+    <string name="wizard_duration_3">3 days</string>
+    <string name="wizard_duration_other">Other</string>
+    <string name="wizard_duration_unit">days</string>
+
+    <!-- Wizard — Step 6: Language -->
+    <string name="wizard_language_heading">Teaching Language</string>
+    <string name="wizard_language_subheading">Choose your preferred teaching language (multi-select)</string>
+    <string name="wizard_lang_zh">Chinese</string>
+    <string name="wizard_lang_en">English</string>
+    <string name="wizard_lang_ja">Japanese</string>
+
+    <!-- Wizard — Step 7: Preferences -->
+    <string name="wizard_preferences_optional_hint">All fields below are optional — feel free to skip</string>
+    <string name="wizard_equipment_label">Equipment Rental</string>
+    <string name="wizard_equipment_all">Full rental</string>
+    <string name="wizard_equipment_partial">Partial rental</string>
+    <string name="wizard_equipment_none">Bring my own</string>
+    <string name="wizard_transport_label">Transportation</string>
+    <string name="wizard_transport_yes">Need pickup</string>
+    <string name="wizard_transport_no">Self-arranged</string>
+    <string name="wizard_transport_note_placeholder">Departure location or hotel name</string>
+    <string name="wizard_cert_label">Instructor Certification Preference</string>
+
+    <!-- Wizard — Step 8: Notes -->
+    <string name="wizard_notes_heading">Additional Notes</string>
+    <string name="wizard_notes_subheading">Anything else you\'d like the instructor to know?</string>
+    <string name="wizard_notes_placeholder">e.g., Would like photos taken during the lesson, special requirements, etc.</string>
+
+    <!-- Wizard — Step 9: Confirm -->
+    <string name="wizard_confirm_label_resort">Ski Resort</string>
+    <string name="wizard_confirm_label_group">Activity &amp; Group</string>
+    <string name="wizard_confirm_label_level">Skill Level</string>
+    <string name="wizard_confirm_label_date">Lesson Dates</string>
+    <string name="wizard_confirm_label_duration">Lesson Duration</string>
+    <string name="wizard_confirm_label_language">Teaching Language</string>
+    <string name="wizard_confirm_label_preferences">Preferences</string>
+    <string name="wizard_confirm_label_notes">Additional Notes</string>
+    <string name="wizard_confirm_people">people</string>
+    <string name="wizard_confirm_with_children"> (includes children)</string>
+    <string name="wizard_confirm_level_prefix">Lv </string>
+    <string name="wizard_confirm_dates_undecided">Dates not yet decided</string>
+    <string name="wizard_confirm_half_day">Half day</string>
+    <string name="wizard_confirm_days">days</string>
+    <string name="wizard_submit">Submit Lesson Request</string>
+    <string name="wizard_submit_loading">Submitting…</string>
+
+    <!-- Wizard — Success -->
+    <string name="wizard_success_title">Lesson request submitted!</string>
+    <string name="wizard_success_subtitle">Instructors will see your request shortly. Stay tuned for notifications.</string>
+
+    <!-- My Requests -->
+    <string name="my_requests_title">My Requests</string>
+    <string name="my_requests_new_button">+ Post a New Request</string>
+    <string name="my_requests_empty_title">No requests yet</string>
+    <string name="my_requests_empty_desc">Post your first lesson request to find your ski instructor</string>
+    <string name="my_requests_empty_cta">Post a Request</string>
+    <string name="my_requests_status_active">Active</string>
+    <string name="my_requests_status_closed">Closed</string>
+    <string name="my_requests_status_expired">Expired</string>
+    <string name="my_requests_chat_count_zero">No conversations</string>
+    <string name="my_requests_chat_count_fmt">%1$d conversation(s)</string>
+    <string name="my_requests_created_at_label">Posted</string>
+    <string name="my_requests_dates_undecided">Dates not decided</string>
+    <string name="my_requests_dates_flexible_suffix">(Flexible)</string>
+
+    <!-- Request Detail -->
+    <string name="request_detail_resort_label">Ski Resort</string>
+    <string name="request_detail_created_at_label">Created</string>
+    <string name="request_detail_lesson_date_label">Lesson Dates</string>
+    <string name="request_detail_dates_undecided">Dates not decided</string>
+    <string name="request_detail_dates_flexible_suffix">(Flexible)</string>
+    <string name="request_detail_description_label">Notes</string>
+    <string name="request_detail_discipline_label">Discipline</string>
+    <string name="request_detail_level_label">Skill Level</string>
+    <string name="request_detail_duration_label">Lesson Duration</string>
+    <string name="request_detail_language_label">Teaching Language</string>
+    <string name="request_detail_group_size_label">Group Size</string>
+    <string name="request_detail_close_button">End This Request</string>
+    <string name="request_detail_close_dialog_title">End this request?</string>
+    <string name="request_detail_close_dialog_desc">Once ended, this request will no longer be visible to instructors. Existing conversations will remain accessible.</string>
+    <string name="request_detail_close_dialog_confirm">Confirm Close</string>
+    <string name="request_detail_close_success">Request ended successfully</string>
+    <string name="request_detail_section_user_initiated">Instructors I Contacted</string>
+    <string name="request_detail_section_expert_initiated">Instructors Who Want to Connect</string>
+    <string name="request_detail_no_experts_yet">No instructors have connected yet</string>
+    <string name="request_detail_no_user_initiated_yet">You haven\'t contacted any instructors yet</string>
+    <string name="request_detail_last_message_empty">No messages yet</string>
+    <string name="request_detail_go_to_chat">Go to chat</string>
+    <string name="request_detail_phone_verified">Phone Verified</string>
+    <string name="request_detail_phone_unverified">Phone Not Verified</string>
+    <string name="request_detail_recommended_title">Recommended Instructors</string>
+    <string name="request_detail_recommended_none">No recommended instructors at the moment</string>
+    <string name="request_detail_recommended_contact">Contact Now</string>
+    <string name="request_detail_recommended_rating">Rating</string>
+
+    <!-- Account -->
+    <string name="account_title">Account Settings</string>
+    <string name="account_avatar_label">Avatar</string>
+    <string name="account_avatar_hint">Click to change avatar (JPG/PNG, max 10 MB)</string>
+    <string name="account_avatar_uploading">Uploading…</string>
+    <string name="account_avatar_too_large">Image too large. Please choose a file under 10 MB.</string>
+    <string name="account_avatar_upload_error">Upload failed. Please try again.</string>
+    <string name="account_display_name_label">Display Name</string>
+    <string name="account_display_name_placeholder">Enter your name</string>
+    <string name="account_display_name_max_error">Display name cannot exceed 50 characters.</string>
+    <string name="account_email_label">Email</string>
+    <string name="account_save_button">Save Changes</string>
+    <string name="account_save_success">Changes saved!</string>
+    <string name="account_save_error">Failed to save. Please try again.</string>
+
+    <!-- Contact -->
+    <string name="contact_title">Contact Us</string>
+    <string name="contact_subtitle">Have a question or feedback? We\'d love to hear from you.</string>
+    <string name="contact_name_label">Name</string>
+    <string name="contact_name_placeholder">Your name</string>
+    <string name="contact_email_label">Email</string>
+    <string name="contact_email_placeholder">your@email.com</string>
+    <string name="contact_message_label">Message</string>
+    <string name="contact_message_placeholder">Describe your question or feedback (at least 10 characters)</string>
+    <string name="contact_submit">Send Message</string>
+    <string name="contact_submitting">Sending…</string>
+    <string name="contact_error_name_required">Please enter your name</string>
+    <string name="contact_error_email_invalid">Please enter a valid email address</string>
+    <string name="contact_error_message_too_short">Message must be at least 10 characters</string>
+    <string name="contact_success_title">Message Sent</string>
+    <string name="contact_success_body">Thank you for reaching out. We will get back to you as soon as possible.</string>
+
+    <!-- Legal -->
+    <string name="legal_terms_title">Terms of Service</string>
+    <string name="legal_privacy_title">Privacy Policy</string>
+    <string name="legal_back_home">Back</string>
 </resources>
