@@ -97,4 +97,14 @@
     <string name="auth_error_otp_invalid">Invalid verification code</string>
     <string name="auth_error_otp_expired">Code expired. Please resend.</string>
     <string name="auth_error_generic">Something went wrong. Please try again.</string>
+    <string name="auth_error_not_authenticated">Not signed in. Please sign in first.</string>
+
+    <!-- Data errors -->
+    <string name="error_load_resorts">Failed to load resorts</string>
+    <string name="error_submit_request">Failed to submit request</string>
+    <string name="error_load_requests">Failed to load lesson requests</string>
+    <string name="error_load_request_detail">Failed to load request details</string>
+    <string name="error_close_request">Failed to close request</string>
+    <string name="error_load_instructors">Failed to load instructors</string>
+    <string name="error_submit_contact">Failed to submit contact form</string>
 </resources>

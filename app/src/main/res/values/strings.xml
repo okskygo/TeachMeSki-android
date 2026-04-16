@@ -97,4 +97,14 @@
     <string name="auth_error_otp_invalid">驗證碼不正確</string>
     <string name="auth_error_otp_expired">驗證碼已過期，請重新寄送</string>
     <string name="auth_error_generic">發生錯誤，請稍後再試</string>
+    <string name="auth_error_not_authenticated">尚未登入，請先登入</string>
+
+    <!-- Data errors -->
+    <string name="error_load_resorts">載入雪場資料失敗</string>
+    <string name="error_submit_request">送出需求失敗</string>
+    <string name="error_load_requests">載入課程需求失敗</string>
+    <string name="error_load_request_detail">載入需求詳情失敗</string>
+    <string name="error_close_request">關閉需求失敗</string>
+    <string name="error_load_instructors">載入教練資料失敗</string>
+    <string name="error_submit_contact">送出聯絡表單失敗</string>
 </resources>
