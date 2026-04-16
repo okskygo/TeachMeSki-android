@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,49 +88,44 @@ fun InstructorWizardScreen(
         )
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        when {
-            state.isCheckingProfile -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = TmsColor.Primary)
-                        Spacer(modifier = Modifier.padding(16.dp))
-                        Text(
-                            text = stringResource(R.string.instructor_wizard_checking_profile),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TmsColor.OnSurfaceVariant,
-                        )
-                    }
+    when {
+        state.isCheckingProfile -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = TmsColor.Primary)
+                    Spacer(modifier = Modifier.padding(16.dp))
+                    Text(
+                        text = stringResource(R.string.instructor_wizard_checking_profile),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TmsColor.OnSurfaceVariant,
+                    )
                 }
             }
-            state.phase == InstructorWizardPhase.Success -> {
-                CompleteStep(
-                    profileAlreadyExists = state.profileAlreadyExists,
-                    onStartExploring = {
-                        if (state.profileAlreadyExists) {
-                            onClose()
-                        } else {
-                            onSuccess()
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-            else -> {
-                InstructorWizardStepsScaffold(
-                    state = state,
-                    onCloseClick = { showCloseConfirm = true },
-                    onBack = viewModel::goBack,
-                    onPrimary = viewModel::goNext,
-                    viewModel = viewModel,
-                )
-            }
+        }
+        state.phase == InstructorWizardPhase.Success -> {
+            CompleteStep(
+                profileAlreadyExists = state.profileAlreadyExists,
+                onStartExploring = {
+                    if (state.profileAlreadyExists) {
+                        onClose()
+                    } else {
+                        onSuccess()
+                    }
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        else -> {
+            InstructorWizardStepsScaffold(
+                state = state,
+                onCloseClick = { showCloseConfirm = true },
+                onBack = viewModel::goBack,
+                onPrimary = viewModel::goNext,
+                viewModel = viewModel,
+            )
         }
     }
 }
@@ -143,8 +140,16 @@ private fun InstructorWizardStepsScaffold(
     viewModel: InstructorWizardViewModel,
 ) {
     Scaffold(
+        containerColor = TmsColor.SurfaceLowest,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                colors =
+                    TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = TmsColor.SurfaceLowest,
+                        scrolledContainerColor = TmsColor.SurfaceLowest,
+                    ),
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
