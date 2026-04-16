@@ -1,5 +1,7 @@
 package com.teachmeski.app.ui.auth
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
@@ -22,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -172,13 +176,16 @@ fun SignupScreen(
                     onCheckedChange = viewModel::onTermsCheckedChange,
                     enabled = !state.isLoading,
                 )
+                val linkColor = MaterialTheme.colorScheme.primary
+                val textColor = MaterialTheme.colorScheme.onSurfaceVariant
+                val textStyle = MaterialTheme.typography.bodySmall
                 val termsText = buildAnnotatedString {
                     append(stringResource(R.string.auth_signup_terms_prefix))
                     append(" ")
-                    pushStringAnnotation("terms", "https://teachmeski.com/terms")
+                    pushStringAnnotation("url", "https://teachmeski.com/terms")
                     withStyle(
                         SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = linkColor,
                             textDecoration = TextDecoration.Underline,
                         ),
                     ) {
@@ -188,10 +195,10 @@ fun SignupScreen(
                     append(" ")
                     append(stringResource(R.string.auth_signup_terms_and))
                     append(" ")
-                    pushStringAnnotation("privacy", "https://teachmeski.com/privacy")
+                    pushStringAnnotation("url", "https://teachmeski.com/privacy")
                     withStyle(
                         SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = linkColor,
                             textDecoration = TextDecoration.Underline,
                         ),
                     ) {
@@ -199,11 +206,20 @@ fun SignupScreen(
                     }
                     pop()
                 }
-                Text(
+                val context = LocalContext.current
+                @Suppress("DEPRECATION")
+                ClickableText(
                     text = termsText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = textStyle.copy(color = textColor),
                     modifier = Modifier.padding(top = 12.dp),
+                    onClick = { offset ->
+                        termsText.getStringAnnotations("url", offset, offset)
+                            .firstOrNull()?.let { annotation ->
+                                context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
+                                )
+                            }
+                    },
                 )
             }
 
