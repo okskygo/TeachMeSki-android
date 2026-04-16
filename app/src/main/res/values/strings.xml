@@ -27,10 +27,74 @@
     <string name="role_switch_to_student">切換為學員</string>
     <string name="role_switch_to_instructor">切換為教練</string>
 
-    <!-- Auth errors (placeholder — full strings added in Task 9) -->
-    <string name="auth_error_email_not_confirmed">Email not confirmed</string>
-    <string name="auth_error_invalid_credentials">Invalid credentials</string>
-    <string name="auth_error_otp_expired">OTP expired</string>
-    <string name="auth_error_otp_invalid">Invalid OTP</string>
-    <string name="auth_error_generic">An error occurred</string>
+    <!-- Auth — Login -->
+    <string name="auth_login_title">歡迎回來</string>
+    <string name="auth_login_email_label">電子郵件</string>
+    <string name="auth_login_email_placeholder">your@email.com</string>
+    <string name="auth_login_password_label">密碼</string>
+    <string name="auth_login_password_placeholder">輸入你的密碼</string>
+    <string name="auth_login_submit">登入</string>
+    <string name="auth_login_no_account">還沒有帳號？</string>
+    <string name="auth_login_signup_link">立即註冊</string>
+    <string name="auth_login_forgot_password">忘記密碼？</string>
+    <string name="auth_login_session_expired">登入狀態已過期，請重新登入</string>
+
+    <!-- Auth — Signup -->
+    <string name="auth_signup_title">建立帳號</string>
+    <string name="auth_signup_display_name_label">顯示名稱</string>
+    <string name="auth_signup_display_name_placeholder">輸入你的名字</string>
+    <string name="auth_signup_email_label">電子郵件</string>
+    <string name="auth_signup_email_placeholder">your@email.com</string>
+    <string name="auth_signup_password_label">密碼</string>
+    <string name="auth_signup_password_placeholder">至少 8 字元，含大小寫及數字</string>
+    <string name="auth_signup_confirm_password_label">確認密碼</string>
+    <string name="auth_signup_confirm_password_placeholder">再次輸入密碼</string>
+    <string name="auth_signup_password_rule_min">至少 8 個字元</string>
+    <string name="auth_signup_password_rule_max">不超過 128 個字元</string>
+    <string name="auth_signup_password_rule_upper">包含大寫字母</string>
+    <string name="auth_signup_password_rule_lower">包含小寫字母</string>
+    <string name="auth_signup_password_rule_digit">包含數字</string>
+    <string name="auth_signup_terms_prefix">我已閱讀並同意</string>
+    <string name="auth_signup_terms_link">《服務條款》</string>
+    <string name="auth_signup_terms_and">與</string>
+    <string name="auth_signup_privacy_link">《隱私權政策》</string>
+    <string name="auth_signup_submit">建立帳號</string>
+    <string name="auth_signup_already_account">已有帳號？</string>
+    <string name="auth_signup_login_link">立即登入</string>
+
+    <!-- Auth — Forgot Password -->
+    <string name="auth_forgot_password_title">重設密碼</string>
+    <string name="auth_forgot_password_subtitle">輸入你的 Email，我們將寄送重設連結</string>
+    <string name="auth_forgot_password_email_label">電子郵件</string>
+    <string name="auth_forgot_password_email_placeholder">your@email.com</string>
+    <string name="auth_forgot_password_submit">送出</string>
+    <string name="auth_forgot_password_success">若此 Email 已註冊，您將收到重設信件</string>
+    <string name="auth_forgot_password_back_to_login">返回登入</string>
+
+    <!-- Auth — Verify Email (OTP) -->
+    <string name="auth_verify_email_title">驗證您的電子郵件</string>
+    <string name="auth_verify_email_subtitle_fmt">驗證碼已寄送至 %1$s</string>
+    <string name="auth_verify_email_resend">重新寄送驗證碼</string>
+    <string name="auth_verify_email_resend_cooldown_fmt">重新寄送 (%1$ds)</string>
+    <string name="auth_verify_email_resend_sent">驗證碼已寄出！</string>
+    <string name="auth_verify_email_back">返回</string>
+    <string name="auth_verify_email_verify">驗證</string>
+
+    <!-- Auth — Errors -->
+    <string name="auth_error_display_name_required">請輸入你的顯示名稱</string>
+    <string name="auth_error_invalid_email">請輸入有效的電子郵件</string>
+    <string name="auth_error_password_too_short">密碼至少需要 8 個字元</string>
+    <string name="auth_error_password_too_long">密碼不能超過 128 個字元</string>
+    <string name="auth_error_password_no_uppercase">密碼須包含至少一個大寫字母</string>
+    <string name="auth_error_password_no_lowercase">密碼須包含至少一個小寫字母</string>
+    <string name="auth_error_password_no_digit">密碼須包含至少一個數字</string>
+    <string name="auth_error_password_confirm_mismatch">兩次輸入的密碼不相符</string>
+    <string name="auth_error_terms_required">請勾選同意服務條款與隱私權政策</string>
+    <string name="auth_error_password_required">請輸入密碼</string>
+    <string name="auth_error_invalid_credentials">電子郵件或密碼錯誤</string>
+    <string name="auth_error_account_unavailable">此帳號無法使用。</string>
+    <string name="auth_error_email_not_confirmed">您的帳號尚未完成 Email 驗證，請先驗證再登入。</string>
+    <string name="auth_error_otp_invalid">驗證碼不正確</string>
+    <string name="auth_error_otp_expired">驗證碼已過期，請重新寄送</string>
+    <string name="auth_error_generic">發生錯誤，請稍後再試</string>
 </resources>

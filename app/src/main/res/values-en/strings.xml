@@ -26,4 +26,75 @@
     <!-- Role -->
     <string name="role_switch_to_student">Switch to Student</string>
     <string name="role_switch_to_instructor">Switch to Instructor</string>
+
+    <!-- Auth — Login -->
+    <string name="auth_login_title">Welcome Back</string>
+    <string name="auth_login_email_label">Email</string>
+    <string name="auth_login_email_placeholder">your@email.com</string>
+    <string name="auth_login_password_label">Password</string>
+    <string name="auth_login_password_placeholder">Enter your password</string>
+    <string name="auth_login_submit">Log In</string>
+    <string name="auth_login_no_account">Don\'t have an account?</string>
+    <string name="auth_login_signup_link">Sign up</string>
+    <string name="auth_login_forgot_password">Forgot password?</string>
+    <string name="auth_login_session_expired">Your session has expired. Please sign in again.</string>
+
+    <!-- Auth — Signup -->
+    <string name="auth_signup_title">Create Account</string>
+    <string name="auth_signup_display_name_label">Display Name</string>
+    <string name="auth_signup_display_name_placeholder">Enter your name</string>
+    <string name="auth_signup_email_label">Email</string>
+    <string name="auth_signup_email_placeholder">your@email.com</string>
+    <string name="auth_signup_password_label">Password</string>
+    <string name="auth_signup_password_placeholder">Min 8 chars, upper, lower &amp; digit</string>
+    <string name="auth_signup_confirm_password_label">Confirm Password</string>
+    <string name="auth_signup_confirm_password_placeholder">Re-enter your password</string>
+    <string name="auth_signup_password_rule_min">At least 8 characters</string>
+    <string name="auth_signup_password_rule_max">No more than 128 characters</string>
+    <string name="auth_signup_password_rule_upper">Contains uppercase letter</string>
+    <string name="auth_signup_password_rule_lower">Contains lowercase letter</string>
+    <string name="auth_signup_password_rule_digit">Contains a number</string>
+    <string name="auth_signup_terms_prefix">I have read and agree to the</string>
+    <string name="auth_signup_terms_link">Terms of Service</string>
+    <string name="auth_signup_terms_and">and</string>
+    <string name="auth_signup_privacy_link">Privacy Policy</string>
+    <string name="auth_signup_submit">Create Account</string>
+    <string name="auth_signup_already_account">Already have an account?</string>
+    <string name="auth_signup_login_link">Log in</string>
+
+    <!-- Auth — Forgot Password -->
+    <string name="auth_forgot_password_title">Reset Password</string>
+    <string name="auth_forgot_password_subtitle">Enter your email and we\'ll send you a reset link</string>
+    <string name="auth_forgot_password_email_label">Email</string>
+    <string name="auth_forgot_password_email_placeholder">your@email.com</string>
+    <string name="auth_forgot_password_submit">Submit</string>
+    <string name="auth_forgot_password_success">If this email is registered, you will receive a reset link</string>
+    <string name="auth_forgot_password_back_to_login">Back to Sign In</string>
+
+    <!-- Auth — Verify Email (OTP) -->
+    <string name="auth_verify_email_title">Verify Your Email</string>
+    <string name="auth_verify_email_subtitle_fmt">A verification code has been sent to %1$s</string>
+    <string name="auth_verify_email_resend">Resend Code</string>
+    <string name="auth_verify_email_resend_cooldown_fmt">Resend (%1$ds)</string>
+    <string name="auth_verify_email_resend_sent">Code sent!</string>
+    <string name="auth_verify_email_back">Back</string>
+    <string name="auth_verify_email_verify">Verify</string>
+
+    <!-- Auth — Errors -->
+    <string name="auth_error_display_name_required">Please enter your display name</string>
+    <string name="auth_error_invalid_email">Please enter a valid email</string>
+    <string name="auth_error_password_too_short">Password must be at least 8 characters</string>
+    <string name="auth_error_password_too_long">Password must be no more than 128 characters</string>
+    <string name="auth_error_password_no_uppercase">Password must contain at least one uppercase letter</string>
+    <string name="auth_error_password_no_lowercase">Password must contain at least one lowercase letter</string>
+    <string name="auth_error_password_no_digit">Password must contain at least one number</string>
+    <string name="auth_error_password_confirm_mismatch">Passwords do not match</string>
+    <string name="auth_error_terms_required">Please agree to the Terms of Service and Privacy Policy</string>
+    <string name="auth_error_password_required">Please enter your password</string>
+    <string name="auth_error_invalid_credentials">Invalid email or password</string>
+    <string name="auth_error_account_unavailable">This account is no longer available.</string>
+    <string name="auth_error_email_not_confirmed">Please verify your email before signing in.</string>
+    <string name="auth_error_otp_invalid">Invalid verification code</string>
+    <string name="auth_error_otp_expired">Code expired. Please resend.</string>
+    <string name="auth_error_generic">Something went wrong. Please try again.</string>
 </resources>
