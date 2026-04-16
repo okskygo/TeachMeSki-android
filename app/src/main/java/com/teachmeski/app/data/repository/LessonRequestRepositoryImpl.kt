@@ -1,5 +1,6 @@
 package com.teachmeski.app.data.repository
 
+import android.util.Log
 import com.teachmeski.app.R
 import com.teachmeski.app.data.model.toDomain
 import com.teachmeski.app.data.model.toInstructorPreview
@@ -15,6 +16,8 @@ import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "LessonRequestRepo"
 
 @Singleton
 class LessonRequestRepositoryImpl @Inject constructor(
@@ -91,22 +94,29 @@ class LessonRequestRepositoryImpl @Inject constructor(
         Resource.Error(UiText.StringResource(R.string.error_load_requests))
     }
 
-    override suspend fun getLessonRequestDetail(id: String): Resource<LessonRequest> = try {
+    override suspend fun getLessonRequestDetail(id: String): Resource<LessonRequest> {
         val userId = authRepository.currentUserId()
-            ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
-        val dto = lessonRequestDataSource.getLessonRequestDetail(id, userId)
-        val resortNames = if (dto.resortIds.isNotEmpty()) {
-            val resorts = lessonRequestDataSource.getResortsByIds(dto.resortIds)
-            dto.resortIds.mapNotNull { resortId ->
-                resorts.find { it.id == resortId }?.let { "${it.nameZh} (${it.nameEn})" }
-            }
-        } else {
-            emptyList()
+        Log.d(TAG, "getLessonRequestDetail: id=$id, userId=$userId")
+        if (userId == null) {
+            return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
         }
-        val certPrefs = lessonRequestDataSource.getCertPreferences(id)
-        Resource.Success(dto.toDomain(resortNames = resortNames, certPreferences = certPrefs))
-    } catch (e: Exception) {
-        Resource.Error(UiText.StringResource(R.string.error_load_request_detail))
+        return try {
+            val dto = lessonRequestDataSource.getLessonRequestDetail(id, userId)
+            Log.d(TAG, "getLessonRequestDetail: dto loaded, resortIds=${dto.resortIds}")
+            val resortNames = if (dto.resortIds.isNotEmpty()) {
+                val resorts = lessonRequestDataSource.getResortsByIds(dto.resortIds)
+                dto.resortIds.mapNotNull { resortId ->
+                    resorts.find { it.id == resortId }?.let { "${it.nameZh} (${it.nameEn})" }
+                }
+            } else {
+                emptyList()
+            }
+            val certPrefs = lessonRequestDataSource.getCertPreferences(id)
+            Resource.Success(dto.toDomain(resortNames = resortNames, certPreferences = certPrefs))
+        } catch (e: Exception) {
+            Log.e(TAG, "getLessonRequestDetail FAILED: id=$id", e)
+            Resource.Error(UiText.StringResource(R.string.error_load_request_detail))
+        }
     }
 
     override suspend fun closeLessonRequest(id: String): Resource<Unit> = try {
@@ -122,11 +132,13 @@ class LessonRequestRepositoryImpl @Inject constructor(
         val userId = authRepository.currentUserId()
             ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
         val chatRooms = lessonRequestDataSource.getChatRoomsForRequest(lessonRequestId, userId)
+        Log.d(TAG, "getUnlockedInstructors: ${chatRooms.size} chat rooms")
         val previews = chatRooms.map { room ->
             room.toInstructorPreview(userId).copy(isReviewed = false)
         }
         Resource.Success(previews)
     } catch (e: Exception) {
+        Log.e(TAG, "getUnlockedInstructors FAILED: $lessonRequestId", e)
         Resource.Error(UiText.StringResource(R.string.error_load_instructors))
     }
 
@@ -142,6 +154,7 @@ class LessonRequestRepositoryImpl @Inject constructor(
             resortIds = detail.resortIds,
             excludeInstructorIds = excludeIds,
         )
+        Log.d(TAG, "getRecommendedInstructors: ${instructors.size} results")
         val previews = instructors.map { dto ->
             InstructorPreview(
                 instructorId = dto.id,
@@ -158,6 +171,7 @@ class LessonRequestRepositoryImpl @Inject constructor(
         }
         Resource.Success(previews)
     } catch (e: Exception) {
+        Log.e(TAG, "getRecommendedInstructors FAILED: $lessonRequestId", e)
         Resource.Error(UiText.StringResource(R.string.error_load_instructors))
     }
 }

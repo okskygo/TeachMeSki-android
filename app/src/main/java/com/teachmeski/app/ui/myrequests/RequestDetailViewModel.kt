@@ -1,5 +1,6 @@
 package com.teachmeski.app.ui.myrequests
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,6 +42,7 @@ class RequestDetailViewModel @Inject constructor(
     val uiState: StateFlow<RequestDetailUiState> = _uiState.asStateFlow()
 
     init {
+        Log.d("RequestDetailVM", "requestId=$requestId, keys=${savedStateHandle.keys()}")
         load()
     }
 
