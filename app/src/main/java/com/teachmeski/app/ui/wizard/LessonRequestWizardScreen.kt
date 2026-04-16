@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -106,217 +107,219 @@ fun LessonRequestWizardScreen(
         )
     }
 
-    Surface(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        Scaffold(
-            topBar = {
-                if (state.phase == WizardPhase.Steps) {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text =
-                                        stringResource(
-                                            R.string.wizard_step_progress_fmt,
-                                            state.currentStep,
-                                            9,
-                                        ),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = TmsColor.OnSurface,
-                                )
-                            }
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = { showCloseConfirm = true },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.wizard_nav_close),
-                                )
-                            }
-                        },
-                    )
-                }
-            },
-            bottomBar = {
-                if (state.phase == WizardPhase.Steps) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        if (state.currentStep > 1) {
-                            OutlinedButton(onClick = viewModel::prevStep) {
-                                Text(text = stringResource(R.string.wizard_nav_prev))
+        containerColor = TmsColor.SurfaceLowest,
+        topBar = {
+            if (state.phase == WizardPhase.Steps) {
+                CenterAlignedTopAppBar(
+                    colors =
+                        TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = TmsColor.SurfaceLowest,
+                            scrolledContainerColor = TmsColor.SurfaceLowest,
+                        ),
+                    title = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text =
+                                    stringResource(
+                                        R.string.wizard_step_progress_fmt,
+                                        state.currentStep,
+                                        9,
+                                    ),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = TmsColor.OnSurface,
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { showCloseConfirm = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.wizard_nav_close),
+                            )
+                        }
+                    },
+                )
+            }
+        },
+        bottomBar = {
+            if (state.phase == WizardPhase.Steps) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (state.currentStep > 1) {
+                        OutlinedButton(onClick = viewModel::prevStep) {
+                            Text(text = stringResource(R.string.wizard_nav_prev))
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    if (state.currentStep in 7..8) {
+                        TextButton(onClick = viewModel::nextStep) {
+                            Text(text = stringResource(R.string.wizard_nav_skip))
+                        }
+                    }
+                    val primaryLabel =
+                        if (state.currentStep == 9) {
+                            if (state.isSubmitting) {
+                                R.string.wizard_submit_loading
+                            } else {
+                                R.string.wizard_submit
                             }
                         } else {
-                            Spacer(modifier = Modifier.width(1.dp))
+                            R.string.wizard_nav_next
                         }
-                        Spacer(modifier = Modifier.weight(1f))
-                        if (state.currentStep in 7..8) {
-                            TextButton(onClick = viewModel::nextStep) {
-                                Text(text = stringResource(R.string.wizard_nav_skip))
-                            }
+                    val primaryEnabled =
+                        when {
+                            state.currentStep == 9 -> !state.isSubmitting
+                            else -> state.canAdvanceFromCurrentStep
                         }
-                        val primaryLabel =
+                    Button(
+                        onClick = {
                             if (state.currentStep == 9) {
-                                if (state.isSubmitting) {
-                                    R.string.wizard_submit_loading
-                                } else {
-                                    R.string.wizard_submit
-                                }
+                                viewModel.submit()
                             } else {
-                                R.string.wizard_nav_next
+                                viewModel.nextStep()
                             }
-                        val primaryEnabled =
-                            when {
-                                state.currentStep == 9 -> !state.isSubmitting
-                                else -> state.canAdvanceFromCurrentStep
-                            }
-                        Button(
-                            onClick = {
-                                if (state.currentStep == 9) {
-                                    viewModel.submit()
-                                } else {
-                                    viewModel.nextStep()
-                                }
-                            },
-                            enabled = primaryEnabled,
+                        },
+                        enabled = primaryEnabled,
+                    ) {
+                        Text(text = stringResource(primaryLabel))
+                    }
+                }
+            }
+        },
+    ) { innerPadding ->
+        when (state.phase) {
+            WizardPhase.Steps -> {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                ) {
+                    WizardStepProgress(
+                        currentStep = state.currentStep,
+                        totalSteps = 9,
+                        labels = (1..9).map { stringResource(stepLabelRes(it)) },
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+                    state.submitError?.let { err ->
+                        Surface(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = MaterialTheme.shapes.small,
                         ) {
-                            Text(text = stringResource(primaryLabel))
+                            Text(
+                                text = err.asString(),
+                                modifier = Modifier.padding(12.dp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                            )
+                        }
+                    }
+                    AnimatedContent(
+                        targetState = state.currentStep,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(220)) togetherWith
+                                fadeOut(animationSpec = tween(220))
+                        },
+                        label = "wizard_step",
+                        modifier = Modifier.weight(1f),
+                    ) { step ->
+                        when (step) {
+                            1 -> ResortStep(
+                                state = state,
+                                onToggleAllRegions = viewModel::toggleAllRegions,
+                                onResortToggle = viewModel::toggleResort,
+                                onPrefectureToggle = viewModel::togglePrefecture,
+                            )
+                            2 -> GroupInfoStep(
+                                state = state,
+                                onDisciplineChange = viewModel::setDiscipline,
+                                onGroupSizeChange = viewModel::setGroupSize,
+                                onHasChildrenChange = viewModel::setHasChildren,
+                            )
+                            3 -> SkillLevelStep(
+                                state = state,
+                                onSkillLevelChange = viewModel::setSkillLevel,
+                            )
+                            4 -> ScheduleStep(
+                                state = state,
+                                onDatesFlexibleChange = viewModel::setDatesFlexible,
+                                onDateStartChange = viewModel::setDateStart,
+                                onDateEndChange = viewModel::setDateEnd,
+                            )
+                            5 -> DurationStep(
+                                state = state,
+                                onDurationChange = viewModel::setDurationDays,
+                            )
+                            6 -> LanguageStep(
+                                state = state,
+                                onToggleLanguage = viewModel::toggleLanguage,
+                            )
+                            7 -> PreferencesStep(
+                                state = state,
+                                onEquipmentRentalChange = viewModel::setEquipmentRental,
+                                onNeedsTransportChange = viewModel::setNeedsTransport,
+                                onTransportNoteChange = viewModel::setTransportNote,
+                                onToggleCertPreference = viewModel::toggleCertPreference,
+                            )
+                            8 -> NotesStep(
+                                state = state,
+                                onNotesChange = viewModel::setAdditionalNotes,
+                            )
+                            9 -> ConfirmStep(
+                                state = state,
+                                onEditStep = viewModel::goToStep,
+                            )
+                            else -> Box(Modifier.fillMaxSize())
                         }
                     }
                 }
-            },
-        ) { innerPadding ->
-            when (state.phase) {
-                WizardPhase.Steps -> {
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                    ) {
-                        WizardStepProgress(
-                            currentStep = state.currentStep,
-                            totalSteps = 9,
-                            labels = (1..9).map { stringResource(stepLabelRes(it)) },
-                            modifier = Modifier.padding(horizontal = 24.dp),
-                        )
-                        state.submitError?.let { err ->
-                            Surface(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                                color = MaterialTheme.colorScheme.errorContainer,
-                                shape = MaterialTheme.shapes.small,
-                            ) {
-                                Text(
-                                    text = err.asString(),
-                                    modifier = Modifier.padding(12.dp),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                )
+            }
+            WizardPhase.Success -> {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(24.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.wizard_success_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.wizard_success_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            if (!successNavigated) {
+                                successNavigated = true
+                                onSuccess()
                             }
-                        }
-                        AnimatedContent(
-                            targetState = state.currentStep,
-                            transitionSpec = {
-                                fadeIn(animationSpec = tween(220)) togetherWith
-                                    fadeOut(animationSpec = tween(220))
-                            },
-                            label = "wizard_step",
-                            modifier = Modifier.weight(1f),
-                        ) { step ->
-                            when (step) {
-                                1 -> ResortStep(
-                                    state = state,
-                                    onToggleAllRegions = viewModel::toggleAllRegions,
-                                    onResortToggle = viewModel::toggleResort,
-                                    onPrefectureToggle = viewModel::togglePrefecture,
-                                )
-                                2 -> GroupInfoStep(
-                                    state = state,
-                                    onDisciplineChange = viewModel::setDiscipline,
-                                    onGroupSizeChange = viewModel::setGroupSize,
-                                    onHasChildrenChange = viewModel::setHasChildren,
-                                )
-                                3 -> SkillLevelStep(
-                                    state = state,
-                                    onSkillLevelChange = viewModel::setSkillLevel,
-                                )
-                                4 -> ScheduleStep(
-                                    state = state,
-                                    onDatesFlexibleChange = viewModel::setDatesFlexible,
-                                    onDateStartChange = viewModel::setDateStart,
-                                    onDateEndChange = viewModel::setDateEnd,
-                                )
-                                5 -> DurationStep(
-                                    state = state,
-                                    onDurationChange = viewModel::setDurationDays,
-                                )
-                                6 -> LanguageStep(
-                                    state = state,
-                                    onToggleLanguage = viewModel::toggleLanguage,
-                                )
-                                7 -> PreferencesStep(
-                                    state = state,
-                                    onEquipmentRentalChange = viewModel::setEquipmentRental,
-                                    onNeedsTransportChange = viewModel::setNeedsTransport,
-                                    onTransportNoteChange = viewModel::setTransportNote,
-                                    onToggleCertPreference = viewModel::toggleCertPreference,
-                                )
-                                8 -> NotesStep(
-                                    state = state,
-                                    onNotesChange = viewModel::setAdditionalNotes,
-                                )
-                                9 -> ConfirmStep(
-                                    state = state,
-                                    onEditStep = viewModel::goToStep,
-                                )
-                                else -> Box(Modifier.fillMaxSize())
-                            }
-                        }
-                    }
-                }
-                WizardPhase.Success -> {
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                                .padding(24.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                        },
                     ) {
-                        Text(
-                            text = stringResource(R.string.wizard_success_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.wizard_success_subtitle),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = {
-                                if (!successNavigated) {
-                                    successNavigated = true
-                                    onSuccess()
-                                }
-                            },
-                        ) {
-                            Text(text = stringResource(R.string.wizard_success_continue))
-                        }
+                        Text(text = stringResource(R.string.wizard_success_continue))
                     }
                 }
             }
