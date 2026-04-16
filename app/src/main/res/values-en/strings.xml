@@ -299,6 +299,7 @@
     <string name="request_detail_recommended_rating">Rating</string>
     <string name="request_detail_resort_more_suffix">more</string>
     <string name="request_detail_resort_collapse">Show less</string>
+    <string name="request_detail_load_more">Load more</string>
 
     <!-- Account -->
     <string name="account_title">Account Settings</string>

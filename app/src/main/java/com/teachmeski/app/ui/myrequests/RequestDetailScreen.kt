@@ -26,6 +26,7 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Translate
@@ -167,6 +168,8 @@ fun RequestDetailScreen(
     }
 }
 
+private const val RECOMMENDED_PAGE_SIZE = 6
+
 @Composable
 private fun RequestDetailContent(
     detail: LessonRequest,
@@ -178,6 +181,8 @@ private fun RequestDetailContent(
     onInstructorClick: (String) -> Unit,
     onCloseClick: () -> Unit,
 ) {
+    var visibleRecommendedCount by remember { mutableStateOf(RECOMMENDED_PAGE_SIZE) }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -229,11 +234,47 @@ private fun RequestDetailContent(
                 EmptySection(text = stringResource(R.string.request_detail_recommended_none))
             }
         } else {
-            items(recommended, key = { it.instructorId }) { preview ->
+            val visible = recommended.take(visibleRecommendedCount)
+            items(visible, key = { it.instructorId }) { preview ->
                 RecommendedInstructorCard(
                     preview = preview,
                     onInstructorClick = onInstructorClick,
                 )
+            }
+            if (visibleRecommendedCount < recommended.size) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                visibleRecommendedCount =
+                                    (visibleRecommendedCount + RECOMMENDED_PAGE_SIZE)
+                                        .coerceAtMost(recommended.size)
+                            },
+                            shape = CircleShape,
+                            border = BorderStroke(1.dp, TmsColor.Primary),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = TmsColor.Primary,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.request_detail_load_more),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
+                    }
+                }
             }
         }
 
