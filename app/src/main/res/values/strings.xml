@@ -145,6 +145,8 @@
     <string name="wizard_step_preferences">偏好</string>
     <string name="wizard_step_notes">備註</string>
     <string name="wizard_step_confirm">確認</string>
+    <string name="wizard_step_progress_fmt">%1$d / %2$d</string>
+    <string name="wizard_step_placeholder_fmt">步驟 %1$d</string>
 
     <!-- Wizard — Step 1: Resort -->
     <string name="wizard_resort_heading">選擇滑雪場</string>
@@ -241,6 +243,7 @@
     <string name="wizard_submit_loading">送出中…</string>
 
     <!-- Wizard — Success -->
+    <string name="wizard_success_continue">完成</string>
     <string name="wizard_success_title">課程需求已送出！</string>
     <string name="wizard_success_subtitle">教練即將看到你的課程需求，請留意通知。</string>
 

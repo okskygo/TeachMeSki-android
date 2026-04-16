@@ -145,6 +145,8 @@
     <string name="wizard_step_preferences">Preferences</string>
     <string name="wizard_step_notes">Notes</string>
     <string name="wizard_step_confirm">Confirm</string>
+    <string name="wizard_step_progress_fmt">%1$d / %2$d</string>
+    <string name="wizard_step_placeholder_fmt">Step %1$d</string>
 
     <!-- Wizard — Step 1: Resort -->
     <string name="wizard_resort_heading">Choose Ski Resorts</string>
@@ -241,6 +243,7 @@
     <string name="wizard_submit_loading">Submitting…</string>
 
     <!-- Wizard — Success -->
+    <string name="wizard_success_continue">Done</string>
     <string name="wizard_success_title">Lesson request submitted!</string>
     <string name="wizard_success_subtitle">Instructors will see your request shortly. Stay tuned for notifications.</string>
 
