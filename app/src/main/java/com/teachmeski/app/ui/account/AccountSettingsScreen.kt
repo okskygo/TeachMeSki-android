@@ -1,7 +1,10 @@
 package com.teachmeski.app.ui.account
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -59,10 +62,41 @@ fun AccountSettingsScreen(
     val context = LocalContext.current
 
     val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
+        contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri: Uri? ->
         if (uri != null) {
             viewModel.uploadAvatar(context, uri)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            imagePicker.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+            )
+        }
+    }
+
+    val onPickAvatar: () -> Unit = {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Android 14+: Photo Picker works without permissions
+            null
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        if (permission == null ||
+            context.checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            imagePicker.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+            )
+        } else {
+            permissionLauncher.launch(permission)
         }
     }
 
@@ -113,7 +147,7 @@ fun AccountSettingsScreen(
                                 .size(96.dp)
                                 .clip(CircleShape)
                                 .border(2.dp, TmsColor.OutlineVariant, CircleShape)
-                                .clickable { imagePicker.launch("image/*") },
+                                .clickable(onClick = onPickAvatar),
                             contentAlignment = Alignment.Center,
                         ) {
                             if (uiState.isUploadingAvatar) {
