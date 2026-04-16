@@ -33,13 +33,17 @@ enum class EquipmentRental(val value: String) {
 enum class LessonRequestStatus(val value: String) {
     Active("active"),
     Expired("expired"),
-    ClosedByUser("closed_by_user");
+    ClosedByUser("closed_by_user"),
+    PendingEmailVerification("pending_email_verification"),
+    ExpiredUnverified("expired_unverified");
 
     companion object {
         fun fromString(value: String): LessonRequestStatus =
             when (value) {
                 "expired" -> Expired
                 "closed_by_user" -> ClosedByUser
+                "pending_email_verification" -> PendingEmailVerification
+                "expired_unverified" -> ExpiredUnverified
                 else -> Active
             }
     }

@@ -58,6 +58,7 @@ import java.util.TimeZone
 private val DIMMED_STATUSES = setOf(
     LessonRequestStatus.ClosedByUser,
     LessonRequestStatus.Expired,
+    LessonRequestStatus.ExpiredUnverified,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,15 +199,14 @@ private fun OrderCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .alpha(if (isDimmed) 0.6f else 1f),
         shape = RoundedCornerShape(16.dp),
         color = TmsColor.SurfaceLowest,
         shadowElevation = 4.dp,
     ) {
         Column(
-            modifier = Modifier
-                .padding(20.dp)
-                .alpha(if (isDimmed) 0.65f else 1f),
+            modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
@@ -344,11 +344,17 @@ private fun statusPillStyle(status: LessonRequestStatus): Pair<String, Color> {
         LessonRequestStatus.Active -> stringResource(R.string.my_requests_status_active)
         LessonRequestStatus.Expired -> stringResource(R.string.my_requests_status_expired)
         LessonRequestStatus.ClosedByUser -> stringResource(R.string.my_requests_status_closed)
+        LessonRequestStatus.PendingEmailVerification ->
+            stringResource(R.string.my_requests_status_pending_email_verification)
+        LessonRequestStatus.ExpiredUnverified ->
+            stringResource(R.string.my_requests_status_expired_unverified)
     }
     val color = when (status) {
         LessonRequestStatus.Active -> TmsColor.Primary
+        LessonRequestStatus.PendingEmailVerification -> TmsColor.Warning
         LessonRequestStatus.Expired,
         LessonRequestStatus.ClosedByUser,
+        LessonRequestStatus.ExpiredUnverified,
         -> TmsColor.Outline
     }
     return label to color

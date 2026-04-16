@@ -278,6 +278,8 @@
     <string name="my_requests_status_active">開放中</string>
     <string name="my_requests_status_closed">已關閉</string>
     <string name="my_requests_status_expired">已過期</string>
+    <string name="my_requests_status_pending_email_verification">信箱驗證中</string>
+    <string name="my_requests_status_expired_unverified">未驗證已過期</string>
     <string name="my_requests_chat_count_zero">尚無對話</string>
     <string name="my_requests_chat_count_fmt">%1$d 個對話</string>
     <string name="my_requests_created_at_label">發佈於</string>

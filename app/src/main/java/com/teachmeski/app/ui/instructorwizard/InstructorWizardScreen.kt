@@ -23,7 +23,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
+import com.teachmeski.app.ui.component.WizardStepProgress
 import com.teachmeski.app.ui.instructorwizard.steps.CertificationsStep
 import com.teachmeski.app.ui.instructorwizard.steps.CompleteStep
 import com.teachmeski.app.ui.instructorwizard.steps.DisciplineStep
@@ -157,11 +157,6 @@ private fun InstructorWizardStepsScaffold(
                             style = MaterialTheme.typography.titleMedium,
                             color = TmsColor.OnSurface,
                         )
-                        Text(
-                            text = stringResource(instructorWizardStepLabelRes(state.currentStep)),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TmsColor.OnSurfaceVariant,
-                        )
                     }
                 },
                 navigationIcon = {
@@ -182,11 +177,11 @@ private fun InstructorWizardStepsScaffold(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
-                LinearProgressIndicator(
-                    progress = { state.currentStep / 8f },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = TmsColor.Primary,
-                    trackColor = TmsColor.SurfaceContainer,
+                WizardStepProgress(
+                    currentStep = state.currentStep,
+                    totalSteps = 8,
+                    labels = (1..8).map { stringResource(instructorWizardStepLabelRes(it)) },
+                    modifier = Modifier.padding(horizontal = 24.dp),
                 )
                 Spacer(modifier = Modifier.padding(vertical = 4.dp))
                 Row(

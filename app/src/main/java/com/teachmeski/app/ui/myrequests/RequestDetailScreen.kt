@@ -617,6 +617,10 @@ private fun statusPillColors(status: LessonRequestStatus): Triple<String, Color,
         LessonRequestStatus.Active -> stringResource(R.string.my_requests_status_active)
         LessonRequestStatus.Expired -> stringResource(R.string.my_requests_status_expired)
         LessonRequestStatus.ClosedByUser -> stringResource(R.string.my_requests_status_closed)
+        LessonRequestStatus.PendingEmailVerification ->
+            stringResource(R.string.my_requests_status_pending_email_verification)
+        LessonRequestStatus.ExpiredUnverified ->
+            stringResource(R.string.my_requests_status_expired_unverified)
     }
     return when (status) {
         LessonRequestStatus.Active -> Triple(
@@ -633,6 +637,16 @@ private fun statusPillColors(status: LessonRequestStatus): Triple<String, Color,
             label,
             TmsColor.OnSurfaceVariant.copy(alpha = 0.1f),
             TmsColor.OnSurfaceVariant,
+        )
+        LessonRequestStatus.PendingEmailVerification -> Triple(
+            label,
+            TmsColor.Warning.copy(alpha = 0.12f),
+            TmsColor.Warning,
+        )
+        LessonRequestStatus.ExpiredUnverified -> Triple(
+            label,
+            TmsColor.Outline.copy(alpha = 0.1f),
+            TmsColor.Outline,
         )
     }
 }

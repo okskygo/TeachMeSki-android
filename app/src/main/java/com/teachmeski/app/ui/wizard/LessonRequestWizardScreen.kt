@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
+import com.teachmeski.app.ui.component.WizardStepProgress
+import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.ui.wizard.steps.ConfirmStep
 import com.teachmeski.app.ui.wizard.steps.DurationStep
 import com.teachmeski.app.ui.wizard.steps.GroupInfoStep
@@ -122,11 +124,7 @@ fun LessonRequestWizardScreen(
                                             9,
                                         ),
                                     style = MaterialTheme.typography.titleMedium,
-                                )
-                                Text(
-                                    text = stringResource(stepLabelRes(state.currentStep)),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = TmsColor.OnSurface,
                                 )
                             }
                         },
@@ -205,6 +203,12 @@ fun LessonRequestWizardScreen(
                                 .fillMaxSize()
                                 .padding(innerPadding),
                     ) {
+                        WizardStepProgress(
+                            currentStep = state.currentStep,
+                            totalSteps = 9,
+                            labels = (1..9).map { stringResource(stepLabelRes(it)) },
+                            modifier = Modifier.padding(horizontal = 24.dp),
+                        )
                         state.submitError?.let { err ->
                             Surface(
                                 modifier =
