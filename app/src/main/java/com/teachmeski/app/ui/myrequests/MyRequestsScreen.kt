@@ -226,7 +226,9 @@ private fun OrderCard(
                     painter = painterResource(
                         id = when (request.discipline) {
                             Discipline.Snowboard -> R.drawable.ic_snowboard
-                            Discipline.Ski -> R.drawable.ic_ski
+                            Discipline.Ski,
+                            Discipline.Both,
+                            -> R.drawable.ic_ski
                         },
                     ),
                     contentDescription = null,
@@ -357,6 +359,7 @@ private fun disciplineLabel(discipline: Discipline): String =
     when (discipline) {
         Discipline.Ski -> stringResource(R.string.wizard_discipline_ski)
         Discipline.Snowboard -> stringResource(R.string.wizard_discipline_snowboard)
+        Discipline.Both -> stringResource(R.string.wizard_discipline_both)
     }
 
 @Composable

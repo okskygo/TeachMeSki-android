@@ -161,6 +161,7 @@
     <string name="wizard_group_subheading">選擇項目和上課人數</string>
     <string name="wizard_discipline_ski">雙板 Ski</string>
     <string name="wizard_discipline_snowboard">單板 Snowboard</string>
+    <string name="wizard_discipline_both">雙板／單板 Both</string>
     <string name="wizard_group_size_label">上課人數</string>
     <string name="wizard_group_size_decrease_cd">減少人數</string>
     <string name="wizard_group_size_increase_cd">增加人數</string>

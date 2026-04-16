@@ -421,7 +421,9 @@ private fun OrderInfoCard(
             InfoRow(
                 iconRes = when (detail.discipline) {
                     Discipline.Snowboard -> R.drawable.ic_snowboard
-                    Discipline.Ski -> R.drawable.ic_ski
+                    Discipline.Ski,
+                    Discipline.Both,
+                    -> R.drawable.ic_ski
                 },
                 label = stringResource(R.string.request_detail_discipline_label),
                 value = disciplineLabel(detail.discipline),
@@ -641,6 +643,7 @@ private fun disciplineLabel(discipline: Discipline): String =
         when (discipline) {
             Discipline.Ski -> R.string.wizard_discipline_ski
             Discipline.Snowboard -> R.string.wizard_discipline_snowboard
+            Discipline.Both -> R.string.wizard_discipline_both
         },
     )
 
@@ -648,7 +651,9 @@ private fun disciplineLabel(discipline: Discipline): String =
 private fun skillLevelSummary(discipline: Discipline, skillLevel: Int): String {
     val lvl = skillLevel.coerceIn(0, 4)
     val descRes = when (discipline) {
-        Discipline.Ski -> when (lvl) {
+        Discipline.Ski,
+        Discipline.Both,
+        -> when (lvl) {
             0 -> R.string.wizard_level_ski_0
             1 -> R.string.wizard_level_ski_1
             2 -> R.string.wizard_level_ski_2

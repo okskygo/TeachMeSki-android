@@ -85,7 +85,9 @@ fun SkillLevelStep(
 private fun skillLevelDescriptionRes(discipline: Discipline, level: Int): Int {
     val safeLevel = level.coerceIn(0, 4)
     return when (discipline) {
-        Discipline.Ski ->
+        Discipline.Ski,
+        Discipline.Both,
+        ->
             when (safeLevel) {
                 0 -> R.string.wizard_level_ski_0
                 1 -> R.string.wizard_level_ski_1

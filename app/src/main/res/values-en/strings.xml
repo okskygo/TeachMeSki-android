@@ -161,6 +161,7 @@
     <string name="wizard_group_subheading">Choose your activity and number of participants</string>
     <string name="wizard_discipline_ski">Ski</string>
     <string name="wizard_discipline_snowboard">Snowboard</string>
+    <string name="wizard_discipline_both">Ski &amp; Snowboard</string>
     <string name="wizard_group_size_label">Group Size</string>
     <string name="wizard_group_size_decrease_cd">Decrease group size</string>
     <string name="wizard_group_size_increase_cd">Increase group size</string>

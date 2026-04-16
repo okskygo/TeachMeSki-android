@@ -14,4 +14,7 @@ object PricingCalculator {
         val rounded = (raw / 10).roundToInt() * 10
         return rounded.coerceIn(MIN_COST, MAX_COST)
     }
+
+    fun calculateUnlockCost(durationDays: Double?, groupSize: Int): Int =
+        calculateUnlockCost(durationDays ?: 1.0, groupSize)
 }

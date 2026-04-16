@@ -179,6 +179,7 @@ private fun groupSummaryText(state: WizardUiState): String {
         when (state.discipline) {
             Discipline.Ski -> stringResource(R.string.wizard_discipline_ski)
             Discipline.Snowboard -> stringResource(R.string.wizard_discipline_snowboard)
+            Discipline.Both -> stringResource(R.string.wizard_discipline_both)
         }
     val people = stringResource(R.string.wizard_confirm_people)
     val children =
@@ -204,7 +205,9 @@ private fun skillLevelDescriptionRes(
 ): Int {
     val n = level.coerceIn(0, 4)
     return when (discipline) {
-        Discipline.Ski ->
+        Discipline.Ski,
+        Discipline.Both,
+        ->
             when (n) {
                 0 -> R.string.wizard_level_ski_0
                 1 -> R.string.wizard_level_ski_1

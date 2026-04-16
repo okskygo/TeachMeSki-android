@@ -2,12 +2,14 @@ package com.teachmeski.app.domain.model
 
 enum class Discipline(val value: String) {
     Ski("ski"),
-    Snowboard("snowboard");
+    Snowboard("snowboard"),
+    Both("both");
 
     companion object {
         fun fromString(value: String): Discipline =
             when (value) {
                 "snowboard" -> Snowboard
+                "both" -> Both
                 else -> Ski
             }
     }

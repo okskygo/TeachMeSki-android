@@ -1,0 +1,26 @@
+package com.teachmeski.app.domain.model
+
+data class ExploreLessonRequest(
+    val id: String,
+    val status: LessonRequestStatus,
+    val createdAt: String,
+    val discipline: Discipline,
+    val skillLevel: Int?,
+    val groupSize: Int,
+    val hasChildren: Boolean,
+    val durationDays: Double?,
+    val startDate: String?,
+    val endDate: String?,
+    val datesFlexible: Boolean,
+    val preferredLanguages: List<String>,
+    val additionalNotes: String?,
+    val quotaLimit: Int,
+    val unlockCount: Int,
+    val baseTokenCost: Int,
+    val userDisplayName: String,
+    val userAvatarUrl: String?,
+    val allRegionsSelected: Boolean,
+    val resortNames: List<String>,
+    val isUnlockedByMe: Boolean,
+    val myChatRoomId: String?,
+)

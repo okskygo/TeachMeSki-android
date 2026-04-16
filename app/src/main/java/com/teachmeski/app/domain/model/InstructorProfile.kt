@@ -1,0 +1,25 @@
+package com.teachmeski.app.domain.model
+
+data class InstructorProfile(
+    val id: String,
+    val userId: String,
+    val shortId: String,
+    val displayName: String,
+    val bio: String?,
+    val avatarUrl: String?,
+    val email: String,
+    val discipline: Discipline,
+    val teachableLevels: List<Int>,
+    val certifications: List<String>,
+    val certificationOther: String?,
+    val languages: List<String>,
+    val priceHalfDay: Int?,
+    val priceFullDay: Int?,
+    val offersTransport: Boolean,
+    val offersPhotography: Boolean,
+    val isAcceptingRequests: Boolean,
+    val certificateUrls: List<String>,
+    val phoneVerifiedAt: String?,
+    val resortIds: List<String>,
+    val resortNames: List<String>,
+)
