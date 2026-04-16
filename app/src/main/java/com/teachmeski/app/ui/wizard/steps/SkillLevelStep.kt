@@ -3,9 +3,11 @@ package com.teachmeski.app.ui.wizard.steps
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -13,11 +15,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.Discipline
+import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.ui.wizard.WizardUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,12 +39,12 @@ fun SkillLevelStep(
         Text(
             text = stringResource(R.string.wizard_level_heading),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = TmsColor.OnSurface,
         )
         Text(
             text = stringResource(R.string.wizard_level_hint),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = TmsColor.OnSurfaceVariant,
         )
 
         (0..4).forEach { level ->
@@ -48,32 +53,46 @@ fun SkillLevelStep(
             Card(
                 onClick = { onSkillLevelChange(level) },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
                 colors =
                     CardDefaults.cardColors(
                         containerColor =
                             if (selected) {
-                                MaterialTheme.colorScheme.primaryContainer
+                                TmsColor.Primary.copy(alpha = 0.05f)
                             } else {
-                                MaterialTheme.colorScheme.surfaceVariant
+                                TmsColor.SurfaceLowest
                             },
                     ),
                 border =
                     if (selected) {
-                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                        BorderStroke(2.dp, TmsColor.Primary)
                     } else {
                         null
                     },
+                elevation =
+                    CardDefaults.cardElevation(
+                        defaultElevation = if (!selected) 1.dp else 0.dp,
+                    ),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.wizard_confirm_level_prefix) + level,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.wizard_confirm_level_prefix),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TmsColor.Primary,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = level.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TmsColor.OnSurface,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                     Text(
                         text = stringResource(descriptionRes),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = TmsColor.OnSurface,
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }

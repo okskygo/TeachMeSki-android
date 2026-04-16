@@ -309,14 +309,14 @@ private fun preferencesSummaryText(state: WizardUiState): String {
             },
         )
     val transport =
-        if (state.needsTransport) {
-            stringResource(R.string.wizard_transport_yes)
-        } else {
-            stringResource(R.string.wizard_transport_no)
+        when (state.needsTransport) {
+            true -> stringResource(R.string.wizard_transport_yes)
+            false -> stringResource(R.string.wizard_transport_no)
+            null -> stringResource(R.string.common_empty_value)
         }
     val note = state.transportNote.trim()
     val transportPart =
-        if (state.needsTransport && note.isNotEmpty()) {
+        if (state.needsTransport == true && note.isNotEmpty()) {
             "$transport ($note)"
         } else {
             transport
