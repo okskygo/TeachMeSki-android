@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Description
@@ -70,6 +71,7 @@ import com.teachmeski.app.domain.model.InstructorPreview
 import com.teachmeski.app.domain.model.LessonRequest
 import com.teachmeski.app.domain.model.LessonRequestStatus
 import com.teachmeski.app.ui.component.EmptyState
+import com.teachmeski.app.ui.component.PhoneVerificationBadge
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
@@ -670,33 +672,36 @@ private fun UnlockedInstructorCard(
         color = TmsColor.SurfaceLowest,
         shadowElevation = 1.dp,
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 UserAvatar(
                     displayName = preview.displayName,
                     avatarUrl = preview.avatarUrl,
-                    size = 48.dp,
+                    size = 56.dp,
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = preview.displayName ?: stringResource(R.string.common_empty_value),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
+                        color = TmsColor.OnSurface,
                     )
-                    Text(
-                        text = if (preview.hasUnread) stringResource(R.string.request_detail_go_to_chat)
-                        else stringResource(R.string.request_detail_last_message_empty),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TmsColor.OnSurfaceVariant,
+                    Spacer(modifier = Modifier.height(4.dp))
+                    PhoneVerificationBadge(verified = preview.phoneVerifiedAt != null)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    StarRatingRow(
+                        avg = preview.ratingAvg ?: 0.0,
+                        count = preview.ratingCount,
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             val roomId = preview.roomId
             if (!roomId.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = { onChatClick(roomId) },
                     modifier = Modifier.fillMaxWidth(),
@@ -729,13 +734,12 @@ private fun RecommendedInstructorCard(
                 if (shortId.isNotEmpty()) Modifier.clickable { onInstructorClick(shortId) }
                 else Modifier,
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         color = TmsColor.SurfaceLowest,
         shadowElevation = 1.dp,
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             UserAvatar(
@@ -745,33 +749,28 @@ private fun RecommendedInstructorCard(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
                     text = preview.displayName ?: stringResource(R.string.common_empty_value),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
+                    color = TmsColor.OnSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Text(
-                    text = stringResource(
-                        if (preview.phoneVerifiedAt != null) R.string.request_detail_phone_verified
-                        else R.string.request_detail_phone_unverified,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TmsColor.OnSurfaceVariant,
+                Spacer(modifier = Modifier.height(4.dp))
+                PhoneVerificationBadge(verified = preview.phoneVerifiedAt != null)
+                Spacer(modifier = Modifier.height(2.dp))
+                StarRatingRow(
+                    avg = preview.ratingAvg ?: 0.0,
+                    count = preview.ratingCount,
                 )
-                preview.ratingAvg?.let { avg ->
-                    Text(
-                        text = "${"%.1f".format(avg)} (${preview.ratingCount})",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
-                }
             }
             if (shortId.isNotEmpty()) {
                 Button(
                     onClick = { onInstructorClick(shortId) },
-                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = TmsColor.Primary,
                         contentColor = TmsColor.OnPrimary,
@@ -780,9 +779,41 @@ private fun RecommendedInstructorCard(
                     Text(
                         text = stringResource(R.string.request_detail_recommended_contact),
                         style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StarRatingRow(avg: Double, count: Int) {
+    val filled = kotlin.math.round(avg).toInt().coerceIn(0, 5)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(1.dp),
+    ) {
+        repeat(5) { i ->
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                modifier = Modifier.size(11.dp),
+                tint = if (i < filled) TmsColor.Primary else TmsColor.OnSurfaceVariant.copy(alpha = 0.3f),
+            )
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = "%.1f".format(avg),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = TmsColor.Primary,
+        )
+        Spacer(modifier = Modifier.width(2.dp))
+        Text(
+            text = "($count)",
+            style = MaterialTheme.typography.labelSmall,
+            color = TmsColor.OnSurfaceVariant,
+        )
     }
 }
