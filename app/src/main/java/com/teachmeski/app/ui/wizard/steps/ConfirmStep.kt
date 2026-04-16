@@ -171,18 +171,18 @@ private fun ConfirmSummaryRow(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
                     text = label.uppercase(Locale.getDefault()),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
                     color = TmsColor.OnSurfaceVariant,
                     letterSpacing = 1.2.sp,
                 )
                 Text(
                     text = value,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = TmsColor.OnSurface,
                 )
             }
@@ -351,13 +351,12 @@ private fun languagesSummaryText(state: WizardUiState): String {
 @Composable
 private fun preferencesSummaryText(state: WizardUiState): String {
     val equipment =
-        stringResource(
-            when (state.equipmentRental) {
-                EquipmentRental.All -> R.string.wizard_equipment_all
-                EquipmentRental.Partial -> R.string.wizard_equipment_partial
-                EquipmentRental.None -> R.string.wizard_equipment_none
-            },
-        )
+        when (state.equipmentRental) {
+            EquipmentRental.All -> stringResource(R.string.wizard_equipment_all)
+            EquipmentRental.Partial -> stringResource(R.string.wizard_equipment_partial)
+            EquipmentRental.None -> stringResource(R.string.wizard_equipment_none)
+            null -> stringResource(R.string.wizard_transport_not_selected)
+        }
     val transport =
         when (state.needsTransport) {
             true -> stringResource(R.string.wizard_transport_yes)

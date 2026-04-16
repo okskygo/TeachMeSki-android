@@ -45,7 +45,7 @@ data class WizardUiState(
     val dateEnd: String? = null,
     val durationDays: Double = 1.0,
     val languages: Set<String> = setOf("zh"),
-    val equipmentRental: EquipmentRental = EquipmentRental.None,
+    val equipmentRental: EquipmentRental? = null,
     val needsTransport: Boolean? = null,
     val transportNote: String = "",
     val certPreferences: Set<String> = emptySet(),
@@ -231,7 +231,7 @@ class LessonRequestWizardViewModel @Inject constructor(
     fun toggleEquipmentRental(e: EquipmentRental) {
         _uiState.update { s ->
             if (s.equipmentRental == e) {
-                s.copy(equipmentRental = EquipmentRental.None)
+                s.copy(equipmentRental = null)
             } else {
                 s.copy(equipmentRental = e)
             }
@@ -291,7 +291,7 @@ class LessonRequestWizardViewModel @Inject constructor(
                         dateEnd = dateEndForApi,
                         datesFlexible = s.datesFlexible,
                         durationDays = s.durationDays,
-                        equipmentRental = s.equipmentRental.value,
+                        equipmentRental = (s.equipmentRental ?: EquipmentRental.None).value,
                         needsTransport = s.needsTransport ?: false,
                         transportNote = s.transportNote,
                         languages = s.languages.toList().sorted(),

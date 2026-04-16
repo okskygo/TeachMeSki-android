@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CalendarViewMonth
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -199,7 +200,10 @@ fun ScheduleStep(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp),
                 )
-                DatePicker(state = pickerState)
+                DatePicker(
+                    state = pickerState,
+                    colors = DatePickerDefaults.colors(containerColor = TmsColor.SurfaceLowest),
+                )
             }
         }
     }
@@ -234,7 +238,10 @@ fun ScheduleStep(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp),
                 )
-                DatePicker(state = pickerState)
+                DatePicker(
+                    state = pickerState,
+                    colors = DatePickerDefaults.colors(containerColor = TmsColor.SurfaceLowest),
+                )
             }
         }
     }
@@ -449,7 +456,7 @@ private fun DateStrategyCard(
                     },
                 ),
         shape = shape,
-        color = if (active) TmsColor.Primary.copy(alpha = 0.05f) else TmsColor.SurfaceLowest,
+        color = TmsColor.SurfaceLowest,
     ) {
         Column(
             modifier =

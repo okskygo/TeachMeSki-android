@@ -60,9 +60,8 @@ fun PreferencesStep(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             EquipmentRental.entries.forEach { option ->
-                val selected = state.equipmentRental == option
                 TmsChip(
-                    selected = selected,
+                    selected = state.equipmentRental == option,
                     onClick = { onToggleEquipmentRental(option) },
                     label =
                         stringResource(

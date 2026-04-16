@@ -56,12 +56,7 @@ fun SkillLevelStep(
                 shape = RoundedCornerShape(12.dp),
                 colors =
                     CardDefaults.cardColors(
-                        containerColor =
-                            if (selected) {
-                                TmsColor.Primary.copy(alpha = 0.05f)
-                            } else {
-                                TmsColor.SurfaceLowest
-                            },
+                        containerColor = TmsColor.SurfaceLowest,
                     ),
                 border =
                     if (selected) {
@@ -85,7 +80,7 @@ fun SkillLevelStep(
                         Text(
                             text = level.toString(),
                             style = MaterialTheme.typography.titleMedium,
-                            color = TmsColor.OnSurface,
+                            color = TmsColor.Primary,
                             fontWeight = FontWeight.Bold,
                         )
                     }
