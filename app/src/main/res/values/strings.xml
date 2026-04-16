@@ -403,6 +403,9 @@
     <string name="wallet_transaction_other">其他</string>
     <string name="wallet_empty_transactions">尚無異動紀錄</string>
     <string name="wallet_tokens_fmt">%1$d 點</string>
+    <string name="wallet_transaction_amount_positive_fmt">+%1$d</string>
+    <string name="wallet_transaction_amount_signed_fmt">%1$d</string>
+    <string name="wallet_transaction_balance_after_fmt">餘額 %1$d 點</string>
 
     <!-- Phase 4: Instructor account (strings from teachmeski-web/content/zh-TW/base.json) -->
     <string name="instructor_account_title">我的帳號</string>
