@@ -86,8 +86,16 @@ class SignupViewModel @Inject constructor(
             return
         }
         if (!state.passwordRules.allPassed) {
+            val errorRes = when {
+                !state.passwordRules.hasMinLength -> R.string.auth_error_password_too_short
+                !state.passwordRules.hasMaxLength -> R.string.auth_error_password_too_long
+                !state.passwordRules.hasUppercase -> R.string.auth_error_password_no_uppercase
+                !state.passwordRules.hasLowercase -> R.string.auth_error_password_no_lowercase
+                !state.passwordRules.hasDigit -> R.string.auth_error_password_no_digit
+                else -> R.string.auth_error_password_too_short
+            }
             _uiState.update {
-                it.copy(error = UiText.StringResource(R.string.auth_error_password_too_short))
+                it.copy(error = UiText.StringResource(errorRes))
             }
             return
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.repository.AuthRepository
+import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,8 +44,20 @@ class ForgotPasswordViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            authRepository.resetPasswordForEmail(email)
-            _uiState.update { it.copy(isLoading = false, success = true) }
+            when (authRepository.resetPasswordForEmail(email)) {
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isLoading = false, success = true) }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = UiText.StringResource(R.string.auth_error_generic),
+                        )
+                    }
+                }
+                is Resource.Loading -> Unit
+            }
         }
     }
 }
