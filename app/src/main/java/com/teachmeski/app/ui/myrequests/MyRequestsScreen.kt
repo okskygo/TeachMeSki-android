@@ -140,7 +140,7 @@ fun MyRequestsScreen(
                         contentPadding = PaddingValues(
                             start = 16.dp,
                             end = 16.dp,
-                            top = 8.dp,
+                            top = 0.dp,
                             bottom = 88.dp,
                         ),
                     ) {
@@ -150,7 +150,7 @@ fun MyRequestsScreen(
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = TmsColor.OnSurface,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                                modifier = Modifier.padding(bottom = 4.dp),
                             )
                         }
                         uiState.error?.let { err ->
