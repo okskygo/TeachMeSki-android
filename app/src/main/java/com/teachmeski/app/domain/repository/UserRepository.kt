@@ -5,4 +5,5 @@ import com.teachmeski.app.util.Resource
 
 interface UserRepository {
     suspend fun getUserById(userId: String): Resource<User>
+    suspend fun updateDisplayName(userId: String, displayName: String): Resource<Unit>
 }

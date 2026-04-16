@@ -267,6 +267,7 @@
     <string name="my_requests_dates_flexible_suffix">(Flexible)</string>
 
     <!-- Request Detail -->
+    <string name="request_detail_screen_title">Lesson request</string>
     <string name="request_detail_resort_label">Ski Resort</string>
     <string name="request_detail_created_at_label">Created</string>
     <string name="request_detail_lesson_date_label">Lesson Dates</string>
@@ -332,4 +333,5 @@
     <string name="legal_terms_title">Terms of Service</string>
     <string name="legal_privacy_title">Privacy Policy</string>
     <string name="legal_back_home">Back</string>
+    <string name="legal_website_placeholder">Full content is available on the TeachMeSki website.</string>
 </resources>

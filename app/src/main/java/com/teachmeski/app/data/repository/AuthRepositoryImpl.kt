@@ -21,6 +21,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun currentUserId(): String? = authDataSource.currentUserId()
 
+    override fun currentUserEmail(): String? = authDataSource.currentUserEmail()
+
     override suspend fun signUp(email: String, password: String, displayName: String): Resource<Unit> =
         runAuth { authDataSource.signUp(email, password, displayName) }
 

@@ -28,7 +28,7 @@ sealed interface Route {
     @Serializable data object CreditHistory : Route
 
     @Serializable data object Contact : Route
-    @Serializable data object Legal : Route
+    @Serializable data class Legal(val type: String) : Route
     @Serializable data class InstructorDetail(val shortId: String) : Route
 
     @Serializable data object AuthGraph : Route

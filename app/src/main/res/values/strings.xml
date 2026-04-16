@@ -267,6 +267,7 @@
     <string name="my_requests_dates_flexible_suffix">（彈性）</string>
 
     <!-- Request Detail -->
+    <string name="request_detail_screen_title">課程需求詳情</string>
     <string name="request_detail_resort_label">滑雪場</string>
     <string name="request_detail_created_at_label">建立時間</string>
     <string name="request_detail_lesson_date_label">上課日期</string>
@@ -332,4 +333,5 @@
     <string name="legal_terms_title">服務條款</string>
     <string name="legal_privacy_title">隱私權政策</string>
     <string name="legal_back_home">返回</string>
+    <string name="legal_website_placeholder">完整內容請至 TeachMeSki 官方網站查看。</string>
 </resources>

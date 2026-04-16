@@ -17,4 +17,14 @@ class UserDataSource @Inject constructor(
                 filter { eq("id", userId) }
             }
             .decodeSingle<UserDto>()
+
+    suspend fun updateDisplayName(userId: String, displayName: String) {
+        supabaseClient.postgrest
+            .from("users")
+            .update({
+                set("display_name", displayName)
+            }) {
+                filter { eq("id", userId) }
+            }
+    }
 }

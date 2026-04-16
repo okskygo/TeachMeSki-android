@@ -21,6 +21,9 @@ class AuthDataSource @Inject constructor(
     fun currentUserId(): String? =
         supabaseClient.auth.currentSessionOrNull()?.user?.id
 
+    fun currentUserEmail(): String? =
+        supabaseClient.auth.currentSessionOrNull()?.user?.email
+
     suspend fun signUp(email: String, password: String, displayName: String) {
         supabaseClient.auth.signUpWith(EmailProvider) {
             this.email = email

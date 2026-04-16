@@ -21,4 +21,12 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(UiText.StringResource(R.string.auth_error_generic))
         }
+
+    override suspend fun updateDisplayName(userId: String, displayName: String): Resource<Unit> =
+        try {
+            userDataSource.updateDisplayName(userId, displayName)
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(UiText.StringResource(R.string.account_save_error))
+        }
 }
