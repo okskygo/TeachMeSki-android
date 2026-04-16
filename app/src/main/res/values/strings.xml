@@ -440,6 +440,17 @@
     <string name="wallet_transaction_amount_positive_fmt">+%1$d</string>
     <string name="wallet_transaction_amount_signed_fmt">%1$d</string>
     <string name="wallet_transaction_balance_after_fmt">餘額 %1$d 點</string>
+    <string name="wallet_packages_title">加值方案</string>
+    <string name="wallet_package_starter">入門方案</string>
+    <string name="wallet_package_standard">標準方案</string>
+    <string name="wallet_package_professional">進階方案</string>
+    <string name="wallet_package_enterprise">企業方案</string>
+    <string name="wallet_package_credits_fmt">%1$d 點</string>
+    <string name="wallet_package_bonus_fmt">+%1$d 點 bonus</string>
+    <string name="wallet_package_popular">熱門</string>
+    <string name="wallet_package_coming_soon">即將推出</string>
+    <string name="wallet_package_price_fmt">¥%1$s</string>
+    <string name="wallet_credit_history_empty_description">完成解鎖後，交易紀錄會顯示在此</string>
 
     <!-- Phase 4: Instructor account (strings from teachmeski-web/content/zh-TW/base.json) -->
     <string name="instructor_account_title">我的帳號</string>

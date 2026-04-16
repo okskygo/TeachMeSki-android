@@ -440,6 +440,17 @@
     <string name="wallet_transaction_amount_positive_fmt">+%1$d</string>
     <string name="wallet_transaction_amount_signed_fmt">%1$d</string>
     <string name="wallet_transaction_balance_after_fmt">Balance: %1$d credits</string>
+    <string name="wallet_packages_title">Credit Packages</string>
+    <string name="wallet_package_starter">Starter</string>
+    <string name="wallet_package_standard">Standard</string>
+    <string name="wallet_package_professional">Professional</string>
+    <string name="wallet_package_enterprise">Enterprise</string>
+    <string name="wallet_package_credits_fmt">%1$d credits</string>
+    <string name="wallet_package_bonus_fmt">+%1$d bonus</string>
+    <string name="wallet_package_popular">Popular</string>
+    <string name="wallet_package_coming_soon">Coming Soon</string>
+    <string name="wallet_package_price_fmt">¥%1$s</string>
+    <string name="wallet_credit_history_empty_description">Transaction records will appear here after you unlock lesson requests</string>
 
     <!-- Phase 4: Instructor account (strings from teachmeski-web/content/en/base.json) -->
     <string name="instructor_account_title">My Account</string>

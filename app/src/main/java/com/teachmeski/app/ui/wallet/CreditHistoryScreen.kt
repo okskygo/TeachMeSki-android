@@ -1,5 +1,6 @@
 package com.teachmeski.app.ui.wallet
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,10 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -32,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -123,15 +129,56 @@ fun CreditHistoryScreen(
 
                 uiState.transactions.isEmpty() -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = stringResource(R.string.wallet_empty_transactions),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TmsColor.OnSurfaceVariant,
-                            modifier = Modifier.padding(32.dp),
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = TmsColor.SurfaceLowest,
+                            shadowElevation = 2.dp,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 32.dp, vertical = 48.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = TmsColor.SurfaceLow,
+                                    border = BorderStroke(2.dp, TmsColor.PrimaryFixedDim.copy(alpha = 0.5f)),
+                                    modifier = Modifier.size(56.dp),
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
+                                            contentDescription = null,
+                                            tint = TmsColor.Outline,
+                                            modifier = Modifier.size(26.dp),
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.wallet_empty_transactions),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TmsColor.OnSurface,
+                                    textAlign = TextAlign.Center,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.wallet_credit_history_empty_description),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TmsColor.OnSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -170,11 +217,25 @@ fun CreditHistoryScreen(
                                 }
                             }
                         }
-                        items(
-                            items = uiState.transactions,
-                            key = { it.id },
-                        ) { tx ->
-                            TransactionRow(transaction = tx)
+                        item(key = "transactions_card") {
+                            val txs = uiState.transactions
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = TmsColor.SurfaceLowest,
+                                shadowElevation = 2.dp,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    txs.forEachIndexed { index, tx ->
+                                        TransactionRow(transaction = tx)
+                                        if (index < txs.lastIndex) {
+                                            HorizontalDivider(
+                                                color = TmsColor.OutlineVariant.copy(alpha = 0.35f),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                         if (uiState.isLoadingMore) {
                             item(key = "loading_more") {
@@ -218,44 +279,40 @@ private fun TransactionRow(
         transaction.balanceAfter,
     )
 
-    Surface(
-        color = TmsColor.SurfaceLowest,
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 2.dp,
-        modifier = Modifier.fillMaxWidth(),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
             Text(
                 text = typeLabel,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
                 color = TmsColor.OnSurface,
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = dateLabel,
                 style = MaterialTheme.typography.bodySmall,
+                color = TmsColor.Outline,
+            )
+            Text(
+                text = balanceAfter,
+                style = MaterialTheme.typography.bodySmall,
                 color = TmsColor.OnSurfaceVariant,
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = amountText,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = amountColor,
-                )
-                Text(
-                    text = balanceAfter,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TmsColor.OnSurfaceVariant,
-                )
-            }
         }
+        Text(
+            text = amountText,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = amountColor,
+        )
     }
 }
 
