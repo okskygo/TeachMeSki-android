@@ -1,9 +1,13 @@
 package com.teachmeski.app.ui.myrequests
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +15,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Landscape
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material.icons.outlined.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -32,10 +51,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
@@ -47,6 +72,7 @@ import com.teachmeski.app.domain.model.LessonRequestStatus
 import com.teachmeski.app.ui.component.EmptyState
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.component.UserAvatar
+import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.util.UiText
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -80,20 +106,21 @@ fun RequestDetailScreen(
         },
     ) { padding ->
         Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
         ) {
             when {
                 state.isLoading && state.detail == null -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = TmsColor.Primary,
+                    )
                 }
                 state.error != null && state.detail == null -> {
-                    val err = state.error
                     EmptyState(
                         title = stringResource(R.string.error_load_request_detail),
-                        description = err?.asString().orEmpty(),
+                        description = state.error?.asString().orEmpty(),
                         modifier = Modifier.align(Alignment.Center),
                     )
                 }
@@ -116,8 +143,8 @@ fun RequestDetailScreen(
     if (showCloseDialog) {
         AlertDialog(
             onDismissRequest = { showCloseDialog = false },
-            title = { Text(text = stringResource(R.string.request_detail_close_dialog_title)) },
-            text = { Text(text = stringResource(R.string.request_detail_close_dialog_desc)) },
+            title = { Text(stringResource(R.string.request_detail_close_dialog_title)) },
+            text = { Text(stringResource(R.string.request_detail_close_dialog_desc)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -126,12 +153,12 @@ fun RequestDetailScreen(
                     },
                     enabled = !state.isClosing,
                 ) {
-                    Text(text = stringResource(R.string.request_detail_close_dialog_confirm))
+                    Text(stringResource(R.string.request_detail_close_dialog_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCloseDialog = false }) {
-                    Text(text = stringResource(R.string.common_cancel))
+                    Text(stringResource(R.string.common_cancel))
                 }
             },
         )
@@ -150,46 +177,37 @@ private fun RequestDetailContent(
     onCloseClick: () -> Unit,
 ) {
     LazyColumn(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
+        item { Spacer(modifier = Modifier.height(4.dp)) }
+
         item {
-            RequestInfoCard(detail = detail)
-        }
-        item {
-            StatusAndCloseSection(
+            OrderInfoCard(
                 detail = detail,
                 isClosing = isClosing,
                 onCloseClick = onCloseClick,
             )
         }
+
         if (loadError != null) {
             item {
                 Text(
                     text = loadError.asString(),
-                    color = MaterialTheme.colorScheme.error,
+                    color = TmsColor.Error,
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
+
         item {
-            Text(
-                text = stringResource(R.string.request_detail_section_user_initiated),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            SectionLabel(text = stringResource(R.string.request_detail_section_user_initiated))
         }
         if (unlocked.isEmpty()) {
             item {
-                Text(
-                    text = stringResource(R.string.request_detail_no_user_initiated_yet),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
+                EmptySection(text = stringResource(R.string.request_detail_no_user_initiated_yet))
             }
         } else {
             items(unlocked, key = { it.instructorId }) { preview ->
@@ -200,21 +218,13 @@ private fun RequestDetailContent(
                 )
             }
         }
+
         item {
-            Text(
-                text = stringResource(R.string.request_detail_recommended_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            SectionLabel(text = stringResource(R.string.request_detail_recommended_title))
         }
         if (recommended.isEmpty()) {
             item {
-                Text(
-                    text = stringResource(R.string.request_detail_recommended_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
+                EmptySection(text = stringResource(R.string.request_detail_recommended_none))
             }
         } else {
             items(recommended, key = { it.instructorId }) { preview ->
@@ -224,91 +234,328 @@ private fun RequestDetailContent(
                 )
             }
         }
+
         item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
 @Composable
-private fun RequestInfoCard(detail: LessonRequest) {
+private fun SectionLabel(text: String) {
+    Text(
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.Bold,
+        color = TmsColor.Outline,
+        letterSpacing = 2.sp,
+    )
+}
+
+@Composable
+private fun EmptySection(text: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TmsColor.SurfaceLow, RoundedCornerShape(16.dp))
+            .padding(vertical = 24.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TmsColor.OnSurfaceVariant,
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun OrderInfoCard(
+    detail: LessonRequest,
+    isClosing: Boolean,
+    onCloseClick: () -> Unit,
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(12.dp),
+        color = TmsColor.SurfaceLowest,
+        shadowElevation = 2.dp,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            DetailRow(
-                label = stringResource(R.string.request_detail_discipline_label),
-                value = disciplineLabel(detail.discipline),
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        text = disciplineLabel(detail.discipline),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = TmsColor.OnSurface,
+                    )
+                    DetailStatusPill(status = detail.status)
+                }
+
+                if (detail.status == LessonRequestStatus.Active) {
+                    OutlinedButton(
+                        onClick = onCloseClick,
+                        enabled = !isClosing,
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, TmsColor.Primary),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = TmsColor.Primary,
+                        ),
+                        contentPadding = ButtonDefaults.ContentPadding,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.request_detail_close_button),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = TmsColor.SurfaceVariant.copy(alpha = 0.4f),
             )
-            DetailRow(
-                label = stringResource(R.string.request_detail_level_label),
-                value = skillLevelSummary(detail.discipline, detail.skillLevel),
-            )
-            DetailRow(
-                label = stringResource(R.string.request_detail_group_size_label),
-                value = groupSummary(detail),
-            )
-            DetailRow(
+
+            Row(
+                modifier = Modifier.padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Landscape,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(14.dp)
+                        .padding(top = 2.dp),
+                    tint = TmsColor.Primary,
+                )
+                Column {
+                    Text(
+                        text = stringResource(R.string.request_detail_resort_label).uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TmsColor.Outline,
+                        letterSpacing = 1.sp,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (detail.allRegionsSelected) {
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = TmsColor.Primary.copy(alpha = 0.1f),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.wizard_resort_all_regions),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = TmsColor.Primary,
+                            )
+                        }
+                    } else if (detail.resortNames.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            detail.resortNames.forEach { name ->
+                                Surface(
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = TmsColor.SurfaceLow,
+                                ) {
+                                    Text(
+                                        text = name,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = TmsColor.OnSurface,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            InfoRow(
+                icon = Icons.Outlined.CalendarMonth,
                 label = stringResource(R.string.request_detail_lesson_date_label),
                 value = datesSummary(detail),
             )
-            DetailRow(
+            InfoRow(
+                iconRes = when (detail.discipline) {
+                    Discipline.Snowboard -> R.drawable.ic_snowboard
+                    Discipline.Ski -> R.drawable.ic_ski
+                },
+                label = stringResource(R.string.request_detail_discipline_label),
+                value = disciplineLabel(detail.discipline),
+            )
+            InfoRow(
+                icon = Icons.Outlined.TrendingUp,
+                label = stringResource(R.string.request_detail_level_label),
+                value = skillLevelSummary(detail.discipline, detail.skillLevel),
+            )
+            InfoRow(
+                icon = Icons.Outlined.Groups,
+                label = stringResource(R.string.request_detail_group_size_label),
+                value = groupSummary(detail),
+            )
+            InfoRow(
+                icon = Icons.Outlined.Schedule,
                 label = stringResource(R.string.request_detail_duration_label),
                 value = durationSummary(detail.durationDays),
             )
-            DetailRow(
-                label = stringResource(R.string.request_detail_resort_label),
-                value = resortSummary(detail),
-            )
-            DetailRow(
+            InfoRow(
+                icon = Icons.Outlined.Translate,
                 label = stringResource(R.string.request_detail_language_label),
                 value = languagesSummary(detail.languages),
             )
-            DetailRow(
-                label = stringResource(R.string.wizard_equipment_label),
-                value = equipmentSummary(detail.equipmentRental),
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = TmsColor.SurfaceVariant.copy(alpha = 0.4f),
             )
-            DetailRow(
-                label = stringResource(R.string.wizard_transport_label),
-                value = transportSummary(detail),
-            )
-            DetailRow(
-                label = stringResource(R.string.wizard_cert_label),
-                value = certsSummary(detail.certPreferences),
-            )
-            DetailRow(
+
+            InfoRow(
+                icon = Icons.Outlined.Description,
                 label = stringResource(R.string.request_detail_description_label),
-                value =
-                    detail.additionalNotes?.trim().takeUnless { it.isNullOrEmpty() }
-                        ?: stringResource(R.string.common_empty_value),
-            )
-            DetailRow(
-                label = stringResource(R.string.request_detail_created_at_label),
-                value = formatCreatedAt(detail.createdAt),
+                value = detail.additionalNotes?.trim().takeUnless { it.isNullOrEmpty() }
+                    ?: stringResource(R.string.common_empty_value),
             )
         }
     }
 }
 
 @Composable
-private fun DetailRow(
+private fun InfoRow(
+    icon: ImageVector,
     label: String,
     value: String,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+    Row(
+        modifier = Modifier.padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(14.dp)
+                .padding(top = 2.dp),
+            tint = TmsColor.Primary,
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+        Column {
+            Text(
+                text = label.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = TmsColor.Outline,
+                letterSpacing = 1.sp,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TmsColor.OnSurface,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoRow(
+    iconRes: Int,
+    label: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier.padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier
+                .size(14.dp)
+                .padding(top = 2.dp),
+            tint = TmsColor.Primary,
+        )
+        Column {
+            Text(
+                text = label.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = TmsColor.Outline,
+                letterSpacing = 1.sp,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TmsColor.OnSurface,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailStatusPill(status: LessonRequestStatus) {
+    val (label, bgColor, textColor) = statusPillColors(status)
+    Surface(
+        shape = CircleShape,
+        color = bgColor,
+        border = BorderStroke(1.dp, textColor.copy(alpha = 0.3f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(5.dp)
+                    .background(textColor.copy(alpha = 0.8f), CircleShape),
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                color = textColor,
+            )
+        }
+    }
+}
+
+@Composable
+private fun statusPillColors(status: LessonRequestStatus): Triple<String, Color, Color> {
+    val label = when (status) {
+        LessonRequestStatus.Active -> stringResource(R.string.my_requests_status_active)
+        LessonRequestStatus.Expired -> stringResource(R.string.my_requests_status_expired)
+        LessonRequestStatus.ClosedByUser -> stringResource(R.string.my_requests_status_closed)
+    }
+    return when (status) {
+        LessonRequestStatus.Active -> Triple(
+            label,
+            TmsColor.Primary.copy(alpha = 0.1f),
+            TmsColor.Primary,
+        )
+        LessonRequestStatus.Expired -> Triple(
+            label,
+            TmsColor.Error.copy(alpha = 0.1f),
+            TmsColor.Error,
+        )
+        LessonRequestStatus.ClosedByUser -> Triple(
+            label,
+            TmsColor.OnSurfaceVariant.copy(alpha = 0.1f),
+            TmsColor.OnSurfaceVariant,
         )
     }
 }
@@ -323,238 +570,86 @@ private fun disciplineLabel(discipline: Discipline): String =
     )
 
 @Composable
-private fun skillLevelSummary(
-    discipline: Discipline,
-    skillLevel: Int,
-): String {
+private fun skillLevelSummary(discipline: Discipline, skillLevel: Int): String {
     val lvl = skillLevel.coerceIn(0, 4)
-    val prefix = stringResource(R.string.wizard_confirm_level_prefix)
-    val descRes = skillLevelDescriptionRes(discipline, lvl)
-    val desc = stringResource(descRes)
-    return "$prefix$lvl — $desc"
-}
-
-private fun skillLevelDescriptionRes(
-    discipline: Discipline,
-    level: Int,
-): Int {
-    val n = level.coerceIn(0, 4)
-    return when (discipline) {
-        Discipline.Ski ->
-            when (n) {
-                0 -> R.string.wizard_level_ski_0
-                1 -> R.string.wizard_level_ski_1
-                2 -> R.string.wizard_level_ski_2
-                3 -> R.string.wizard_level_ski_3
-                else -> R.string.wizard_level_ski_4
-            }
-        Discipline.Snowboard ->
-            when (n) {
-                0 -> R.string.wizard_level_snowboard_0
-                1 -> R.string.wizard_level_snowboard_1
-                2 -> R.string.wizard_level_snowboard_2
-                3 -> R.string.wizard_level_snowboard_3
-                else -> R.string.wizard_level_snowboard_4
-            }
+    val descRes = when (discipline) {
+        Discipline.Ski -> when (lvl) {
+            0 -> R.string.wizard_level_ski_0
+            1 -> R.string.wizard_level_ski_1
+            2 -> R.string.wizard_level_ski_2
+            3 -> R.string.wizard_level_ski_3
+            else -> R.string.wizard_level_ski_4
+        }
+        Discipline.Snowboard -> when (lvl) {
+            0 -> R.string.wizard_level_snowboard_0
+            1 -> R.string.wizard_level_snowboard_1
+            2 -> R.string.wizard_level_snowboard_2
+            3 -> R.string.wizard_level_snowboard_3
+            else -> R.string.wizard_level_snowboard_4
+        }
     }
+    return stringResource(descRes)
 }
 
 @Composable
 private fun groupSummary(detail: LessonRequest): String {
-    val discipline = disciplineLabel(detail.discipline)
     val people = stringResource(R.string.wizard_confirm_people)
-    val children =
-        if (detail.hasChildren) {
-            stringResource(R.string.wizard_confirm_with_children)
-        } else {
-            ""
-        }
-    return "$discipline, ${detail.groupSize} $people$children"
+    val children = if (detail.hasChildren) stringResource(R.string.wizard_confirm_with_children) else ""
+    return "${detail.groupSize} $people$children"
 }
 
 @Composable
 private fun datesSummary(detail: LessonRequest): String {
-    if (detail.datesFlexible) {
-        return stringResource(R.string.request_detail_dates_undecided) +
-            stringResource(R.string.request_detail_dates_flexible_suffix)
-    }
-    val start = detail.dateStart
-    if (start.isNullOrBlank()) {
-        return stringResource(R.string.request_detail_dates_undecided)
-    }
+    val undecided = stringResource(R.string.request_detail_dates_undecided)
+    val flexSuffix = stringResource(R.string.request_detail_dates_flexible_suffix)
     val locale = LocalConfiguration.current.locales[0]
-    val fmtIn = remember { SimpleDateFormat("yyyy-MM-dd", Locale.US) }
-    val fmtOut =
-        remember(locale) {
-            SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM, locale)
+
+    if (detail.datesFlexible && detail.dateStart.isNullOrBlank()) return undecided
+    if (detail.datesFlexible && !detail.dateStart.isNullOrBlank()) {
+        val formatted = try {
+            val dt = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(detail.dateStart!!)!!
+            SimpleDateFormat("yyyy年M月", locale).format(dt)
+        } catch (_: Exception) {
+            detail.dateStart
         }
+        return "$formatted $flexSuffix"
+    }
+    val start = detail.dateStart?.takeIf { it.isNotBlank() } ?: return undecided
+    val fmtIn = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    val fmtOut = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM, locale)
     return try {
-        val startDate = fmtIn.parse(start) ?: return start
+        val startDate = fmtIn.parse(start)!!
         val startLabel = fmtOut.format(startDate)
         val endIso = detail.dateEnd?.takeIf { it.isNotBlank() } ?: start
-        if (endIso == start) {
-            startLabel
-        } else {
-            val endDate = fmtIn.parse(endIso) ?: return "$startLabel – $endIso"
-            val endLabel = fmtOut.format(endDate)
-            "$startLabel – $endLabel"
-        }
+        if (endIso == start) startLabel
+        else "$startLabel – ${fmtOut.format(fmtIn.parse(endIso)!!)}"
     } catch (_: Exception) {
-        val endIso = detail.dateEnd?.takeIf { it.isNotBlank() }
-        if (endIso != null && endIso != start) {
-            "$start – $endIso"
-        } else {
-            start
-        }
+        start
     }
 }
 
 @Composable
 private fun durationSummary(durationDays: Double): String {
-    if (durationDays == 0.5) {
-        return stringResource(R.string.wizard_confirm_half_day)
-    }
+    if (durationDays == 0.5) return stringResource(R.string.wizard_confirm_half_day)
     val daysWord = stringResource(R.string.wizard_confirm_days)
-    val n = durationDays
-    val numStr =
-        if (kotlin.math.abs(n - n.toInt().toDouble()) < 1e-6) {
-            n.toInt().toString()
-        } else {
-            n.toString()
-        }
+    val numStr = if (kotlin.math.abs(durationDays - durationDays.toInt().toDouble()) < 1e-6)
+        durationDays.toInt().toString() else durationDays.toString()
     return "$numStr $daysWord"
 }
 
 @Composable
-private fun resortSummary(detail: LessonRequest): String {
-    if (detail.allRegionsSelected) {
-        return stringResource(R.string.wizard_resort_all_regions)
-    }
-    return if (detail.resortNames.isEmpty()) {
-        stringResource(R.string.common_empty_value)
-    } else {
-        detail.resortNames.joinToString("\n")
-    }
-}
-
-@Composable
 private fun languagesSummary(codes: List<String>): String {
-    val parts =
-        codes.sorted().map { code ->
-            stringResource(
-                when (code) {
-                    "zh" -> R.string.wizard_lang_zh
-                    "en" -> R.string.wizard_lang_en
-                    "ja" -> R.string.wizard_lang_ja
-                    else -> R.string.wizard_lang_en
-                },
-            )
-        }
-    return if (parts.isEmpty()) {
-        stringResource(R.string.common_empty_value)
-    } else {
-        parts.joinToString(", ")
-    }
-}
-
-@Composable
-private fun equipmentSummary(rental: EquipmentRental): String =
-    stringResource(
-        when (rental) {
-            EquipmentRental.All -> R.string.wizard_equipment_all
-            EquipmentRental.Partial -> R.string.wizard_equipment_partial
-            EquipmentRental.None -> R.string.wizard_equipment_none
-        },
-    )
-
-@Composable
-private fun transportSummary(detail: LessonRequest): String {
-    val transport =
-        if (detail.needsTransport) {
-            stringResource(R.string.wizard_transport_yes)
-        } else {
-            stringResource(R.string.wizard_transport_no)
-        }
-    val note = detail.transportNote?.trim().orEmpty()
-    return if (detail.needsTransport && note.isNotEmpty()) {
-        "$transport ($note)"
-    } else {
-        transport
-    }
-}
-
-@Composable
-private fun certsSummary(prefs: List<String>): String =
-    prefs.sorted().joinToString(", ").ifEmpty {
-        stringResource(R.string.common_empty_value)
-    }
-
-@Composable
-private fun formatCreatedAt(iso: String): String {
-    if (iso.isBlank()) return stringResource(R.string.common_empty_value)
-    val locale = LocalConfiguration.current.locales[0]
-    val parsers =
-        listOf(
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US),
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US),
-            SimpleDateFormat("yyyy-MM-dd", Locale.US),
+    val parts = codes.sorted().map { code ->
+        stringResource(
+            when (code) {
+                "zh" -> R.string.wizard_lang_zh
+                "en" -> R.string.wizard_lang_en
+                "ja" -> R.string.wizard_lang_ja
+                else -> R.string.wizard_lang_en
+            },
         )
-    for (p in parsers) {
-        try {
-            val d = p.parse(iso) ?: continue
-            val fmtOut = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MEDIUM, SimpleDateFormat.SHORT, locale)
-            return fmtOut.format(d)
-        } catch (_: Exception) {
-            continue
-        }
     }
-    return iso
-}
-
-@Composable
-private fun StatusAndCloseSection(
-    detail: LessonRequest,
-    isClosing: Boolean,
-    onCloseClick: () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        val statusText =
-            stringResource(
-                when (detail.status) {
-                    LessonRequestStatus.Active -> R.string.my_requests_status_active
-                    LessonRequestStatus.Expired -> R.string.my_requests_status_expired
-                    LessonRequestStatus.ClosedByUser -> R.string.my_requests_status_closed
-                },
-            )
-        Text(
-            text = statusText,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        if (detail.status == LessonRequestStatus.Active) {
-            OutlinedButton(
-                onClick = onCloseClick,
-                enabled = !isClosing,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    if (isClosing) {
-                        CircularProgressIndicator(
-                            modifier =
-                                Modifier
-                                    .size(18.dp)
-                                    .padding(end = 8.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    }
-                    Text(text = stringResource(R.string.request_detail_close_button))
-                }
-            }
-        }
-    }
+    return parts.joinToString(", ").ifEmpty { stringResource(R.string.common_empty_value) }
 }
 
 @Composable
@@ -564,52 +659,57 @@ private fun UnlockedInstructorCard(
     onInstructorClick: (String) -> Unit,
 ) {
     val shortId = preview.shortId.orEmpty()
-    val subtitle =
-        if (preview.hasUnread) {
-            stringResource(R.string.request_detail_go_to_chat)
-        } else {
-            stringResource(R.string.request_detail_last_message_empty)
-        }
     Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .then(
-                    if (shortId.isNotEmpty()) {
-                        Modifier.clickable { onInstructorClick(shortId) }
-                    } else {
-                        Modifier
-                    },
-                ),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (shortId.isNotEmpty()) Modifier.clickable { onInstructorClick(shortId) }
+                else Modifier,
+            ),
+        shape = RoundedCornerShape(16.dp),
+        color = TmsColor.SurfaceLowest,
         shadowElevation = 1.dp,
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            UserAvatar(
-                displayName = preview.displayName,
-                avatarUrl = preview.avatarUrl,
-                size = 48.dp,
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = preview.displayName ?: stringResource(R.string.common_empty_value),
-                    style = MaterialTheme.typography.titleSmall,
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                UserAvatar(
+                    displayName = preview.displayName,
+                    avatarUrl = preview.avatarUrl,
+                    size = 48.dp,
                 )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = preview.displayName ?: stringResource(R.string.common_empty_value),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = if (preview.hasUnread) stringResource(R.string.request_detail_go_to_chat)
+                        else stringResource(R.string.request_detail_last_message_empty),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TmsColor.OnSurfaceVariant,
+                    )
+                }
             }
             val roomId = preview.roomId
             if (!roomId.isNullOrBlank()) {
-                TextButton(onClick = { onChatClick(roomId) }) {
-                    Text(text = stringResource(R.string.request_detail_go_to_chat))
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = { onChatClick(roomId) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = TmsColor.Primary,
+                        contentColor = TmsColor.OnPrimary,
+                    ),
+                ) {
+                    Text(
+                        text = stringResource(R.string.request_detail_go_to_chat),
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
             }
         }
@@ -622,33 +722,15 @@ private fun RecommendedInstructorCard(
     onInstructorClick: (String) -> Unit,
 ) {
     val shortId = preview.shortId.orEmpty()
-    val ratingLabel = stringResource(R.string.request_detail_recommended_rating)
-    val ratingPart =
-        preview.ratingAvg?.let { avg ->
-            val c = preview.ratingCount
-            "$ratingLabel: ${"%.1f".format(avg)} ($c)"
-        }
-    val phoneLine =
-        stringResource(
-            if (preview.phoneVerifiedAt != null) {
-                R.string.request_detail_phone_verified
-            } else {
-                R.string.request_detail_phone_unverified
-            },
-        )
     Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .then(
-                    if (shortId.isNotEmpty()) {
-                        Modifier.clickable { onInstructorClick(shortId) }
-                    } else {
-                        Modifier
-                    },
-                ),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (shortId.isNotEmpty()) Modifier.clickable { onInstructorClick(shortId) }
+                else Modifier,
+            ),
+        shape = RoundedCornerShape(12.dp),
+        color = TmsColor.SurfaceLowest,
         shadowElevation = 1.dp,
     ) {
         Row(
@@ -661,30 +743,44 @@ private fun RecommendedInstructorCard(
                 avatarUrl = preview.avatarUrl,
                 size = 48.dp,
             )
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
                 Text(
                     text = preview.displayName ?: stringResource(R.string.common_empty_value),
                     style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = phoneLine,
+                    text = stringResource(
+                        if (preview.phoneVerifiedAt != null) R.string.request_detail_phone_verified
+                        else R.string.request_detail_phone_unverified,
+                    ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = TmsColor.OnSurfaceVariant,
                 )
-                if (ratingPart != null) {
+                preview.ratingAvg?.let { avg ->
                     Text(
-                        text = ratingPart,
+                        text = "${"%.1f".format(avg)} (${preview.ratingCount})",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = TmsColor.OnSurfaceVariant,
                     )
                 }
             }
             if (shortId.isNotEmpty()) {
                 Button(
                     onClick = { onInstructorClick(shortId) },
-                    shape = MaterialTheme.shapes.medium,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = TmsColor.Primary,
+                        contentColor = TmsColor.OnPrimary,
+                    ),
                 ) {
-                    Text(text = stringResource(R.string.request_detail_recommended_contact))
+                    Text(
+                        text = stringResource(R.string.request_detail_recommended_contact),
+                        style = MaterialTheme.typography.labelMedium,
+                    )
                 }
             }
         }
