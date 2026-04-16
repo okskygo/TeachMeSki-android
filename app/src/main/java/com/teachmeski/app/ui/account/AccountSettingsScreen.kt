@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -242,11 +241,6 @@ fun AccountSettingsScreen(
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = TmsColor.OnSurface.copy(alpha = 0.6f),
                                     modifier = Modifier.weight(1f),
-                                )
-                                Icon(
-                                    imageVector = Icons.Outlined.MoreHoriz,
-                                    contentDescription = null,
-                                    tint = TmsColor.Outline,
                                 )
                             }
                         }

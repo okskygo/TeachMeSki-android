@@ -261,7 +261,7 @@ fun LessonRequestWizardScreen(
                             )
                             4 -> ScheduleStep(
                                 state = state,
-                                onDatesFlexibleChange = viewModel::setDatesFlexible,
+                                onDateStrategyChange = viewModel::setDateStrategy,
                                 onDateStartChange = viewModel::setDateStart,
                                 onDateEndChange = viewModel::setDateEnd,
                             )

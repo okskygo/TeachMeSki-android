@@ -50,18 +50,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.theme.TmsColor
+import com.teachmeski.app.ui.wizard.DateStrategy
 import com.teachmeski.app.ui.wizard.WizardUiState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 private const val DATE_PLACEHOLDER_EM_DASH = "\u2014"
-
-private enum class DateStrategy {
-    SPECIFIC,
-    FLEXIBLE_MONTH,
-    NOT_FIXED,
-}
 
 private data class UpcomingMonth(
     val key: String,
@@ -138,31 +133,19 @@ private fun buildUpcomingMonths(locale: Locale): List<UpcomingMonth> {
 @Composable
 fun ScheduleStep(
     state: WizardUiState,
-    onDatesFlexibleChange: (Boolean) -> Unit,
+    onDateStrategyChange: (DateStrategy) -> Unit,
     onDateStartChange: (String?) -> Unit,
     onDateEndChange: (String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var strategyName by rememberSaveable { mutableStateOf(DateStrategy.NOT_FIXED.name) }
     var selectedMonthKey by rememberSaveable { mutableStateOf<String?>(null) }
-    val dateStrategy =
-        try {
-            DateStrategy.valueOf(strategyName)
-        } catch (_: IllegalArgumentException) {
-            DateStrategy.NOT_FIXED
-        }
+    val dateStrategy = state.dateStrategy
 
     LaunchedEffect(state.currentStep) {
         if (state.currentStep != 4) return@LaunchedEffect
-        val next =
-            when {
-                !state.datesFlexible -> DateStrategy.SPECIFIC
-                state.datesFlexible && !state.dateStart.isNullOrBlank() -> DateStrategy.FLEXIBLE_MONTH
-                else -> DateStrategy.NOT_FIXED
-            }
-        strategyName = next.name
-        selectedMonthKey =
-            if (next == DateStrategy.FLEXIBLE_MONTH) state.dateStart?.take(7) else null
+        if (dateStrategy == DateStrategy.FLEXIBLE_MONTH) {
+            selectedMonthKey = state.dateStart?.take(7)
+        }
     }
 
     var showStartPicker by rememberSaveable { mutableStateOf(false) }
@@ -278,8 +261,7 @@ fun ScheduleStep(
                 icon = Icons.Default.CalendarToday,
                 label = stringResource(R.string.wizard_strategy_specific),
                 onClick = {
-                    strategyName = DateStrategy.SPECIFIC.name
-                    onDatesFlexibleChange(false)
+                    onDateStrategyChange(DateStrategy.SPECIFIC)
                     onDateStartChange(null)
                     onDateEndChange(null)
                 },
@@ -290,8 +272,7 @@ fun ScheduleStep(
                 icon = Icons.Default.CalendarViewMonth,
                 label = stringResource(R.string.wizard_strategy_flexible_month),
                 onClick = {
-                    strategyName = DateStrategy.FLEXIBLE_MONTH.name
-                    onDatesFlexibleChange(true)
+                    onDateStrategyChange(DateStrategy.FLEXIBLE_MONTH)
                     onDateStartChange(null)
                     onDateEndChange(null)
                     selectedMonthKey = null
@@ -303,8 +284,7 @@ fun ScheduleStep(
                 icon = Icons.AutoMirrored.Filled.HelpOutline,
                 label = stringResource(R.string.wizard_strategy_not_fixed),
                 onClick = {
-                    strategyName = DateStrategy.NOT_FIXED.name
-                    onDatesFlexibleChange(true)
+                    onDateStrategyChange(DateStrategy.NOT_FIXED)
                     onDateStartChange(null)
                     onDateEndChange(null)
                 },

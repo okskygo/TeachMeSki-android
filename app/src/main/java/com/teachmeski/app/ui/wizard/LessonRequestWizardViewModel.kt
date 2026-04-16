@@ -29,6 +29,12 @@ enum class WizardPhase {
     Success,
 }
 
+enum class DateStrategy {
+    SPECIFIC,
+    FLEXIBLE_MONTH,
+    NOT_FIXED,
+}
+
 data class WizardUiState(
     val currentStep: Int = 1,
     val phase: WizardPhase = WizardPhase.Steps,
@@ -40,7 +46,8 @@ data class WizardUiState(
     val groupSize: Int = 1,
     val hasChildren: Boolean = false,
     val skillLevel: Int = 0,
-    val datesFlexible: Boolean = true,
+    val dateStrategy: DateStrategy = DateStrategy.SPECIFIC,
+    val datesFlexible: Boolean = false,
     val dateStart: String? = null,
     val dateEnd: String? = null,
     val durationDays: Double = 1.0,
@@ -57,7 +64,13 @@ data class WizardUiState(
         get() =
             when (currentStep) {
                 1 -> allRegionsSelected || selectedResortIds.isNotEmpty()
-                2, 3, 4, 7, 8 -> true
+                2, 3, 7, 8 -> true
+                4 ->
+                    when (dateStrategy) {
+                        DateStrategy.SPECIFIC -> !dateStart.isNullOrBlank() && !dateEnd.isNullOrBlank()
+                        DateStrategy.FLEXIBLE_MONTH -> !dateStart.isNullOrBlank()
+                        DateStrategy.NOT_FIXED -> true
+                    }
                 5 -> durationDays >= 0.5
                 6 -> languages.isNotEmpty()
                 9 -> false
@@ -191,9 +204,12 @@ class LessonRequestWizardViewModel @Inject constructor(
         _uiState.update { it.copy(skillLevel = n.coerceIn(0, 4)) }
     }
 
-    fun setDatesFlexible(b: Boolean) {
+    fun setDateStrategy(strategy: DateStrategy) {
         _uiState.update { s ->
-            s.copy(datesFlexible = b).withClampedDuration()
+            s.copy(
+                dateStrategy = strategy,
+                datesFlexible = strategy != DateStrategy.SPECIFIC,
+            ).withClampedDuration()
         }
     }
 
