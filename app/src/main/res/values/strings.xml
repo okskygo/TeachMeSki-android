@@ -416,6 +416,12 @@
     <string name="unlocked_card_unread">未讀</string>
     <string name="unlocked_tab_active">需求開放中</string>
     <string name="unlocked_tab_all">全部</string>
+    <string name="unlocked_unlocked_ago_fmt">%1$s解鎖</string>
+    <string name="unlocked_status_active">需求開放中</string>
+    <string name="unlocked_status_closed">需求已關閉</string>
+    <string name="unlocked_go_to_conversation">前往對話</string>
+    <string name="unlocked_no_message_yet">尚未開始對話</string>
+    <string name="unlocked_empty_cta">瀏覽課程需求</string>
 
     <!-- Phase 4: Wallet (strings from teachmeski-web/content/zh-TW/base.json) -->
     <string name="wallet_title">我的點數</string>

@@ -146,6 +146,10 @@ class ExploreRepositoryImpl @Inject constructor(
             val summaryById = summaries.associateBy { it.id }
             val userById = userRows.associateBy { it.id }
 
+            val allResortIds = summaries.flatMap { it.resortIds }.distinct()
+            val resortNameRows = exploreDataSource.getResortNames(allResortIds)
+            val resortNameMap = resortNameRows.associateBy { it.id }
+
             val rooms = roomDtos.mapNotNull { row ->
                 val summary = summaryById[row.lessonRequestId] ?: return@mapNotNull null
                 val student = userById[row.userId]
@@ -155,6 +159,9 @@ class ExploreRepositoryImpl @Inject constructor(
                     lastMessageSenderId = row.lastMessageSenderId,
                     instructorLastReadAt = row.instructorLastReadAt,
                 )
+                val resortNames = summary.resortIds.mapNotNull { rid ->
+                    resortNameMap[rid]?.let { "${it.nameZh} (${it.nameEn})" }
+                }
                 UnlockedRoom(
                     roomId = row.id,
                     lessonRequestId = row.lessonRequestId,
@@ -170,6 +177,14 @@ class ExploreRepositoryImpl @Inject constructor(
                     lastMessageContent = row.lastMessageContent,
                     lastMessageAt = row.lastMessageAt,
                     hasUnread = hasUnread,
+                    preferredLanguages = summary.languages,
+                    hasChildren = summary.hasChildren,
+                    durationDays = summary.durationDays,
+                    additionalNotes = summary.additionalNotes,
+                    resortNames = resortNames,
+                    allRegionsSelected = summary.allRegionsSelected,
+                    unlockedAt = row.createdAt.orEmpty(),
+                    requestStatus = summary.status,
                 )
             }
 

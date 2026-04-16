@@ -67,6 +67,7 @@ class ExploreDataSource @Inject constructor(
         @SerialName("lesson_request_id") val lessonRequestId: String,
         @SerialName("instructor_id") val instructorId: String,
         @SerialName("user_id") val userId: String,
+        @SerialName("created_at") val createdAt: String? = null,
         @SerialName("last_message_content") val lastMessageContent: String? = null,
         @SerialName("last_message_at") val lastMessageAt: String? = null,
         @SerialName("last_message_sender_id") val lastMessageSenderId: String? = null,
@@ -77,18 +78,25 @@ class ExploreDataSource @Inject constructor(
     data class UnlockedRequestSummaryDto(
         val id: String,
         val discipline: String,
+        val status: String = "active",
+        val languages: List<String> = emptyList(),
         @SerialName("skill_level") val skillLevel: Int? = null,
         @SerialName("group_size") val groupSize: Int = 1,
+        @SerialName("has_children") val hasChildren: Boolean = false,
+        @SerialName("duration_days") val durationDays: Double? = null,
+        @SerialName("additional_notes") val additionalNotes: String? = null,
         @SerialName("date_start") val dateStart: String? = null,
         @SerialName("date_end") val dateEnd: String? = null,
         @SerialName("dates_flexible") val datesFlexible: Boolean = false,
+        @SerialName("all_regions_selected") val allRegionsSelected: Boolean = false,
+        @SerialName("resort_ids") val resortIds: List<String> = emptyList(),
     )
 
     suspend fun getUnlockedRooms(instructorProfileId: String): List<UnlockedRoomDto> =
         supabaseClient.postgrest.from("chat_rooms")
             .select(
                 columns = Columns.raw(
-                    "id, lesson_request_id, instructor_id, user_id, last_message_content, last_message_at, last_message_sender_id, instructor_last_read_at",
+                    "id, lesson_request_id, instructor_id, user_id, created_at, last_message_content, last_message_at, last_message_sender_id, instructor_last_read_at",
                 ),
             ) {
                 filter { eq("instructor_id", instructorProfileId) }
@@ -101,7 +109,7 @@ class ExploreDataSource @Inject constructor(
         return supabaseClient.postgrest.from("lesson_requests")
             .select(
                 columns = Columns.raw(
-                    "id, discipline, skill_level, group_size, date_start, date_end, dates_flexible",
+                    "id, status, discipline, languages, skill_level, group_size, has_children, duration_days, additional_notes, date_start, date_end, dates_flexible, all_regions_selected, resort_ids",
                 ),
             ) {
                 filter { isIn("id", requestIds) }

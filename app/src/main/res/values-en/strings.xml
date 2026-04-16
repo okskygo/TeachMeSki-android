@@ -416,6 +416,12 @@
     <string name="unlocked_card_unread">Unread</string>
     <string name="unlocked_tab_active">Request Open</string>
     <string name="unlocked_tab_all">All</string>
+    <string name="unlocked_unlocked_ago_fmt">Unlocked %1$s</string>
+    <string name="unlocked_status_active">Request Open</string>
+    <string name="unlocked_status_closed">Request Closed</string>
+    <string name="unlocked_go_to_conversation">Go to Conversation</string>
+    <string name="unlocked_no_message_yet">No messages yet</string>
+    <string name="unlocked_empty_cta">Browse Lesson Requests</string>
 
     <!-- Phase 4: Wallet (strings from teachmeski-web/content/en/base.json) -->
     <string name="wallet_title">My Credits</string>

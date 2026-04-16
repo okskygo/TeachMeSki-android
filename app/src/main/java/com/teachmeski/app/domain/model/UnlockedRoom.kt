@@ -15,4 +15,12 @@ data class UnlockedRoom(
     val lastMessageContent: String?,
     val lastMessageAt: String?,
     val hasUnread: Boolean,
+    val preferredLanguages: List<String>,
+    val hasChildren: Boolean,
+    val durationDays: Double?,
+    val additionalNotes: String?,
+    val resortNames: List<String>,
+    val allRegionsSelected: Boolean,
+    val unlockedAt: String,
+    val requestStatus: String,
 )

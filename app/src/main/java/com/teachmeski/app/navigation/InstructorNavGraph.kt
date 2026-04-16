@@ -1,5 +1,6 @@
 package com.teachmeski.app.navigation
 
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -25,6 +26,15 @@ fun NavGraphBuilder.instructorNavGraph(navController: NavHostController) {
             UnlockedScreen(
                 onNavigateToChat = { roomId ->
                     navController.navigate(Route.Chat(roomId))
+                },
+                onNavigateToExplore = {
+                    navController.navigate(Route.Explore) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
             )
         }
