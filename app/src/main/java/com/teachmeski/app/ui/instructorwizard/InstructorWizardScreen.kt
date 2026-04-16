@@ -1,0 +1,326 @@
+package com.teachmeski.app.ui.instructorwizard
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.teachmeski.app.R
+import com.teachmeski.app.ui.instructorwizard.steps.CertificationsStep
+import com.teachmeski.app.ui.instructorwizard.steps.CompleteStep
+import com.teachmeski.app.ui.instructorwizard.steps.DisciplineStep
+import com.teachmeski.app.ui.instructorwizard.steps.LanguagesStep
+import com.teachmeski.app.ui.instructorwizard.steps.LevelsStep
+import com.teachmeski.app.ui.instructorwizard.steps.PricingStep
+import com.teachmeski.app.ui.instructorwizard.steps.ProfileStep
+import com.teachmeski.app.ui.instructorwizard.steps.ResortsStep
+import com.teachmeski.app.ui.instructorwizard.steps.ServicesStep
+import com.teachmeski.app.ui.theme.TmsColor
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InstructorWizardScreen(
+    onClose: () -> Unit,
+    onSuccess: () -> Unit,
+    viewModel: InstructorWizardViewModel = hiltViewModel(),
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var showCloseConfirm by rememberSaveable { mutableStateOf(false) }
+
+    if (showCloseConfirm) {
+        AlertDialog(
+            onDismissRequest = { showCloseConfirm = false },
+            title = { Text(text = stringResource(R.string.instructor_wizard_close_confirm_title)) },
+            text = { Text(text = stringResource(R.string.instructor_wizard_close_confirm_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showCloseConfirm = false
+                        onClose()
+                    },
+                ) {
+                    Text(text = stringResource(R.string.instructor_wizard_close_confirm_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCloseConfirm = false }) {
+                    Text(text = stringResource(R.string.instructor_wizard_close_confirm_cancel))
+                }
+            },
+        )
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
+        when {
+            state.isCheckingProfile -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = TmsColor.Primary)
+                        Spacer(modifier = Modifier.padding(16.dp))
+                        Text(
+                            text = stringResource(R.string.instructor_wizard_checking_profile),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TmsColor.OnSurfaceVariant,
+                        )
+                    }
+                }
+            }
+            state.phase == InstructorWizardPhase.Success -> {
+                CompleteStep(
+                    profileAlreadyExists = state.profileAlreadyExists,
+                    onStartExploring = {
+                        if (!state.profileAlreadyExists) {
+                            onSuccess()
+                        }
+                        onClose()
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            else -> {
+                InstructorWizardStepsScaffold(
+                    state = state,
+                    onCloseClick = { showCloseConfirm = true },
+                    onBack = viewModel::goBack,
+                    onPrimary = viewModel::goNext,
+                    viewModel = viewModel,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InstructorWizardStepsScaffold(
+    state: InstructorWizardUiState,
+    onCloseClick: () -> Unit,
+    onBack: () -> Unit,
+    onPrimary: () -> Unit,
+    viewModel: InstructorWizardViewModel,
+) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text =
+                                stringResource(
+                                    R.string.wizard_step_progress_fmt,
+                                    state.currentStep,
+                                    8,
+                                ),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TmsColor.OnSurface,
+                        )
+                        Text(
+                            text = stringResource(instructorWizardStepLabelRes(state.currentStep)),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TmsColor.OnSurfaceVariant,
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onCloseClick) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.instructor_wizard_nav_close),
+                            tint = TmsColor.OnSurface,
+                        )
+                    }
+                },
+            )
+        },
+        bottomBar = {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                LinearProgressIndicator(
+                    progress = { state.currentStep / 8f },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = TmsColor.Primary,
+                    trackColor = TmsColor.SurfaceContainer,
+                )
+                Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (state.currentStep > 1) {
+                        OutlinedButton(onClick = onBack) {
+                            Text(text = stringResource(R.string.instructor_wizard_nav_prev))
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    val primaryLabel =
+                        if (state.currentStep == 8) {
+                            if (state.isSubmitting) {
+                                R.string.wizard_submit_loading
+                            } else {
+                                R.string.instructor_wizard_nav_submit
+                            }
+                        } else {
+                            R.string.instructor_wizard_nav_next
+                        }
+                    val primaryEnabled =
+                        when {
+                            state.currentStep == 8 -> !state.isSubmitting && state.canAdvanceFromCurrentStep()
+                            else -> state.canAdvanceFromCurrentStep()
+                        }
+                    Button(
+                        onClick = onPrimary,
+                        enabled = primaryEnabled,
+                    ) {
+                        Text(text = stringResource(primaryLabel))
+                    }
+                }
+            }
+        },
+    ) { innerPadding ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+        ) {
+            state.submitError?.let { err ->
+                Surface(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = MaterialTheme.shapes.small,
+                ) {
+                    Text(
+                        text = err.asString(),
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+            }
+            AnimatedContent(
+                targetState = state.currentStep,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(220)) togetherWith
+                        fadeOut(animationSpec = tween(220))
+                },
+                label = "instructor_wizard_step",
+                modifier = Modifier.weight(1f),
+            ) { step ->
+                when (step) {
+                    1 ->
+                        DisciplineStep(
+                            state = state,
+                            onToggleDiscipline = viewModel::toggleDiscipline,
+                        )
+                    2 ->
+                        LevelsStep(
+                            state = state,
+                            onToggleLevel = viewModel::toggleTeachableLevel,
+                        )
+                    3 ->
+                        ResortsStep(
+                            state = state,
+                            onToggleAllRegions = viewModel::toggleAllRegions,
+                            onResortToggle = viewModel::toggleResort,
+                            onPrefectureToggle = viewModel::togglePrefecture,
+                        )
+                    4 ->
+                        CertificationsStep(
+                            state = state,
+                            onToggleCertification = viewModel::toggleCertification,
+                            onCertificationOtherChange = viewModel::setCertificationOther,
+                        )
+                    5 ->
+                        ProfileStep(
+                            state = state,
+                            onDisplayNameChange = viewModel::setDisplayName,
+                            onBioChange = viewModel::setBio,
+                        )
+                    6 ->
+                        LanguagesStep(
+                            state = state,
+                            onToggleLanguage = viewModel::toggleLanguage,
+                        )
+                    7 ->
+                        PricingStep(
+                            state = state,
+                            onPriceHalfDayChange = viewModel::setPriceHalfDay,
+                            onPriceFullDayChange = viewModel::setPriceFullDay,
+                        )
+                    8 ->
+                        ServicesStep(
+                            state = state,
+                            onOffersTransportChange = viewModel::setOffersTransport,
+                            onOffersPhotographyChange = viewModel::setOffersPhotography,
+                        )
+                    else -> Box(Modifier.fillMaxSize())
+                }
+            }
+        }
+    }
+}
+
+private fun instructorWizardStepLabelRes(step: Int): Int =
+    when (step) {
+        1 -> R.string.instructor_wizard_step_labels_step1
+        2 -> R.string.instructor_wizard_step_labels_step2
+        3 -> R.string.instructor_wizard_step_labels_step3
+        4 -> R.string.instructor_wizard_step_labels_step4
+        5 -> R.string.instructor_wizard_step_labels_step5
+        6 -> R.string.instructor_wizard_step_labels_step6
+        7 -> R.string.instructor_wizard_step_labels_step7
+        8 -> R.string.instructor_wizard_step_labels_step8
+        else -> R.string.instructor_wizard_step_labels_step1
+    }

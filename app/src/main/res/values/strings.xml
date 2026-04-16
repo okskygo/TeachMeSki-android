@@ -457,8 +457,14 @@
     <string name="instructor_wizard_step_labels_step9">帳號</string>
     <string name="instructor_wizard_step_labels_step10">完成</string>
     <string name="instructor_wizard_nav_next">下一步</string>
+    <string name="instructor_wizard_nav_submit">送出註冊</string>
     <string name="instructor_wizard_nav_prev">← 上一步</string>
     <string name="instructor_wizard_nav_close">關閉</string>
+    <string name="instructor_wizard_checking_profile">檢查教練檔案中…</string>
+    <string name="instructor_wizard_complete_celebration_title">恭喜完成註冊！</string>
+    <string name="instructor_wizard_complete_bonus_granted">歡迎獎勵已發放（500 點）</string>
+    <string name="instructor_wizard_complete_start_exploring">開始使用</string>
+    <string name="instructor_wizard_step7_error_invalid_price">請輸入有效的價格數字</string>
     <string name="instructor_wizard_nav_skip">跳過</string>
     <string name="instructor_wizard_close_confirm_title">確定要離開嗎？</string>
     <string name="instructor_wizard_close_confirm_description">填寫的內容將不會被儲存。</string>

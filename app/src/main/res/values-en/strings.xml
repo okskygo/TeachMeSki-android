@@ -457,8 +457,14 @@
     <string name="instructor_wizard_step_labels_step9">Account</string>
     <string name="instructor_wizard_step_labels_step10">Done</string>
     <string name="instructor_wizard_nav_next">Next</string>
+    <string name="instructor_wizard_nav_submit">Submit</string>
     <string name="instructor_wizard_nav_prev">← Back</string>
     <string name="instructor_wizard_nav_close">Close</string>
+    <string name="instructor_wizard_checking_profile">Checking instructor profile…</string>
+    <string name="instructor_wizard_complete_celebration_title">You\'re all set!</string>
+    <string name="instructor_wizard_complete_bonus_granted">Welcome bonus granted — 500 credits</string>
+    <string name="instructor_wizard_complete_start_exploring">Start exploring</string>
+    <string name="instructor_wizard_step7_error_invalid_price">Enter valid numbers for pricing</string>
     <string name="instructor_wizard_nav_skip">Skip</string>
     <string name="instructor_wizard_close_confirm_title">Leave without saving?</string>
     <string name="instructor_wizard_close_confirm_description">Your progress will not be saved.</string>
