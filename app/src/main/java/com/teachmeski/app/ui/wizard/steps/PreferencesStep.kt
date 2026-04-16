@@ -30,8 +30,8 @@ private val CertKeys = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "oth
 @Composable
 fun PreferencesStep(
     state: WizardUiState,
-    onEquipmentRentalChange: (EquipmentRental) -> Unit,
-    onNeedsTransportChange: (Boolean?) -> Unit,
+    onToggleEquipmentRental: (EquipmentRental) -> Unit,
+    onToggleNeedsTransport: (Boolean) -> Unit,
     onTransportNoteChange: (String) -> Unit,
     onToggleCertPreference: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -63,15 +63,7 @@ fun PreferencesStep(
                 val selected = state.equipmentRental == option
                 TmsChip(
                     selected = selected,
-                    onClick = {
-                        onEquipmentRentalChange(
-                            if (state.equipmentRental == option) {
-                                EquipmentRental.None
-                            } else {
-                                option
-                            },
-                        )
-                    },
+                    onClick = { onToggleEquipmentRental(option) },
                     label =
                         stringResource(
                             when (option) {
@@ -95,20 +87,12 @@ fun PreferencesStep(
         ) {
             TmsChip(
                 selected = state.needsTransport == true,
-                onClick = {
-                    onNeedsTransportChange(
-                        if (state.needsTransport == true) null else true,
-                    )
-                },
+                onClick = { onToggleNeedsTransport(true) },
                 label = stringResource(R.string.wizard_transport_yes),
             )
             TmsChip(
                 selected = state.needsTransport == false,
-                onClick = {
-                    onNeedsTransportChange(
-                        if (state.needsTransport == false) null else false,
-                    )
-                },
+                onClick = { onToggleNeedsTransport(false) },
                 label = stringResource(R.string.wizard_transport_no),
             )
         }

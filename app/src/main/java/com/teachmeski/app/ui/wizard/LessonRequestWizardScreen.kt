@@ -272,8 +272,8 @@ fun LessonRequestWizardScreen(
                             )
                             7 -> PreferencesStep(
                                 state = state,
-                                onEquipmentRentalChange = viewModel::setEquipmentRental,
-                                onNeedsTransportChange = viewModel::setNeedsTransport,
+                                onToggleEquipmentRental = viewModel::toggleEquipmentRental,
+                                onToggleNeedsTransport = viewModel::toggleNeedsTransport,
                                 onTransportNoteChange = viewModel::setTransportNote,
                                 onToggleCertPreference = viewModel::toggleCertPreference,
                             )

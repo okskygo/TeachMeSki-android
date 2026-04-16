@@ -238,6 +238,7 @@
     <string name="wizard_transport_label">交通接送</string>
     <string name="wizard_transport_yes">需要接送</string>
     <string name="wizard_transport_no">自行前往</string>
+    <string name="wizard_transport_not_selected">尚未選擇</string>
     <string name="wizard_transport_note_placeholder">請填寫出發地點或飯店名稱</string>
     <string name="wizard_cert_label">教練證照偏好</string>
 

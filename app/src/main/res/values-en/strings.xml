@@ -238,6 +238,7 @@
     <string name="wizard_transport_label">Transportation</string>
     <string name="wizard_transport_yes">Need pickup</string>
     <string name="wizard_transport_no">Self-arranged</string>
+    <string name="wizard_transport_not_selected">Not selected</string>
     <string name="wizard_transport_note_placeholder">Departure location or hotel name</string>
     <string name="wizard_cert_label">Instructor Certification Preference</string>
 

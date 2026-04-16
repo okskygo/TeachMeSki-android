@@ -228,12 +228,24 @@ class LessonRequestWizardViewModel @Inject constructor(
         }
     }
 
-    fun setEquipmentRental(e: EquipmentRental) {
-        _uiState.update { it.copy(equipmentRental = e) }
+    fun toggleEquipmentRental(e: EquipmentRental) {
+        _uiState.update { s ->
+            if (s.equipmentRental == e) {
+                s.copy(equipmentRental = EquipmentRental.None)
+            } else {
+                s.copy(equipmentRental = e)
+            }
+        }
     }
 
-    fun setNeedsTransport(b: Boolean?) {
-        _uiState.update { it.copy(needsTransport = b) }
+    fun toggleNeedsTransport(value: Boolean) {
+        _uiState.update { s ->
+            if (s.needsTransport == value) {
+                s.copy(needsTransport = null, transportNote = "")
+            } else {
+                s.copy(needsTransport = value)
+            }
+        }
     }
 
     fun setTransportNote(note: String) {
@@ -253,7 +265,7 @@ class LessonRequestWizardViewModel @Inject constructor(
     }
 
     fun setAdditionalNotes(notes: String) {
-        _uiState.update { it.copy(additionalNotes = notes) }
+        _uiState.update { it.copy(additionalNotes = notes.take(1000)) }
     }
 
     fun submit() {
@@ -280,7 +292,7 @@ class LessonRequestWizardViewModel @Inject constructor(
                         datesFlexible = s.datesFlexible,
                         durationDays = s.durationDays,
                         equipmentRental = s.equipmentRental.value,
-                        needsTransport = s.needsTransport == true,
+                        needsTransport = s.needsTransport ?: false,
                         transportNote = s.transportNote,
                         languages = s.languages.toList().sorted(),
                         additionalNotes = s.additionalNotes,

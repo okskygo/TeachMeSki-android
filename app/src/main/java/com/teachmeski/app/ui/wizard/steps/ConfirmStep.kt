@@ -1,27 +1,46 @@
 package com.teachmeski.app.ui.wizard.steps
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backpack
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.Discipline
 import com.teachmeski.app.domain.model.EquipmentRental
+import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.ui.wizard.WizardUiState
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -49,10 +68,11 @@ fun ConfirmStep(
             modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.LocationOn,
                 label = stringResource(R.string.wizard_confirm_label_resort),
                 value = resortValue,
                 step = 1,
@@ -61,6 +81,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.Group,
                 label = stringResource(R.string.wizard_confirm_label_group),
                 value = groupValue,
                 step = 2,
@@ -69,6 +90,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.Speed,
                 label = stringResource(R.string.wizard_confirm_label_level),
                 value = levelValue,
                 step = 3,
@@ -77,6 +99,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.CalendarToday,
                 label = stringResource(R.string.wizard_confirm_label_date),
                 value = datesValue,
                 step = 4,
@@ -85,6 +108,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.Schedule,
                 label = stringResource(R.string.wizard_confirm_label_duration),
                 value = durationValue,
                 step = 5,
@@ -93,6 +117,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.Translate,
                 label = stringResource(R.string.wizard_confirm_label_language),
                 value = languagesValue,
                 step = 6,
@@ -101,6 +126,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.Backpack,
                 label = stringResource(R.string.wizard_confirm_label_preferences),
                 value = preferencesValue,
                 step = 7,
@@ -109,6 +135,7 @@ fun ConfirmStep(
         }
         item {
             ConfirmSummaryRow(
+                icon = Icons.Default.Description,
                 label = stringResource(R.string.wizard_confirm_label_notes),
                 value = notesValue,
                 step = 8,
@@ -118,40 +145,66 @@ fun ConfirmStep(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ConfirmSummaryRow(
+    icon: ImageVector,
     label: String,
     value: String,
     step: Int,
     onEditStep: (Int) -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.Top,
+    Surface(
+        color = TmsColor.SurfaceLow,
+        shape = RoundedCornerShape(12.dp),
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        IconButton(onClick = { onEditStep(step) }) {
             Icon(
-                imageVector = Icons.Filled.Edit,
-                contentDescription = stringResource(R.string.common_edit),
+                imageVector = icon,
+                contentDescription = null,
+                tint = TmsColor.Primary,
+                modifier = Modifier.size(20.dp),
             )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = label.uppercase(Locale.getDefault()),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = TmsColor.OnSurfaceVariant,
+                    letterSpacing = 1.2.sp,
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TmsColor.OnSurface,
+                )
+            }
+            Surface(
+                onClick = { onEditStep(step) },
+                shape = RoundedCornerShape(8.dp),
+                color = Color.Transparent,
+                border = BorderStroke(1.dp, TmsColor.OutlineVariant),
+                modifier = Modifier.size(40.dp),
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.common_edit),
+                        tint = TmsColor.Primary,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -228,11 +281,8 @@ private fun skillLevelDescriptionRes(
 
 @Composable
 private fun datesSummaryText(state: WizardUiState): String {
-    if (state.datesFlexible) {
-        return stringResource(R.string.wizard_confirm_dates_undecided)
-    }
-    val start = state.dateStart
-    if (start.isNullOrBlank()) {
+    val start = state.dateStart?.takeIf { it.isNotBlank() }
+    if (start == null) {
         return stringResource(R.string.wizard_confirm_dates_undecided)
     }
     val locale = LocalConfiguration.current.locales[0]
@@ -312,7 +362,7 @@ private fun preferencesSummaryText(state: WizardUiState): String {
         when (state.needsTransport) {
             true -> stringResource(R.string.wizard_transport_yes)
             false -> stringResource(R.string.wizard_transport_no)
-            null -> stringResource(R.string.common_empty_value)
+            null -> stringResource(R.string.wizard_transport_not_selected)
         }
     val note = state.transportNote.trim()
     val transportPart =
