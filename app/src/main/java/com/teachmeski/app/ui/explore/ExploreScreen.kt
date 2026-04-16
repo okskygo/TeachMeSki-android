@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -39,11 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
-import com.teachmeski.app.domain.model.Discipline
-import com.teachmeski.app.domain.model.ExploreLessonRequest
 import com.teachmeski.app.ui.component.EmptyState
 import com.teachmeski.app.ui.component.TmsTopBar
-import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -277,146 +272,5 @@ private fun DisciplineFilterRow(
                 selectedLabelColor = TmsColor.OnPrimary,
             ),
         )
-    }
-}
-
-@Composable
-private fun ExploreRequestCard(
-    request: ExploreLessonRequest,
-    onUnlockClick: () -> Unit,
-    onViewChatClick: (String) -> Unit,
-) {
-    val disciplineLabel = when (request.discipline) {
-        Discipline.Ski -> stringResource(R.string.common_discipline_ski)
-        Discipline.Snowboard -> stringResource(R.string.common_discipline_snowboard)
-        Discipline.Both -> stringResource(R.string.common_discipline_both)
-    }
-    val skillLabel = stringResource(
-        R.string.explore_card_skill_level_fmt,
-        request.skillLevel?.toString()
-            ?: stringResource(R.string.common_empty_value),
-    )
-    val resortLine = if (request.allRegionsSelected && request.resortNames.isEmpty()) {
-        stringResource(R.string.wizard_resort_all_regions)
-    } else {
-        request.resortNames.joinToString(stringResource(R.string.common_list_separator))
-    }
-    val quotaRemaining = kotlin.math.max(0, request.quotaLimit - request.unlockCount)
-
-    Surface(
-        color = TmsColor.SurfaceLowest,
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 2.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                UserAvatar(
-                    displayName = request.userDisplayName,
-                    avatarUrl = request.userAvatarUrl,
-                    size = 48.dp,
-                )
-                Spacer(modifier = Modifier.size(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = request.userDisplayName,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = TmsColor.OnSurface,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Surface(
-                        color = TmsColor.SurfaceLow,
-                        shape = RoundedCornerShape(8.dp),
-                    ) {
-                        Text(
-                            text = disciplineLabel,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = TmsColor.OnSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        )
-                    }
-                }
-                Surface(
-                    color = TmsColor.PrimaryFixed,
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Text(
-                        text = stringResource(R.string.explore_card_cost_tokens, request.baseTokenCost),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = TmsColor.Primary,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = skillLabel,
-                style = MaterialTheme.typography.bodyMedium,
-                color = TmsColor.OnSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.explore_card_group_size, request.groupSize),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TmsColor.OnSurfaceVariant,
-            )
-            if (resortLine.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = resortLine,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TmsColor.OnSurfaceVariant,
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.explore_card_quota_remaining, quotaRemaining),
-                style = MaterialTheme.typography.labelMedium,
-                color = TmsColor.Secondary,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            when {
-                !request.isUnlockedByMe -> {
-                    Button(
-                        onClick = onUnlockClick,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = TmsColor.Primary,
-                            contentColor = TmsColor.OnPrimary,
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.explore_unlock_button, request.baseTokenCost))
-                    }
-                }
-
-                request.myChatRoomId != null -> {
-                    Button(
-                        onClick = { onViewChatClick(request.myChatRoomId!!) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = TmsColor.Primary,
-                            contentColor = TmsColor.OnPrimary,
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.explore_card_view_chat))
-                    }
-                }
-
-                else -> {
-                    Text(
-                        text = stringResource(R.string.explore_card_already_unlocked),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
-                }
-            }
-        }
     }
 }
