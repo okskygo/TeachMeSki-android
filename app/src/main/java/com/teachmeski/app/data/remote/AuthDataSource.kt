@@ -47,7 +47,10 @@ class AuthDataSource @Inject constructor(
     }
 
     suspend fun resetPasswordForEmail(email: String) {
-        supabaseClient.auth.resetPasswordForEmail(email)
+        supabaseClient.auth.resetPasswordForEmail(
+            email = email,
+            redirectUrl = "https://teachmeski.com/reset-password",
+        )
     }
 
     suspend fun verifyEmailOtp(email: String, token: String) {
