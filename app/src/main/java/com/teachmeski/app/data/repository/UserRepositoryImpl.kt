@@ -29,4 +29,12 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(UiText.StringResource(R.string.account_save_error))
         }
+
+    override suspend fun uploadAvatar(userId: String, imageBytes: ByteArray, extension: String): Resource<String> =
+        try {
+            val url = userDataSource.uploadAvatar(userId, imageBytes, extension)
+            Resource.Success(url)
+        } catch (e: Exception) {
+            Resource.Error(UiText.StringResource(R.string.account_avatar_upload_error))
+        }
 }

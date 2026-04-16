@@ -1,5 +1,6 @@
 package com.teachmeski.app.ui.account
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -39,10 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
-import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.util.Resource
-import androidx.compose.foundation.BorderStroke
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,88 +56,55 @@ fun AccountScreen(
     val scope = rememberCoroutineScope()
     val scroll = rememberScrollState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scroll)
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.nav_account),
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.ExtraBold,
+            color = TmsColor.OnSurface,
+            modifier = Modifier.padding(bottom = 16.dp),
+        )
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scroll)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(
-                text = stringResource(R.string.nav_account),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.ExtraBold,
-                color = TmsColor.OnSurface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+            AccountMenuRow(
+                title = stringResource(R.string.account_title),
+                onClick = onAccountSettingsClick,
             )
-
-            UserAvatar(
-                displayName = uiState.displayName.ifBlank { null },
-                avatarUrl = uiState.avatarUrl,
-                size = 96.dp,
+            AccountMenuRow(
+                title = stringResource(R.string.contact_title),
+                onClick = onContactClick,
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = uiState.displayName.ifBlank { stringResource(R.string.account_display_name_placeholder) },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = if (uiState.displayName.isBlank()) TmsColor.Outline else TmsColor.OnSurface,
+            AccountMenuRow(
+                title = stringResource(R.string.legal_terms_title),
+                onClick = onTermsClick,
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                AccountMenuRow(
-                    title = stringResource(R.string.account_title),
-                    onClick = onAccountSettingsClick,
-                )
-                AccountMenuRow(
-                    title = stringResource(R.string.contact_title),
-                    onClick = onContactClick,
-                )
-                AccountMenuRow(
-                    title = stringResource(R.string.legal_terms_title),
-                    onClick = onTermsClick,
-                )
-                AccountMenuRow(
-                    title = stringResource(R.string.legal_privacy_title),
-                    onClick = onPrivacyClick,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            OutlinedButton(
-                onClick = { showLogoutDialog = true },
-                enabled = !uiState.isLoading,
-                shape = MaterialTheme.shapes.small,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TmsColor.Error),
-                border = BorderStroke(1.dp, TmsColor.Error),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-            ) {
-                Text(stringResource(R.string.common_logout))
-            }
+            AccountMenuRow(
+                title = stringResource(R.string.legal_privacy_title),
+                onClick = onPrivacyClick,
+            )
         }
 
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(TmsColor.Surface.copy(alpha = 0.75f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(color = TmsColor.Primary)
-            }
+        Spacer(modifier = Modifier.height(32.dp))
+
+        OutlinedButton(
+            onClick = { showLogoutDialog = true },
+            enabled = !uiState.isLoading,
+            shape = MaterialTheme.shapes.small,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = TmsColor.Error),
+            border = BorderStroke(1.dp, TmsColor.Error),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+        ) {
+            Text(stringResource(R.string.common_logout))
         }
     }
 
