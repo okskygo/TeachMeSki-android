@@ -115,6 +115,7 @@
     <string name="error_delete_certificate">Failed to delete certificate</string>
     <string name="error_create_instructor_profile">Failed to create instructor profile</string>
     <string name="error_load_explore">Failed to load explore requests</string>
+    <string name="error_load_unlocked">Failed to load unlocked lessons</string>
     <string name="explore_error_message_required">Please enter an unlock message</string>
     <string name="explore_error_message_too_long">Message cannot exceed 500 characters</string>
     <string name="explore_error_insufficient_balance">Insufficient token balance</string>

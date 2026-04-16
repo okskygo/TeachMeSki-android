@@ -31,7 +31,13 @@ fun NavGraphBuilder.instructorNavGraph(navController: NavHostController) {
                 },
             )
         }
-        composable<Route.Unlocked> { UnlockedScreen() }
+        composable<Route.Unlocked> {
+            UnlockedScreen(
+                onNavigateToChat = { roomId ->
+                    navController.navigate(Route.Chat(roomId))
+                },
+            )
+        }
         composable<Route.ChatRoomList> { ChatRoomListScreen() }
         composable<Route.Chat> {
             InstructorChatPlaceholderScreen(

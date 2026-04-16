@@ -61,6 +61,54 @@ class ExploreDataSource @Inject constructor(
         val id: String,
     )
 
+    @Serializable
+    data class UnlockedRoomDto(
+        val id: String,
+        @SerialName("lesson_request_id") val lessonRequestId: String,
+        @SerialName("instructor_id") val instructorId: String,
+        @SerialName("user_id") val userId: String,
+        @SerialName("last_message_content") val lastMessageContent: String? = null,
+        @SerialName("last_message_at") val lastMessageAt: String? = null,
+        @SerialName("last_message_sender_id") val lastMessageSenderId: String? = null,
+        @SerialName("instructor_last_read_at") val instructorLastReadAt: String? = null,
+    )
+
+    @Serializable
+    data class UnlockedRequestSummaryDto(
+        val id: String,
+        val discipline: String,
+        @SerialName("skill_level") val skillLevel: Int? = null,
+        @SerialName("group_size") val groupSize: Int = 1,
+        @SerialName("date_start") val dateStart: String? = null,
+        @SerialName("date_end") val dateEnd: String? = null,
+        @SerialName("dates_flexible") val datesFlexible: Boolean = false,
+    )
+
+    suspend fun getUnlockedRooms(instructorProfileId: String): List<UnlockedRoomDto> =
+        supabaseClient.postgrest.from("chat_rooms")
+            .select(
+                columns = Columns.raw(
+                    "id, lesson_request_id, instructor_id, user_id, last_message_content, last_message_at, last_message_sender_id, instructor_last_read_at",
+                ),
+            ) {
+                filter { eq("instructor_id", instructorProfileId) }
+                order("last_message_at", Order.DESCENDING)
+            }
+            .decodeList<UnlockedRoomDto>()
+
+    suspend fun getLessonRequestSummaries(requestIds: List<String>): List<UnlockedRequestSummaryDto> {
+        if (requestIds.isEmpty()) return emptyList()
+        return supabaseClient.postgrest.from("lesson_requests")
+            .select(
+                columns = Columns.raw(
+                    "id, discipline, skill_level, group_size, date_start, date_end, dates_flexible",
+                ),
+            ) {
+                filter { isIn("id", requestIds) }
+            }
+            .decodeList<UnlockedRequestSummaryDto>()
+    }
+
     suspend fun getExploreLessonRequests(
         currentUserId: String,
         page: Int,

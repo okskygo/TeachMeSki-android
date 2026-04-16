@@ -1,6 +1,7 @@
 package com.teachmeski.app.domain.repository
 
 import com.teachmeski.app.domain.model.ExploreLessonRequest
+import com.teachmeski.app.domain.model.UnlockedRoom
 import com.teachmeski.app.util.Resource
 
 interface ExploreRepository {
@@ -14,4 +15,6 @@ interface ExploreRepository {
         lessonRequestId: String,
         message: String,
     ): Resource<String>
+
+    suspend fun getUnlockedRooms(): Resource<List<UnlockedRoom>>
 }

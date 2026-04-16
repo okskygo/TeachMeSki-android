@@ -115,6 +115,7 @@
     <string name="error_delete_certificate">刪除證照失敗</string>
     <string name="error_create_instructor_profile">建立教練檔案失敗</string>
     <string name="error_load_explore">載入探索需求失敗</string>
+    <string name="error_load_unlocked">載入已解鎖課程失敗</string>
     <string name="explore_error_message_required">請輸入解鎖訊息</string>
     <string name="explore_error_message_too_long">訊息不可超過 500 字</string>
     <string name="explore_error_insufficient_balance">代幣餘額不足</string>

@@ -3,12 +3,15 @@ package com.teachmeski.app.data.repository
 import com.teachmeski.app.R
 import com.teachmeski.app.data.model.toExploreLessonRequest
 import com.teachmeski.app.data.remote.ExploreDataSource
+import com.teachmeski.app.domain.model.Discipline
 import com.teachmeski.app.domain.model.ExploreLessonRequest
+import com.teachmeski.app.domain.model.UnlockedRoom
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ExploreRepository
 import com.teachmeski.app.util.PricingCalculator
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
+import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -121,4 +124,78 @@ class ExploreRepositoryImpl @Inject constructor(
             Resource.Error(UiText.StringResource(R.string.error_generic))
         }
     }
+
+    override suspend fun getUnlockedRooms(): Resource<List<UnlockedRoom>> {
+        return try {
+            val instructorUserId = authRepository.currentUserId()
+                ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
+            val instructorProfileId = exploreDataSource.getInstructorProfileId(instructorUserId)
+                ?: return Resource.Error(UiText.StringResource(R.string.error_no_instructor_profile))
+
+            val roomDtos = exploreDataSource.getUnlockedRooms(instructorProfileId)
+            if (roomDtos.isEmpty()) {
+                return Resource.Success(emptyList())
+            }
+
+            val requestIds = roomDtos.map { it.lessonRequestId }.distinct()
+            val studentUserIds = roomDtos.map { it.userId }.distinct()
+
+            val summaries = exploreDataSource.getLessonRequestSummaries(requestIds)
+            val userRows = exploreDataSource.getUserRows(studentUserIds)
+
+            val summaryById = summaries.associateBy { it.id }
+            val userById = userRows.associateBy { it.id }
+
+            val rooms = roomDtos.mapNotNull { row ->
+                val summary = summaryById[row.lessonRequestId] ?: return@mapNotNull null
+                val student = userById[row.userId]
+                val hasUnread = computeInstructorHasUnread(
+                    instructorUserId = instructorUserId,
+                    lastMessageAt = row.lastMessageAt,
+                    lastMessageSenderId = row.lastMessageSenderId,
+                    instructorLastReadAt = row.instructorLastReadAt,
+                )
+                UnlockedRoom(
+                    roomId = row.id,
+                    lessonRequestId = row.lessonRequestId,
+                    userId = row.userId,
+                    studentDisplayName = student?.displayName.orEmpty(),
+                    studentAvatarUrl = student?.avatarUrl,
+                    discipline = Discipline.fromString(summary.discipline),
+                    skillLevel = summary.skillLevel,
+                    groupSize = summary.groupSize,
+                    dateStart = summary.dateStart,
+                    dateEnd = summary.dateEnd,
+                    datesFlexible = summary.datesFlexible,
+                    lastMessageContent = row.lastMessageContent,
+                    lastMessageAt = row.lastMessageAt,
+                    hasUnread = hasUnread,
+                )
+            }
+
+            Resource.Success(rooms)
+        } catch (_: Exception) {
+            Resource.Error(UiText.StringResource(R.string.error_load_unlocked))
+        }
+    }
+
+    private fun computeInstructorHasUnread(
+        instructorUserId: String,
+        lastMessageAt: String?,
+        lastMessageSenderId: String?,
+        instructorLastReadAt: String?,
+    ): Boolean {
+        if (lastMessageAt.isNullOrBlank()) return false
+        if (lastMessageSenderId.isNullOrBlank()) return false
+        if (lastMessageSenderId == instructorUserId) return false
+        if (instructorLastReadAt.isNullOrBlank()) return true
+        return isTimestampAfter(lastMessageAt, instructorLastReadAt)
+    }
+
+    private fun isTimestampAfter(isoA: String, isoB: String): Boolean =
+        try {
+            OffsetDateTime.parse(isoA).isAfter(OffsetDateTime.parse(isoB))
+        } catch (_: Exception) {
+            isoA > isoB
+        }
 }
