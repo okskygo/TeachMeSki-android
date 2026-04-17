@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -32,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,11 +46,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.component.WizardStepProgress
+import com.teachmeski.app.ui.instructorwizard.steps.AccountStep
 import com.teachmeski.app.ui.instructorwizard.steps.CertificationsStep
 import com.teachmeski.app.ui.instructorwizard.steps.CompleteStep
 import com.teachmeski.app.ui.instructorwizard.steps.DisciplineStep
 import com.teachmeski.app.ui.instructorwizard.steps.LanguagesStep
 import com.teachmeski.app.ui.instructorwizard.steps.LevelsStep
+import com.teachmeski.app.ui.instructorwizard.steps.OtpStep
 import com.teachmeski.app.ui.instructorwizard.steps.PricingStep
 import com.teachmeski.app.ui.instructorwizard.steps.ProfileStep
 import com.teachmeski.app.ui.instructorwizard.steps.ResortsStep
@@ -65,6 +69,10 @@ fun InstructorWizardScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showCloseConfirm by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(isGuestMode) {
+        if (isGuestMode) viewModel.setGuestMode(true)
+    }
 
     if (showCloseConfirm) {
         AlertDialog(
@@ -158,7 +166,7 @@ private fun InstructorWizardStepsScaffold(
                                 stringResource(
                                     R.string.wizard_step_progress_fmt,
                                     state.currentStep,
-                                    8,
+                                    state.totalSteps,
                                 ),
                             style = MaterialTheme.typography.titleMedium,
                             color = TmsColor.OnSurface,
@@ -177,52 +185,67 @@ private fun InstructorWizardStepsScaffold(
             )
         },
         bottomBar = {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                WizardStepProgress(
-                    currentStep = state.currentStep,
-                    totalSteps = 8,
-                    labels = (1..8).map { stringResource(instructorWizardStepLabelRes(it)) },
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
-                Spacer(modifier = Modifier.padding(vertical = 4.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+            if (state.currentStep != 10 || !state.isGuestMode) {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
-                    if (state.currentStep > 1) {
-                        OutlinedButton(onClick = onBack) {
-                            Text(text = stringResource(R.string.instructor_wizard_nav_prev))
-                        }
-                    } else {
-                        Spacer(modifier = Modifier.width(1.dp))
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    val primaryLabel =
-                        if (state.currentStep == 8) {
-                            if (state.isSubmitting) {
-                                R.string.wizard_submit_loading
-                            } else {
-                                R.string.instructor_wizard_nav_submit
+                    WizardStepProgress(
+                        currentStep = state.currentStep,
+                        totalSteps = state.totalSteps,
+                        labels = (1..state.totalSteps).map { stringResource(instructorWizardStepLabelRes(it)) },
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+                    Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (state.currentStep > 1) {
+                            OutlinedButton(onClick = onBack) {
+                                Text(text = stringResource(R.string.instructor_wizard_nav_prev))
                             }
                         } else {
-                            R.string.instructor_wizard_nav_next
+                            Spacer(modifier = Modifier.width(1.dp))
                         }
-                    val primaryEnabled =
-                        when {
-                            state.currentStep == 8 -> !state.isSubmitting && state.canAdvanceFromCurrentStep()
-                            else -> state.canAdvanceFromCurrentStep()
+                        Spacer(modifier = Modifier.weight(1f))
+                        val primaryLabel =
+                            when {
+                                state.currentStep == 9 && state.isGuestMode -> R.string.auth_signup_submit
+                                state.currentStep == state.totalSteps -> {
+                                    if (state.isSubmitting) {
+                                        R.string.wizard_submit_loading
+                                    } else {
+                                        R.string.instructor_wizard_nav_submit
+                                    }
+                                }
+                                else -> R.string.instructor_wizard_nav_next
+                            }
+                        val primaryEnabled =
+                            when {
+                                state.currentStep == 9 && state.isGuestMode ->
+                                    !state.isSigningUp && state.canAdvanceFromCurrentStep()
+                                state.currentStep == state.totalSteps ->
+                                    !state.isSubmitting && state.canAdvanceFromCurrentStep()
+                                else -> state.canAdvanceFromCurrentStep()
+                            }
+                        Button(
+                            onClick = onPrimary,
+                            enabled = primaryEnabled,
+                        ) {
+                            if (state.currentStep == 9 && state.isGuestMode && state.isSigningUp) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            } else {
+                                Text(text = stringResource(primaryLabel))
+                            }
                         }
-                    Button(
-                        onClick = onPrimary,
-                        enabled = primaryEnabled,
-                    ) {
-                        Text(text = stringResource(primaryLabel))
                     }
                 }
             }
@@ -234,7 +257,7 @@ private fun InstructorWizardStepsScaffold(
                     .fillMaxSize()
                     .padding(innerPadding),
         ) {
-            state.submitError?.let { err ->
+            (state.submitError ?: if (state.currentStep == 9) state.signupError else null)?.let { err ->
                 Surface(
                     modifier =
                         Modifier
@@ -307,6 +330,21 @@ private fun InstructorWizardStepsScaffold(
                             onOffersTransportChange = viewModel::setOffersTransport,
                             onOffersPhotographyChange = viewModel::setOffersPhotography,
                         )
+                    9 ->
+                        AccountStep(
+                            state = state,
+                            onEmailChange = viewModel::onEmailChange,
+                            onPasswordChange = viewModel::onPasswordChange,
+                            onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
+                            onTermsCheckedChange = viewModel::onTermsCheckedChange,
+                        )
+                    10 ->
+                        OtpStep(
+                            state = state,
+                            onOtpChange = viewModel::onOtpChange,
+                            onVerify = viewModel::verifyOtp,
+                            onResend = viewModel::resendOtp,
+                        )
                     else -> Box(Modifier.fillMaxSize())
                 }
             }
@@ -324,5 +362,7 @@ private fun instructorWizardStepLabelRes(step: Int): Int =
         6 -> R.string.instructor_wizard_step_labels_step6
         7 -> R.string.instructor_wizard_step_labels_step7
         8 -> R.string.instructor_wizard_step_labels_step8
+        9 -> R.string.instructor_wizard_step_labels_step9
+        10 -> R.string.instructor_wizard_step_labels_step10
         else -> R.string.instructor_wizard_step_labels_step1
     }

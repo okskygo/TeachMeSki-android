@@ -1,21 +1,27 @@
 package com.teachmeski.app.ui.instructorwizard
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.InstructorProfileData
+import com.teachmeski.app.domain.model.PendingInstructorProfile
 import com.teachmeski.app.domain.model.Region
+import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.ResortRepository
+import com.teachmeski.app.ui.component.PasswordRules
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-private const val TOTAL_STEPS = 8
 
 enum class InstructorWizardPhase {
     Steps,
@@ -44,6 +50,21 @@ data class InstructorWizardUiState(
     val submitError: UiText? = null,
     val isCheckingProfile: Boolean = true,
     val profileAlreadyExists: Boolean = false,
+    val isGuestMode: Boolean = false,
+    val totalSteps: Int = 8,
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
+    val termsChecked: Boolean = false,
+    val passwordRules: PasswordRules = PasswordRules(),
+    val isSigningUp: Boolean = false,
+    val signupError: UiText? = null,
+    val otp: String = "",
+    val isVerifyingOtp: Boolean = false,
+    val otpError: UiText? = null,
+    val resendCooldown: Int = 0,
+    val resendMessage: UiText? = null,
+    val isResendingOtp: Boolean = false,
 ) {
     fun canAdvanceFromCurrentStep(): Boolean =
         when (currentStep) {
@@ -58,6 +79,15 @@ data class InstructorWizardUiState(
             6 -> languages.isNotEmpty()
             7 -> pricingStepValid()
             8 -> true
+            9 ->
+                isGuestMode &&
+                    passwordRules.allPassed &&
+                    password == confirmPassword &&
+                    confirmPassword.isNotEmpty() &&
+                    termsChecked &&
+                    email.contains("@") &&
+                    email.isNotBlank()
+            10 -> isGuestMode && otp.length == 6
             else -> false
         }
 
@@ -74,15 +104,34 @@ data class InstructorWizardUiState(
 
 @HiltViewModel
 class InstructorWizardViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val resortRepository: ResortRepository,
     private val instructorRepository: InstructorRepository,
+    private val authRepository: AuthRepository,
+    private val pendingProfile: PendingInstructorProfile,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(InstructorWizardUiState())
+    private val initialGuestMode: Boolean = savedStateHandle.get<Boolean>("isGuestMode") == true
+
+    private val _uiState =
+        MutableStateFlow(
+            InstructorWizardUiState(
+                isGuestMode = initialGuestMode,
+                totalSteps = if (initialGuestMode) 10 else 8,
+                isCheckingProfile = !initialGuestMode,
+            ),
+        )
     val uiState: StateFlow<InstructorWizardUiState> = _uiState.asStateFlow()
+
+    private var cooldownJob: Job? = null
 
     init {
         viewModelScope.launch {
+            if (_uiState.value.isGuestMode) {
+                _uiState.update { it.copy(isCheckingProfile = false) }
+                loadRegions()
+                return@launch
+            }
             when (val existsResult = instructorRepository.checkProfileExists()) {
                 is Resource.Success -> {
                     if (existsResult.data) {
@@ -130,13 +179,26 @@ class InstructorWizardViewModel @Inject constructor(
         return s.phase == InstructorWizardPhase.Steps && s.canAdvanceFromCurrentStep()
     }
 
+    fun setGuestMode(isGuest: Boolean) {
+        if (!isGuest) return
+        _uiState.update {
+            it.copy(isGuestMode = true, totalSteps = 10, isCheckingProfile = false)
+        }
+        loadRegions()
+    }
+
     fun goNext() {
         val s = _uiState.value
         if (s.phase != InstructorWizardPhase.Steps) return
         if (!s.canAdvanceFromCurrentStep()) return
-        if (s.currentStep < TOTAL_STEPS) {
-            _uiState.update { it.copy(currentStep = it.currentStep + 1, submitError = null) }
-        } else {
+        val total = s.totalSteps
+        if (s.currentStep < total) {
+            if (s.currentStep == 9 && s.isGuestMode) {
+                signUp()
+            } else {
+                _uiState.update { it.copy(currentStep = it.currentStep + 1, submitError = null) }
+            }
+        } else if (!s.isGuestMode) {
             submit()
         }
     }
@@ -267,10 +329,163 @@ class InstructorWizardViewModel @Inject constructor(
         _uiState.update { it.copy(offersPhotography = value) }
     }
 
+    fun onEmailChange(value: String) {
+        _uiState.update { it.copy(email = value, signupError = null) }
+    }
+
+    fun onPasswordChange(value: String) {
+        _uiState.update {
+            it.copy(
+                password = value,
+                passwordRules = PasswordRules.check(value),
+                signupError = null,
+            )
+        }
+    }
+
+    fun onConfirmPasswordChange(value: String) {
+        _uiState.update { it.copy(confirmPassword = value, signupError = null) }
+    }
+
+    fun onTermsCheckedChange(checked: Boolean) {
+        _uiState.update { it.copy(termsChecked = checked) }
+    }
+
+    fun onOtpChange(value: String) {
+        _uiState.update { it.copy(otp = value, otpError = null) }
+    }
+
+    private fun savePendingProfile() {
+        val s = _uiState.value
+        val discipline = disciplineForApi(s.selectedDisciplines)
+        val resortIds =
+            if (s.allRegionsSelected) {
+                s.regions.flatMap { r -> r.resorts.map { it.id } }
+            } else {
+                s.selectedResortIds.toList()
+            }
+        val certList = certificationsForApi(s)
+        val other =
+            if ("other" in s.certifications && s.certificationOther.isNotBlank()) {
+                s.certificationOther.trim()
+            } else {
+                null
+            }
+
+        pendingProfile.set(
+            InstructorProfileData(
+                discipline = discipline,
+                teachableLevels = s.teachableLevels.toList().sorted(),
+                resortIds = resortIds,
+                certifications = certList,
+                certificationOther = other,
+                displayName = s.displayName.trim(),
+                bio = s.bio.trim().ifBlank { null },
+                languages = s.languages.toList().sorted(),
+                priceHalfDay = s.priceHalfDay.trim().toIntOrNull(),
+                priceFullDay = s.priceFullDay.trim().toIntOrNull(),
+                offersTransport = s.offersTransport,
+                offersPhotography = s.offersPhotography,
+            ),
+        )
+    }
+
+    private fun signUp() {
+        val s = _uiState.value
+        if (s.isSigningUp) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSigningUp = true, signupError = null) }
+            savePendingProfile()
+            when (
+                val result =
+                    authRepository.signUp(
+                        email = s.email.trim(),
+                        password = s.password,
+                        displayName = s.displayName.trim(),
+                    )
+            ) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(isSigningUp = false, currentStep = 10)
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(isSigningUp = false, signupError = result.message)
+                    }
+                }
+                is Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun verifyOtp() {
+        val s = _uiState.value
+        if (s.otp.length != 6 || s.isVerifyingOtp) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isVerifyingOtp = true, otpError = null) }
+            when (val result = authRepository.verifyEmailOtp(s.email.trim(), s.otp)) {
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isVerifyingOtp = false) }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(isVerifyingOtp = false, otpError = result.message, otp = "")
+                    }
+                }
+                is Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun resendOtp() {
+        val s = _uiState.value
+        if (s.resendCooldown > 0 || s.isResendingOtp) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isResendingOtp = true, otpError = null) }
+            when (authRepository.resendEmailOtp(s.email.trim())) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isResendingOtp = false,
+                            resendMessage = UiText.StringResource(R.string.auth_verify_email_resend_sent),
+                        )
+                    }
+                    startCooldown(60)
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isResendingOtp = false,
+                            otpError = UiText.StringResource(R.string.auth_error_generic),
+                        )
+                    }
+                }
+                is Resource.Loading -> Unit
+            }
+        }
+    }
+
+    private fun startCooldown(seconds: Int) {
+        cooldownJob?.cancel()
+        cooldownJob =
+            viewModelScope.launch {
+                for (i in seconds downTo 1) {
+                    _uiState.update { it.copy(resendCooldown = i) }
+                    delay(1_000L)
+                }
+                _uiState.update { it.copy(resendCooldown = 0, resendMessage = null) }
+            }
+    }
+
     fun submit() {
         val snapshot = _uiState.value
+        if (snapshot.isGuestMode) return
         if (snapshot.phase != InstructorWizardPhase.Steps ||
-            snapshot.currentStep != TOTAL_STEPS ||
+            snapshot.currentStep != snapshot.totalSteps ||
             snapshot.isSubmitting
         ) {
             return
@@ -337,6 +552,11 @@ class InstructorWizardViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        cooldownJob?.cancel()
+        super.onCleared()
     }
 }
 
