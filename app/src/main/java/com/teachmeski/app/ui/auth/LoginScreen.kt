@@ -36,7 +36,7 @@ import com.teachmeski.app.ui.component.TmsTextField
 
 @Composable
 fun LoginScreen(
-    onNavigateToSignup: () -> Unit = {},
+    onNavigateToRegister: () -> Unit = {},
     onNavigateToForgotPassword: () -> Unit = {},
     onNavigateToVerifyEmail: (email: String) -> Unit = {},
     viewModel: LoginViewModel = hiltViewModel(),
@@ -164,7 +164,7 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                TextButton(onClick = onNavigateToSignup) {
+                TextButton(onClick = onNavigateToRegister) {
                     Text(
                         text = stringResource(R.string.auth_login_signup_link),
                         style = MaterialTheme.typography.bodyMedium,

@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.teachmeski.app.ui.auth.ForgotPasswordScreen
 import com.teachmeski.app.ui.auth.LoginScreen
+import com.teachmeski.app.ui.auth.RegisterScreen
 import com.teachmeski.app.ui.auth.SignupScreen
 import com.teachmeski.app.ui.auth.VerifyEmailScreen
 
@@ -13,8 +14,8 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     navigation<Route.AuthGraph>(startDestination = Route.Login) {
         composable<Route.Login> {
             LoginScreen(
-                onNavigateToSignup = {
-                    navController.navigate(Route.Signup) {
+                onNavigateToRegister = {
+                    navController.navigate(Route.Register) {
                         launchSingleTop = true
                     }
                 },
@@ -27,6 +28,23 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                     navController.navigate(Route.VerifyEmail(email)) {
                         launchSingleTop = true
                     }
+                },
+            )
+        }
+        composable<Route.Register> {
+            RegisterScreen(
+                onNavigateToSignup = {
+                    navController.navigate(Route.Signup) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToInstructorWizard = {
+                    navController.navigate(Route.InstructorWizard(isGuestMode = true)) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.popBackStack(Route.Login, inclusive = false)
                 },
             )
         }

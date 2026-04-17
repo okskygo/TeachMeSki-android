@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 sealed interface Route {
 
     @Serializable data object Login : Route
+    @Serializable data object Register : Route
     @Serializable data object Signup : Route
     @Serializable data object ForgotPassword : Route
     @Serializable data class VerifyEmail(val email: String) : Route
@@ -23,7 +24,7 @@ sealed interface Route {
     @Serializable data object AccountSettings : Route
     @Serializable data object InstructorAccount : Route
     @Serializable data object InstructorProfile : Route
-    @Serializable data object InstructorWizard : Route
+    @Serializable data class InstructorWizard(val isGuestMode: Boolean = false) : Route
 
     @Serializable data object Wallet : Route
     @Serializable data object CreditHistory : Route

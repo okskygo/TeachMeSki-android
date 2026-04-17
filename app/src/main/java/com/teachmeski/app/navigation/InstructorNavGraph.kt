@@ -44,7 +44,7 @@ fun NavGraphBuilder.instructorNavGraph(navController: NavHostController) {
                 onNavigateToWallet = { navController.navigate(Route.Wallet) },
                 onNavigateToProfile = { navController.navigate(Route.InstructorProfile) },
                 onNavigateToWizard = {
-                    navController.navigate(Route.InstructorWizard) {
+                    navController.navigate(Route.InstructorWizard()) {
                         launchSingleTop = true
                     }
                 },

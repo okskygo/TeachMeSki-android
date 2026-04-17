@@ -64,8 +64,10 @@ fun AppNavGraph(
                 onBack = { navController.popBackStack() },
             )
         }
-        composable<Route.InstructorWizard> {
+        composable<Route.InstructorWizard> { entry ->
+            val wizardRoute = entry.toRoute<Route.InstructorWizard>()
             InstructorWizardScreen(
+                isGuestMode = wizardRoute.isGuestMode,
                 onClose = { navController.popBackStack() },
                 onSuccess = {
                     navController.popBackStack(Route.InstructorGraph, inclusive = false)

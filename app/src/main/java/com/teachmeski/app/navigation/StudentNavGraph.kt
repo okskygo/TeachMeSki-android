@@ -60,7 +60,7 @@ fun NavGraphBuilder.studentNavGraph(navController: NavHostController) {
             AccountScreen(
                 onAccountSettingsClick = { navController.navigate(Route.AccountSettings) },
                 onNavigateToWizard = {
-                    navController.navigate(Route.InstructorWizard) {
+                    navController.navigate(Route.InstructorWizard()) {
                         launchSingleTop = true
                     }
                 },

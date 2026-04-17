@@ -58,6 +58,7 @@ import com.teachmeski.app.ui.theme.TmsColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstructorWizardScreen(
+    isGuestMode: Boolean = false,
     onClose: () -> Unit,
     onSuccess: () -> Unit,
     viewModel: InstructorWizardViewModel = hiltViewModel(),
