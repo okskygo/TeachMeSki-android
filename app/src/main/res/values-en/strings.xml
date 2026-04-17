@@ -37,6 +37,12 @@
     <string name="auth_login_submit">Log In</string>
     <string name="auth_login_no_account">Don\'t have an account?</string>
     <string name="auth_login_signup_link">Sign up</string>
+    <!-- Register (role selection) -->
+    <string name="auth_register_title">Choose your role</string>
+    <string name="auth_register_student">I\'m a Student</string>
+    <string name="auth_register_instructor">I\'m an Instructor</string>
+    <string name="auth_register_has_account">Already have an account?</string>
+    <string name="auth_register_login_link">Log in</string>
     <string name="auth_login_forgot_password">Forgot password?</string>
     <string name="auth_login_session_expired">Your session has expired. Please sign in again.</string>
 
@@ -514,7 +520,22 @@
     <string name="instructor_wizard_step_labels_step7">Pricing</string>
     <string name="instructor_wizard_step_labels_step8">Services</string>
     <string name="instructor_wizard_step_labels_step9">Account</string>
-    <string name="instructor_wizard_step_labels_step10">Done</string>
+    <string name="instructor_wizard_step_labels_step10">Verify</string>
+    <!-- Instructor wizard guest mode -->
+    <string name="instructor_wizard_account_title">Create Account</string>
+    <string name="instructor_wizard_account_subtitle">Create an account to complete instructor registration</string>
+    <string name="instructor_wizard_account_email_label">Email</string>
+    <string name="instructor_wizard_account_email_placeholder">your@email.com</string>
+    <string name="instructor_wizard_account_password_label">Password</string>
+    <string name="instructor_wizard_account_password_placeholder">At least 8 characters</string>
+    <string name="instructor_wizard_account_confirm_label">Confirm Password</string>
+    <string name="instructor_wizard_account_confirm_placeholder">Re-enter your password</string>
+    <string name="instructor_wizard_account_terms_prefix">I agree to the</string>
+    <string name="instructor_wizard_account_terms_link">Terms of Service</string>
+    <string name="instructor_wizard_account_terms_and">and</string>
+    <string name="instructor_wizard_account_privacy_link">Privacy Policy</string>
+    <string name="instructor_wizard_otp_subtitle_fmt">We sent a verification code to %1$s</string>
+    <string name="instructor_wizard_creating_profile">Creating instructor profile…</string>
     <string name="instructor_wizard_nav_next">Next</string>
     <string name="instructor_wizard_nav_submit">Submit</string>
     <string name="instructor_wizard_nav_prev">← Back</string>

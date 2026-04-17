@@ -37,6 +37,12 @@
     <string name="auth_login_submit">登入</string>
     <string name="auth_login_no_account">還沒有帳號？</string>
     <string name="auth_login_signup_link">立即註冊</string>
+    <!-- Register (role selection) -->
+    <string name="auth_register_title">選擇你的身份</string>
+    <string name="auth_register_student">我是學員</string>
+    <string name="auth_register_instructor">我是教練</string>
+    <string name="auth_register_has_account">已有帳號？</string>
+    <string name="auth_register_login_link">登入</string>
     <string name="auth_login_forgot_password">忘記密碼？</string>
     <string name="auth_login_session_expired">登入狀態已過期，請重新登入</string>
 
@@ -514,7 +520,21 @@
     <string name="instructor_wizard_step_labels_step7">定價</string>
     <string name="instructor_wizard_step_labels_step8">服務</string>
     <string name="instructor_wizard_step_labels_step9">帳號</string>
-    <string name="instructor_wizard_step_labels_step10">完成</string>
+    <string name="instructor_wizard_step_labels_step10">驗證</string>
+    <string name="instructor_wizard_account_title">建立帳號</string>
+    <string name="instructor_wizard_account_subtitle">建立帳號以完成教練註冊</string>
+    <string name="instructor_wizard_account_email_label">電子郵件</string>
+    <string name="instructor_wizard_account_email_placeholder">your@email.com</string>
+    <string name="instructor_wizard_account_password_label">密碼</string>
+    <string name="instructor_wizard_account_password_placeholder">至少 8 個字元</string>
+    <string name="instructor_wizard_account_confirm_label">確認密碼</string>
+    <string name="instructor_wizard_account_confirm_placeholder">再次輸入密碼</string>
+    <string name="instructor_wizard_account_terms_prefix">我同意</string>
+    <string name="instructor_wizard_account_terms_link">服務條款</string>
+    <string name="instructor_wizard_account_terms_and">及</string>
+    <string name="instructor_wizard_account_privacy_link">隱私權政策</string>
+    <string name="instructor_wizard_otp_subtitle_fmt">我們已寄送驗證碼到 %1$s</string>
+    <string name="instructor_wizard_creating_profile">正在建立教練檔案…</string>
     <string name="instructor_wizard_nav_next">下一步</string>
     <string name="instructor_wizard_nav_submit">送出註冊</string>
     <string name="instructor_wizard_nav_prev">← 上一步</string>
@@ -622,7 +642,7 @@
     <string name="instructor_wizard_step9_error_name_required">請輸入顯示名稱</string>
     <string name="instructor_wizard_step9_error_invalid_credentials">帳號或密碼錯誤</string>
     <string name="instructor_wizard_step9_error_generic">發生錯誤，請稍後再試</string>
-    <string name="instructor_wizard_otp_title">驗證您的 Email</string>
+    <string name="instructor_wizard_otp_title">驗證你的信箱</string>
     <string name="instructor_wizard_otp_subtitle_sent">驗證碼已寄送至 %1$s</string>
     <string name="instructor_wizard_otp_subtitle_intercept">此帳號尚未完成 Email 驗證</string>
     <string name="instructor_wizard_otp_masked_email_label">驗證碼將寄送至 %1$s</string>
