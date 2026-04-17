@@ -76,7 +76,7 @@ private fun AuthenticatedApp(
     val currentDestRoute = navBackStackEntry?.destination?.route
 
     val isOnAuthScreen = currentDestRoute?.let { route ->
-        route.contains("Login") || route.contains("Signup") ||
+        route.contains("Login") || route.contains("Signup") || route.contains("Register") ||
             route.contains("ForgotPassword") || route.contains("VerifyEmail")
     } ?: !isAuthenticated
 

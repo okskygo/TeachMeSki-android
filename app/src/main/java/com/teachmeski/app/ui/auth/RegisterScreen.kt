@@ -94,13 +94,13 @@ fun RegisterScreen(
                 Text(
                     text = stringResource(R.string.auth_register_has_account),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = TmsColor.OnSurfaceVariant,
                 )
                 TextButton(onClick = onNavigateToLogin) {
                     Text(
                         text = stringResource(R.string.auth_register_login_link),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = TmsColor.Primary,
                     )
                 }
             }
