@@ -1,9 +1,12 @@
 package com.teachmeski.app.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teachmeski.app.domain.model.PendingInstructorProfile
 import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.domain.repository.AuthRepository
+import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.util.Resource
@@ -27,6 +30,8 @@ class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val rolePreferences: RolePreferences,
+    private val instructorRepository: InstructorRepository,
+    private val pendingProfile: PendingInstructorProfile,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MainUiState>(MainUiState.Loading)
@@ -40,7 +45,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.sessionStatus.collect { status ->
                 when (status) {
-                    is SessionStatus.Authenticated -> resolveRole()
+                    is SessionStatus.Authenticated -> {
+                        flushPendingInstructorProfileIfNeeded()
+                        resolveRole()
+                    }
                     is SessionStatus.NotAuthenticated -> {
                         _uiState.value = MainUiState.Unauthenticated
                     }
@@ -52,6 +60,39 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun flushPendingInstructorProfileIfNeeded() {
+        val data = pendingProfile.get() ?: return
+        try {
+            when (
+                val result =
+                    instructorRepository.createProfile(
+                        discipline = data.discipline,
+                        teachableLevels = data.teachableLevels,
+                        resortIds = data.resortIds,
+                        certifications = data.certifications,
+                        certificationOther = data.certificationOther,
+                        displayName = data.displayName,
+                        bio = data.bio,
+                        languages = data.languages,
+                        priceHalfDay = data.priceHalfDay,
+                        priceFullDay = data.priceFullDay,
+                        offersTransport = data.offersTransport,
+                        offersPhotography = data.offersPhotography,
+                    )
+            ) {
+                is Resource.Success ->
+                    Log.d("MainViewModel", "Created instructor profile from pending wizard data")
+                is Resource.Error ->
+                    Log.e("MainViewModel", "createProfile failed: ${result.message}")
+                is Resource.Loading -> Unit
+            }
+        } catch (e: Exception) {
+            Log.e("MainViewModel", "createProfile threw", e)
+        } finally {
+            pendingProfile.clear()
         }
     }
 
