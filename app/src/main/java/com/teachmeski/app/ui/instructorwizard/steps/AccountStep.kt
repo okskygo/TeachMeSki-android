@@ -2,16 +2,18 @@ package com.teachmeski.app.ui.instructorwizard.steps
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,150 +52,158 @@ fun AccountStep(
             modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = stringResource(R.string.instructor_wizard_account_title),
             style = MaterialTheme.typography.headlineSmall,
             color = TmsColor.OnSurface,
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = stringResource(R.string.instructor_wizard_account_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = TmsColor.OnSurfaceVariant,
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        TmsTextField(
-            value = state.email,
-            onValueChange = onEmailChange,
-            label = stringResource(R.string.instructor_wizard_account_email_label),
-            placeholder = stringResource(R.string.instructor_wizard_account_email_placeholder),
-            keyboardOptions =
-                KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next,
-                ),
-            enabled = !state.isSigningUp,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        TmsTextField(
-            value = state.password,
-            onValueChange = onPasswordChange,
-            label = stringResource(R.string.instructor_wizard_account_password_label),
-            placeholder = stringResource(R.string.instructor_wizard_account_password_placeholder),
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions =
-                KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Next,
-                ),
-            enabled = !state.isSigningUp,
-        )
-
-        if (state.password.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            PasswordRulesDisplay(
-                rules = state.passwordRules,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(start = 4.dp),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        TmsTextField(
-            value = state.confirmPassword,
-            onValueChange = onConfirmPasswordChange,
-            label = stringResource(R.string.instructor_wizard_account_confirm_label),
-            placeholder = stringResource(R.string.instructor_wizard_account_confirm_placeholder),
-            visualTransformation = PasswordVisualTransformation(),
-            isError = confirmMismatch,
-            errorMessage =
-                if (confirmMismatch) {
-                    stringResource(R.string.auth_error_password_confirm_mismatch)
-                } else {
-                    null
-                },
-            keyboardOptions =
-                KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done,
-                ),
-            enabled = !state.isSigningUp,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = TmsColor.SurfaceLowest),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         ) {
-            Checkbox(
-                checked = state.termsChecked,
-                onCheckedChange = onTermsCheckedChange,
-                enabled = !state.isSigningUp,
-            )
-            val linkColor = MaterialTheme.colorScheme.primary
-            val textColor = MaterialTheme.colorScheme.onSurfaceVariant
-            val textStyle = MaterialTheme.typography.bodySmall
-            val termsText =
-                buildAnnotatedString {
-                    append(stringResource(R.string.instructor_wizard_account_terms_prefix))
-                    append(" ")
-                    pushStringAnnotation("url", "https://teachmeski.com/terms")
-                    withStyle(
-                        SpanStyle(
-                            color = linkColor,
-                            textDecoration = TextDecoration.Underline,
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                TmsTextField(
+                    value = state.email,
+                    onValueChange = onEmailChange,
+                    label = stringResource(R.string.instructor_wizard_account_email_label),
+                    placeholder = stringResource(R.string.instructor_wizard_account_email_placeholder),
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next,
                         ),
-                    ) {
-                        append(stringResource(R.string.instructor_wizard_account_terms_link))
-                    }
-                    pop()
-                    append(" ")
-                    append(stringResource(R.string.instructor_wizard_account_terms_and))
-                    append(" ")
-                    pushStringAnnotation("url", "https://teachmeski.com/privacy")
-                    withStyle(
-                        SpanStyle(
-                            color = linkColor,
-                            textDecoration = TextDecoration.Underline,
+                    enabled = !state.isSigningUp,
+                )
+
+                TmsTextField(
+                    value = state.password,
+                    onValueChange = onPasswordChange,
+                    label = stringResource(R.string.instructor_wizard_account_password_label),
+                    placeholder = stringResource(R.string.instructor_wizard_account_password_placeholder),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next,
                         ),
-                    ) {
-                        append(stringResource(R.string.instructor_wizard_account_privacy_link))
-                    }
-                    pop()
+                    enabled = !state.isSigningUp,
+                )
+
+                if (state.password.isNotEmpty()) {
+                    PasswordRulesDisplay(
+                        rules = state.passwordRules,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
-            val context = LocalContext.current
-            @Suppress("DEPRECATION")
-            ClickableText(
-                text = termsText,
-                style = textStyle.copy(color = textColor),
-                modifier = Modifier.padding(top = 12.dp),
-                onClick = { offset ->
-                    termsText
-                        .getStringAnnotations("url", offset, offset)
-                        .firstOrNull()
-                        ?.let { annotation ->
-                            context.startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item)),
-                            )
-                        }
-                },
-            )
+
+                TmsTextField(
+                    value = state.confirmPassword,
+                    onValueChange = onConfirmPasswordChange,
+                    label = stringResource(R.string.instructor_wizard_account_confirm_label),
+                    placeholder = stringResource(R.string.instructor_wizard_account_confirm_placeholder),
+                    visualTransformation = PasswordVisualTransformation(),
+                    isError = confirmMismatch,
+                    errorMessage =
+                        if (confirmMismatch) {
+                            stringResource(R.string.auth_error_password_confirm_mismatch)
+                        } else {
+                            null
+                        },
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done,
+                        ),
+                    enabled = !state.isSigningUp,
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        TermsCheckbox(
+            checked = state.termsChecked,
+            onCheckedChange = onTermsCheckedChange,
+            enabled = !state.isSigningUp,
+        )
+    }
+}
+
+@Composable
+private fun TermsCheckbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
+        )
+        val linkColor = TmsColor.Primary
+        val textColor = TmsColor.OnSurfaceVariant
+        val textStyle = MaterialTheme.typography.bodySmall
+        val termsText =
+            buildAnnotatedString {
+                append(stringResource(R.string.instructor_wizard_account_terms_prefix))
+                append(" ")
+                pushStringAnnotation("url", "https://teachmeski.com/terms")
+                withStyle(
+                    SpanStyle(
+                        color = linkColor,
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                ) {
+                    append(stringResource(R.string.instructor_wizard_account_terms_link))
+                }
+                pop()
+                append(" ")
+                append(stringResource(R.string.instructor_wizard_account_terms_and))
+                append(" ")
+                pushStringAnnotation("url", "https://teachmeski.com/privacy")
+                withStyle(
+                    SpanStyle(
+                        color = linkColor,
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                ) {
+                    append(stringResource(R.string.instructor_wizard_account_privacy_link))
+                }
+                pop()
+            }
+        val context = LocalContext.current
+        @Suppress("DEPRECATION")
+        ClickableText(
+            text = termsText,
+            style = textStyle.copy(color = textColor),
+            modifier = Modifier.padding(top = 12.dp),
+            onClick = { offset ->
+                termsText
+                    .getStringAnnotations("url", offset, offset)
+                    .firstOrNull()
+                    ?.let { annotation ->
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item)),
+                        )
+                    }
+            },
+        )
     }
 }

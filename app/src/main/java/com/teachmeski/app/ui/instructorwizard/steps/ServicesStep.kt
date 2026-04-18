@@ -1,12 +1,15 @@
 package com.teachmeski.app.ui.instructorwizard.steps
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -26,78 +29,76 @@ fun ServicesStep(
     onOffersPhotographyChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier) {
-        item {
-            Text(
-                text = stringResource(R.string.instructor_wizard_step8_heading),
-                style = MaterialTheme.typography.headlineSmall,
-                color = TmsColor.OnSurface,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-        }
-        item {
-            Text(
-                text = stringResource(R.string.instructor_wizard_step8_subheading),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TmsColor.OnSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        item {
-            ServiceSwitchRow(
-                title = stringResource(R.string.instructor_wizard_step8_transport_label),
-                description = stringResource(R.string.instructor_wizard_step8_transport_desc),
-                checked = state.offersTransport,
-                onCheckedChange = onOffersTransportChange,
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        item {
-            ServiceSwitchRow(
-                title = stringResource(R.string.instructor_wizard_step8_photography_label),
-                description = stringResource(R.string.instructor_wizard_step8_photography_desc),
-                checked = state.offersPhotography,
-                onCheckedChange = onOffersPhotographyChange,
-            )
-        }
+    Column(
+        modifier =
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.instructor_wizard_step8_heading),
+            style = MaterialTheme.typography.headlineSmall,
+            color = TmsColor.OnSurface,
+        )
+        Text(
+            text = stringResource(R.string.instructor_wizard_step8_subheading),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TmsColor.OnSurfaceVariant,
+        )
+        ServiceToggleCard(
+            title = stringResource(R.string.instructor_wizard_step8_transport_label),
+            description = stringResource(R.string.instructor_wizard_step8_transport_desc),
+            checked = state.offersTransport,
+            onCheckedChange = onOffersTransportChange,
+        )
+        ServiceToggleCard(
+            title = stringResource(R.string.instructor_wizard_step8_photography_label),
+            description = stringResource(R.string.instructor_wizard_step8_photography_desc),
+            checked = state.offersPhotography,
+            onCheckedChange = onOffersPhotographyChange,
+        )
     }
 }
 
 @Composable
-private fun ServiceSwitchRow(
+private fun ServiceToggleCard(
     title: String,
     description: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = TmsColor.SurfaceLowest),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                color = TmsColor.OnSurface,
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = TmsColor.OnSurfaceVariant,
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = TmsColor.OnSurface,
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TmsColor.OnSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
             )
         }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
     }
 }
