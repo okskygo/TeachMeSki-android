@@ -8,6 +8,7 @@ import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,12 +30,15 @@ class UnlockedViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UnlockedUiState())
     val uiState: StateFlow<UnlockedUiState> = _uiState.asStateFlow()
 
+    private var loadJob: Job? = null
+
     init {
         load(isRefresh = false)
     }
 
     fun load(isRefresh: Boolean = false) {
-        viewModelScope.launch {
+        if (!isRefresh && loadJob?.isActive == true) return
+        loadJob = viewModelScope.launch {
             val initial = _uiState.value.rooms.isEmpty()
             _uiState.update { state ->
                 state.copy(
