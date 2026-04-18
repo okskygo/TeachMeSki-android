@@ -43,6 +43,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -89,6 +90,7 @@ import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.ui.wizard.ResortSelector
 import com.teachmeski.app.util.UiText
 import java.util.Locale
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -308,9 +310,22 @@ fun InstructorProfileScreen(
                         onAvatarClick = { avatarPicker.launch("image/*") },
                         onEditName = { viewModel.openDialog(ProfileEditDialog.DisplayName) },
                         onEditBio = { viewModel.openDialog(ProfileEditDialog.Bio) },
-                        onEditDiscipline = { viewModel.openDialog(ProfileEditDialog.Discipline) },
-                        onToggleAccepting = { viewModel.toggleAccepting(it) },
                     )
+                    AcceptingToggleCard(
+                        isAccepting = profile.isAcceptingRequests,
+                        isSaving = state.isSaving,
+                        onToggle = { viewModel.toggleAccepting(it) },
+                    )
+                    ProfileSectionCard(
+                        title = stringResource(R.string.instructor_profile_discipline_label),
+                        onEdit = { viewModel.openDialog(ProfileEditDialog.Discipline) },
+                    ) {
+                        Text(
+                            text = disciplineLabel(profile.discipline),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TmsColor.OnSurfaceVariant,
+                        )
+                    }
                     ProfileSectionCard(
                         title = stringResource(R.string.instructor_profile_levels_label),
                         onEdit = { viewModel.openDialog(ProfileEditDialog.Levels) },
@@ -365,19 +380,15 @@ fun InstructorProfileScreen(
                         title = stringResource(R.string.instructor_profile_languages_label),
                         onEdit = { viewModel.openDialog(ProfileEditDialog.Languages) },
                     ) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            profile.languages.forEach { code ->
-                                FilterChip(
-                                    selected = true,
-                                    onClick = {},
-                                    enabled = false,
-                                    label = { Text(languageLabel(code)) },
-                                )
-                            }
-                        }
+                        val zhLabel = stringResource(R.string.instructor_wizard_step6_lang_zh)
+                        val enLabel = stringResource(R.string.instructor_wizard_step6_lang_en)
+                        val jaLabel = stringResource(R.string.instructor_wizard_step6_lang_ja)
+                        val langMap = mapOf("zh" to zhLabel, "en" to enLabel, "ja" to jaLabel)
+                        Text(
+                            text = profile.languages.joinToString("、") { langMap[it] ?: it },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TmsColor.OnSurfaceVariant,
+                        )
                     }
                     ProfileSectionCard(
                         title = stringResource(R.string.instructor_profile_pricing_label),
@@ -571,8 +582,6 @@ private fun HeaderCard(
     onAvatarClick: () -> Unit,
     onEditName: () -> Unit,
     onEditBio: () -> Unit,
-    onEditDiscipline: () -> Unit,
-    onToggleAccepting: (Boolean) -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -661,54 +670,49 @@ private fun HeaderCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = TmsColor.OnSurfaceVariant,
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.instructor_profile_toggle_accepting),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TmsColor.OnSurface,
-                    )
-                    Text(
-                        text =
-                            if (profile.isAcceptingRequests) {
-                                stringResource(R.string.instructor_profile_accepting_label)
-                            } else {
-                                stringResource(R.string.instructor_profile_not_accepting_label)
-                            },
-                        style = MaterialTheme.typography.labelMedium,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
-                }
-                Switch(
-                    checked = profile.isAcceptingRequests,
-                    onCheckedChange = onToggleAccepting,
-                    enabled = !isSaving,
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
+        }
+    }
+}
+
+@Composable
+private fun AcceptingToggleCard(
+    isAccepting: Boolean,
+    isSaving: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = TmsColor.SurfaceLowest,
+        tonalElevation = 1.dp,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = disciplineLabel(profile.discipline),
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = stringResource(R.string.instructor_profile_toggle_accepting),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = TmsColor.OnSurface,
-                    modifier = Modifier.weight(1f),
                 )
-                IconButton(onClick = onEditDiscipline, modifier = Modifier.size(36.dp)) {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        contentDescription = stringResource(R.string.common_edit),
-                        tint = TmsColor.Primary,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                Text(
+                    text =
+                        if (isAccepting) {
+                            stringResource(R.string.instructor_profile_accepting_label)
+                        } else {
+                            stringResource(R.string.instructor_profile_not_accepting_label)
+                        },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TmsColor.OnSurfaceVariant,
+                )
             }
+            Switch(
+                checked = isAccepting,
+                onCheckedChange = onToggle,
+                enabled = !isSaving,
+            )
         }
     }
 }
@@ -720,14 +724,8 @@ private fun InstructorLevelsList(levels: List<Int>) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Icon(
-                    imageVector = Icons.Filled.DownhillSkiing,
-                    contentDescription = null,
-                    tint = TmsColor.Primary,
-                    modifier = Modifier.size(20.dp),
-                )
                 Text(
                     text = stringResource(R.string.explore_card_skill_level_fmt, lv.toString()),
                     style = MaterialTheme.typography.bodyMedium,
@@ -737,7 +735,7 @@ private fun InstructorLevelsList(levels: List<Int>) {
                 Text(
                     text = " · ${stringResource(levelDescriptionRes(lv))}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TmsColor.OnSurface,
+                    color = TmsColor.OnSurfaceVariant,
                 )
             }
         }
@@ -965,6 +963,8 @@ private fun ProfileEditDialogs(
             var text by remember(profile.displayName, openDialog) { mutableStateOf(profile.displayName) }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_wizard_step5_name_label)) },
                 text = {
                     Column {
@@ -1012,6 +1012,8 @@ private fun ProfileEditDialogs(
             var text by remember(profile.bio, openDialog) { mutableStateOf(profile.bio.orEmpty()) }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_bio_label)) },
                 text = {
                     Column(modifier = Modifier.heightIn(max = 360.dp)) {
@@ -1059,6 +1061,8 @@ private fun ProfileEditDialogs(
             var selected by remember(profile.discipline, openDialog) { mutableStateOf(profile.discipline) }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_discipline_label)) },
                 text = {
                     Column {
@@ -1112,6 +1116,8 @@ private fun ProfileEditDialogs(
             }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_levels_label)) },
                 text = {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -1173,6 +1179,8 @@ private fun ProfileEditDialogs(
             }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_resorts_label)) },
                 text = {
                     Column(modifier = Modifier.heightIn(max = 400.dp)) {
@@ -1244,6 +1252,8 @@ private fun ProfileEditDialogs(
             }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_certs_label)) },
                 text = {
                     Column(modifier = Modifier.heightIn(max = 400.dp).verticalScroll(rememberScrollState())) {
@@ -1309,6 +1319,8 @@ private fun ProfileEditDialogs(
             }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_languages_label)) },
                 text = {
                     Column {
@@ -1325,6 +1337,10 @@ private fun ProfileEditDialogs(
                                             if (sel) langs - code else langs + code
                                     },
                                     label = { Text(languageLabel(code)) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = TmsColor.Primary,
+                                        selectedLabelColor = TmsColor.OnPrimary,
+                                    ),
                                 )
                             }
                         }
@@ -1372,6 +1388,8 @@ private fun ProfileEditDialogs(
                     full < half
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_pricing_label)) },
                 text = {
                     Column {
@@ -1441,6 +1459,8 @@ private fun ProfileEditDialogs(
             }
             AlertDialog(
                 onDismissRequest = onDismiss,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_services_label)) },
                 text = {
                     Column {
