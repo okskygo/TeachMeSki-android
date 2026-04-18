@@ -189,6 +189,44 @@ class ExploreViewModel @Inject constructor(
         _uiState.update { it.copy(unlockSuccessChatRoomId = null) }
     }
 
+    fun refreshOnResume() {
+        if (loadMutex.isLocked) return
+        viewModelScope.launch { refreshTokenBalance() }
+        viewModelScope.launch {
+            loadMutex.withLock {
+                if (_uiState.value.requests.isEmpty()) {
+                    _uiState.update { it.copy(isLoading = true, error = null) }
+                }
+                val disciplineList = _uiState.value.disciplineFilter?.let { listOf(it) }
+                when (
+                    val result = exploreRepository.getExploreLessonRequests(
+                        page = 1,
+                        disciplineFilter = disciplineList,
+                        resortFilter = null,
+                    )
+                ) {
+                    is Resource.Success -> {
+                        val (list, total) = result.data
+                        _uiState.update { s ->
+                            s.copy(
+                                requests = list,
+                                isLoading = false,
+                                isLoadingMore = false,
+                                currentPage = 1,
+                                totalCount = total,
+                                hasMore = list.size < total,
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        _uiState.update { it.copy(isLoading = false) }
+                    }
+                    Resource.Loading -> Unit
+                }
+            }
+        }
+    }
+
     fun consumeError() {
         _uiState.update { it.copy(error = null) }
     }
