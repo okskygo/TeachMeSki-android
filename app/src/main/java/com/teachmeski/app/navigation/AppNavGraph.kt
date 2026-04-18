@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardScreen
@@ -28,7 +29,9 @@ fun AppNavGraph(
     navController: NavHostController,
     isAuthenticated: Boolean,
     activeRole: ActiveRole,
+    userRole: UserRole = UserRole.Student,
     onSwitchToStudent: () -> Unit,
+    onSwitchToInstructor: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val startDestination: Route = if (!isAuthenticated) {
@@ -46,7 +49,7 @@ fun AppNavGraph(
         modifier = modifier,
     ) {
         authNavGraph(navController)
-        studentNavGraph(navController)
+        studentNavGraph(navController, userRole = userRole, onSwitchToInstructor = onSwitchToInstructor)
         instructorNavGraph(navController, onSwitchToStudent = onSwitchToStudent)
 
         composable<Route.InstructorProfile> {

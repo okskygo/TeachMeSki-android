@@ -23,6 +23,7 @@ import com.teachmeski.app.navigation.AppNavGraph
 import com.teachmeski.app.navigation.Route
 import com.teachmeski.app.ui.MainUiState
 import com.teachmeski.app.ui.MainViewModel
+import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.ui.component.TmsBottomBar
 import com.teachmeski.app.ui.theme.TeachMeSkiTheme
@@ -55,14 +56,18 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
             AuthenticatedApp(
                 isAuthenticated = false,
                 activeRole = ActiveRole.Student,
+                userRole = UserRole.Student,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
+                onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
             )
         }
         is MainUiState.Authenticated -> {
             AuthenticatedApp(
                 isAuthenticated = true,
                 activeRole = state.activeRole,
+                userRole = state.userRole,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
+                onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
             )
         }
     }
@@ -72,7 +77,9 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
 private fun AuthenticatedApp(
     isAuthenticated: Boolean,
     activeRole: ActiveRole,
+    userRole: UserRole,
     onSwitchToStudent: () -> Unit,
+    onSwitchToInstructor: () -> Unit,
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -108,7 +115,7 @@ private fun AuthenticatedApp(
         else -> null
     }
 
-    LaunchedEffect(isAuthenticated) {
+    LaunchedEffect(isAuthenticated, activeRole) {
         if (isAuthenticated) {
             val startRoute: Route = when (activeRole) {
                 ActiveRole.Student -> Route.StudentGraph
@@ -149,7 +156,9 @@ private fun AuthenticatedApp(
             navController = navController,
             isAuthenticated = isAuthenticated,
             activeRole = activeRole,
+            userRole = userRole,
             onSwitchToStudent = onSwitchToStudent,
+            onSwitchToInstructor = onSwitchToInstructor,
             modifier = Modifier.padding(innerPadding),
         )
     }

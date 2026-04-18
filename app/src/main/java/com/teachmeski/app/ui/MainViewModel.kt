@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 sealed interface MainUiState {
     data object Loading : MainUiState
-    data class Authenticated(val activeRole: ActiveRole) : MainUiState
+    data class Authenticated(val activeRole: ActiveRole, val userRole: UserRole) : MainUiState
     data object Unauthenticated : MainUiState
 }
 
@@ -118,7 +118,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
                 rolePreferences.setLastActiveRole(userId, activeRole)
-                _uiState.value = MainUiState.Authenticated(activeRole)
+                _uiState.value = MainUiState.Authenticated(activeRole, user.role)
             }
             is Resource.Error -> {
                 _uiState.value = MainUiState.Unauthenticated
@@ -129,9 +129,11 @@ class MainViewModel @Inject constructor(
 
     fun switchRole(newRole: ActiveRole) {
         val userId = authRepository.currentUserId() ?: return
+        val currentUserRole = (_uiState.value as? MainUiState.Authenticated)?.userRole
+            ?: return
         viewModelScope.launch {
             rolePreferences.setLastActiveRole(userId, newRole)
-            _uiState.value = MainUiState.Authenticated(newRole)
+            _uiState.value = MainUiState.Authenticated(newRole, currentUserRole)
         }
     }
 

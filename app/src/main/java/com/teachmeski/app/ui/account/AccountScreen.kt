@@ -38,14 +38,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.util.Resource
 import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(
+    userRole: UserRole = UserRole.Student,
     onAccountSettingsClick: () -> Unit,
     onNavigateToWizard: () -> Unit = {},
+    onSwitchToInstructor: () -> Unit = {},
     onContactClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
@@ -80,8 +83,8 @@ fun AccountScreen(
                 onClick = onAccountSettingsClick,
             )
             AccountMenuRow(
-                title = stringResource(R.string.instructor_account_become_instructor),
-                onClick = onNavigateToWizard,
+                title = stringResource(R.string.role_switch_to_instructor),
+                onClick = if (userRole == UserRole.Both) onSwitchToInstructor else onNavigateToWizard,
             )
             AccountMenuRow(
                 title = stringResource(R.string.contact_title),

@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.ui.account.AccountScreen
 import com.teachmeski.app.ui.account.AccountSettingsScreen
 import com.teachmeski.app.ui.account.ContactScreen
@@ -16,7 +17,11 @@ import com.teachmeski.app.ui.myrequests.RequestDetailScreen
 import com.teachmeski.app.ui.profile.InstructorDetailScreen
 import com.teachmeski.app.ui.wizard.LessonRequestWizardScreen
 
-fun NavGraphBuilder.studentNavGraph(navController: NavHostController) {
+fun NavGraphBuilder.studentNavGraph(
+    navController: NavHostController,
+    userRole: UserRole = UserRole.Student,
+    onSwitchToInstructor: () -> Unit = {},
+) {
     navigation<Route.StudentGraph>(startDestination = Route.MyRequests) {
         composable<Route.MyRequests> {
             MyRequestsScreen(
@@ -58,12 +63,14 @@ fun NavGraphBuilder.studentNavGraph(navController: NavHostController) {
         composable<Route.ChatRoomList> { ChatRoomListScreen() }
         composable<Route.Account> {
             AccountScreen(
+                userRole = userRole,
                 onAccountSettingsClick = { navController.navigate(Route.AccountSettings) },
                 onNavigateToWizard = {
                     navController.navigate(Route.InstructorWizard()) {
                         launchSingleTop = true
                     }
                 },
+                onSwitchToInstructor = onSwitchToInstructor,
                 onContactClick = { navController.navigate(Route.Contact) },
                 onTermsClick = { navController.navigate(Route.Legal(type = "terms")) },
                 onPrivacyClick = { navController.navigate(Route.Legal(type = "privacy")) },
