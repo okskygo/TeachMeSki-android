@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -78,50 +79,36 @@ private fun LevelCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(12.dp)
-    val backgroundColor =
-        when {
-            selected -> TmsColor.Primary.copy(alpha = 0.05f)
-            implied -> TmsColor.Primary.copy(alpha = 0.03f)
-            else -> TmsColor.SurfaceLowest
-        }
-    val borderColor =
-        when {
-            selected -> TmsColor.Primary
-            implied -> TmsColor.Primary.copy(alpha = 0.30f)
-            else -> TmsColor.OutlineVariant.copy(alpha = 0f)
-        }
-    val borderWidth = if (selected) 2.dp else if (implied) 1.dp else 0.dp
-
-    Surface(
+    Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = shape,
-        color = backgroundColor,
-        border = if (borderWidth > 0.dp) BorderStroke(borderWidth, borderColor) else null,
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(12.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = TmsColor.SurfaceLowest,
+            ),
+        border =
+            when {
+                selected -> BorderStroke(2.dp, TmsColor.Primary)
+                implied -> BorderStroke(1.dp, TmsColor.Primary.copy(alpha = 0.40f))
+                else -> null
+            },
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = if (selected || implied) 0.dp else 1.dp,
+            ),
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     text = stringResource(R.string.explore_card_skill_level_fmt, level.toString()),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color =
-                        when {
-                            selected -> TmsColor.Primary
-                            implied -> TmsColor.Primary.copy(alpha = 0.60f)
-                            else -> TmsColor.Primary
-                        },
+                        if (implied) TmsColor.Primary.copy(alpha = 0.60f) else TmsColor.Primary,
                 )
                 if (selected || implied) {
                     Text(
@@ -135,6 +122,7 @@ private fun LevelCard(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (implied) TmsColor.OnSurfaceVariant else TmsColor.OnSurface,
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
     }

@@ -292,7 +292,6 @@ private fun InstructorWizardStepsScaffold(
                     3 ->
                         ResortsStep(
                             state = state,
-                            onToggleAllRegions = viewModel::toggleAllRegions,
                             onResortToggle = viewModel::toggleResort,
                             onPrefectureToggle = viewModel::togglePrefecture,
                         )

@@ -70,7 +70,7 @@ data class InstructorWizardUiState(
         when (currentStep) {
             1 -> selectedDisciplines.isNotEmpty()
             2 -> teachableLevels.isNotEmpty()
-            3 -> allRegionsSelected || selectedResortIds.isNotEmpty()
+            3 -> selectedResortIds.isNotEmpty()
             4 -> ("other" !in certifications) || certificationOther.isNotBlank()
             5 -> {
                 val name = displayName.trim()
