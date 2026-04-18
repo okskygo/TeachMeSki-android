@@ -186,65 +186,54 @@ private fun InstructorWizardStepsScaffold(
         },
         bottomBar = {
             if (state.currentStep != 10 || !state.isGuestMode) {
-                Column(
+                Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    WizardStepProgress(
-                        currentStep = state.currentStep,
-                        totalSteps = state.totalSteps,
-                        labels = (1..state.totalSteps).map { stringResource(instructorWizardStepLabelRes(it)) },
-                        modifier = Modifier.padding(horizontal = 24.dp),
-                    )
-                    Spacer(modifier = Modifier.padding(vertical = 4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        if (state.currentStep > 1) {
-                            OutlinedButton(onClick = onBack) {
-                                Text(text = stringResource(R.string.instructor_wizard_nav_prev))
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.width(1.dp))
+                    if (state.currentStep > 1) {
+                        OutlinedButton(onClick = onBack) {
+                            Text(text = stringResource(R.string.instructor_wizard_nav_prev))
                         }
-                        Spacer(modifier = Modifier.weight(1f))
-                        val primaryLabel =
-                            when {
-                                state.currentStep == 9 && state.isGuestMode -> R.string.auth_signup_submit
-                                state.currentStep == state.totalSteps -> {
-                                    if (state.isSubmitting) {
-                                        R.string.wizard_submit_loading
-                                    } else {
-                                        R.string.instructor_wizard_nav_submit
-                                    }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    val primaryLabel =
+                        when {
+                            state.currentStep == 9 && state.isGuestMode -> R.string.auth_signup_submit
+                            state.currentStep == state.totalSteps -> {
+                                if (state.isSubmitting) {
+                                    R.string.wizard_submit_loading
+                                } else {
+                                    R.string.instructor_wizard_nav_submit
                                 }
-                                else -> R.string.instructor_wizard_nav_next
                             }
-                        val primaryEnabled =
-                            when {
-                                state.currentStep == 9 && state.isGuestMode ->
-                                    !state.isSigningUp && state.canAdvanceFromCurrentStep()
-                                state.currentStep == state.totalSteps ->
-                                    !state.isSubmitting && state.canAdvanceFromCurrentStep()
-                                else -> state.canAdvanceFromCurrentStep()
-                            }
-                        Button(
-                            onClick = onPrimary,
-                            enabled = primaryEnabled,
-                        ) {
-                            if (state.currentStep == 9 && state.isGuestMode && state.isSigningUp) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                )
-                            } else {
-                                Text(text = stringResource(primaryLabel))
-                            }
+                            else -> R.string.instructor_wizard_nav_next
+                        }
+                    val primaryEnabled =
+                        when {
+                            state.currentStep == 9 && state.isGuestMode ->
+                                !state.isSigningUp && state.canAdvanceFromCurrentStep()
+                            state.currentStep == state.totalSteps ->
+                                !state.isSubmitting && state.canAdvanceFromCurrentStep()
+                            else -> state.canAdvanceFromCurrentStep()
+                        }
+                    Button(
+                        onClick = onPrimary,
+                        enabled = primaryEnabled,
+                    ) {
+                        if (state.currentStep == 9 && state.isGuestMode && state.isSigningUp) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            Text(text = stringResource(primaryLabel))
                         }
                     }
                 }
@@ -257,6 +246,12 @@ private fun InstructorWizardStepsScaffold(
                     .fillMaxSize()
                     .padding(innerPadding),
         ) {
+            WizardStepProgress(
+                currentStep = state.currentStep,
+                totalSteps = state.totalSteps,
+                labels = (1..state.totalSteps).map { stringResource(instructorWizardStepLabelRes(it)) },
+                modifier = Modifier.padding(horizontal = 24.dp),
+            )
             (state.submitError ?: if (state.currentStep == 9) state.signupError else null)?.let { err ->
                 Surface(
                     modifier =
