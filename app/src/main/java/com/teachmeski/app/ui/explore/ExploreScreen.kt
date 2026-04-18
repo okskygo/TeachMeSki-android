@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +47,7 @@ import com.teachmeski.app.ui.component.EmptyState
 import com.teachmeski.app.ui.theme.TmsColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
@@ -132,106 +135,112 @@ fun ExploreScreen(
                     onSelect = viewModel::setDisciplineFilter,
                 )
 
-                when {
-                    uiState.isLoading && uiState.requests.isEmpty() -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator(color = TmsColor.Primary)
-                        }
-                    }
-
-                    uiState.requests.isEmpty() && uiState.error != null -> {
-                        val err = uiState.error
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Text(
-                                text = err?.asString().orEmpty(),
-                                color = TmsColor.Error,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            TextButton(onClick = {
-                                viewModel.consumeError()
-                                viewModel.loadPage(1)
-                            }) {
-                                Text(text = stringResource(R.string.common_retry))
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { viewModel.pullToRefresh() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    when {
+                        uiState.isLoading && uiState.requests.isEmpty() -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(color = TmsColor.Primary)
                             }
                         }
-                    }
 
-                    uiState.requests.isEmpty() -> {
-                        EmptyState(
-                            title = stringResource(R.string.explore_empty_title),
-                            description = stringResource(R.string.explore_empty_description),
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                        uiState.requests.isEmpty() && uiState.error != null -> {
+                            val err = uiState.error
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Text(
+                                    text = err?.asString().orEmpty(),
+                                    color = TmsColor.Error,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                TextButton(onClick = {
+                                    viewModel.consumeError()
+                                    viewModel.loadPage(1)
+                                }) {
+                                    Text(text = stringResource(R.string.common_retry))
+                                }
+                            }
+                        }
 
-                    else -> {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            uiState.error?.let { err ->
-                                item(key = "error_banner") {
-                                    Surface(
-                                        color = TmsColor.ErrorContainer,
-                                        shape = RoundedCornerShape(12.dp),
-                                        modifier = Modifier.fillMaxWidth(),
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(12.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.SpaceBetween,
+                        uiState.requests.isEmpty() -> {
+                            EmptyState(
+                                title = stringResource(R.string.explore_empty_title),
+                                description = stringResource(R.string.explore_empty_description),
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+
+                        else -> {
+                            LazyColumn(
+                                state = listState,
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                uiState.error?.let { err ->
+                                    item(key = "error_banner") {
+                                        Surface(
+                                            color = TmsColor.ErrorContainer,
+                                            shape = RoundedCornerShape(12.dp),
+                                            modifier = Modifier.fillMaxWidth(),
                                         ) {
-                                            Text(
-                                                text = err.asString(),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = TmsColor.Error,
-                                                modifier = Modifier.weight(1f),
-                                            )
-                                            TextButton(onClick = {
-                                                viewModel.consumeError()
-                                                viewModel.loadPage(1)
-                                            }) {
-                                                Text(stringResource(R.string.common_retry))
+                                            Row(
+                                                modifier = Modifier.padding(12.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                            ) {
+                                                Text(
+                                                    text = err.asString(),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = TmsColor.Error,
+                                                    modifier = Modifier.weight(1f),
+                                                )
+                                                TextButton(onClick = {
+                                                    viewModel.consumeError()
+                                                    viewModel.loadPage(1)
+                                                }) {
+                                                    Text(stringResource(R.string.common_retry))
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                            items(
-                                items = uiState.requests,
-                                key = { it.id },
-                            ) { request ->
-                                ExploreRequestCard(
-                                    request = request,
-                                    onUnlockClick = { viewModel.openUnlockDialog(request) },
-                                    onViewChatClick = { roomId -> onNavigateToChat(roomId) },
-                                )
-                            }
-                            if (uiState.isLoadingMore) {
-                                item(key = "loading_more") {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(32.dp),
-                                            color = TmsColor.Primary,
-                                            strokeWidth = 2.dp,
-                                        )
+                                items(
+                                    items = uiState.requests,
+                                    key = { it.id },
+                                ) { request ->
+                                    ExploreRequestCard(
+                                        request = request,
+                                        onUnlockClick = { viewModel.openUnlockDialog(request) },
+                                        onViewChatClick = { roomId -> onNavigateToChat(roomId) },
+                                    )
+                                }
+                                if (uiState.isLoadingMore) {
+                                    item(key = "loading_more") {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(32.dp),
+                                                color = TmsColor.Primary,
+                                                strokeWidth = 2.dp,
+                                            )
+                                        }
                                     }
                                 }
                             }

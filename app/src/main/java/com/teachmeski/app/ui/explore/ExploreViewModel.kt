@@ -25,6 +25,7 @@ data class ExploreUiState(
     val currentPage: Int = 1,
     val totalCount: Int = 0,
     val hasMore: Boolean = false,
+    val isRefreshing: Boolean = false,
     val disciplineFilter: String? = null,
     val tokenBalance: Int = 0,
     val unlockDialogRequest: ExploreLessonRequest? = null,
@@ -187,6 +188,45 @@ class ExploreViewModel @Inject constructor(
 
     fun consumeUnlockSuccess() {
         _uiState.update { it.copy(unlockSuccessChatRoomId = null) }
+    }
+
+    fun pullToRefresh() {
+        viewModelScope.launch { refreshTokenBalance() }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true, error = null) }
+            loadMutex.withLock {
+                val disciplineList = _uiState.value.disciplineFilter?.let { listOf(it) }
+                when (
+                    val result = exploreRepository.getExploreLessonRequests(
+                        page = 1,
+                        disciplineFilter = disciplineList,
+                        resortFilter = null,
+                    )
+                ) {
+                    is Resource.Success -> {
+                        val (list, total) = result.data
+                        _uiState.update { s ->
+                            s.copy(
+                                requests = list,
+                                isLoading = false,
+                                isLoadingMore = false,
+                                isRefreshing = false,
+                                currentPage = 1,
+                                totalCount = total,
+                                hasMore = list.size < total,
+                                error = null,
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(isRefreshing = false, error = result.message)
+                        }
+                    }
+                    Resource.Loading -> Unit
+                }
+            }
+        }
     }
 
     fun refreshOnResume() {
