@@ -55,12 +55,14 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
             AuthenticatedApp(
                 isAuthenticated = false,
                 activeRole = ActiveRole.Student,
+                onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
             )
         }
         is MainUiState.Authenticated -> {
             AuthenticatedApp(
                 isAuthenticated = true,
                 activeRole = state.activeRole,
+                onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
             )
         }
     }
@@ -70,6 +72,7 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
 private fun AuthenticatedApp(
     isAuthenticated: Boolean,
     activeRole: ActiveRole,
+    onSwitchToStudent: () -> Unit,
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -146,6 +149,7 @@ private fun AuthenticatedApp(
             navController = navController,
             isAuthenticated = isAuthenticated,
             activeRole = activeRole,
+            onSwitchToStudent = onSwitchToStudent,
             modifier = Modifier.padding(innerPadding),
         )
     }

@@ -28,6 +28,7 @@ fun AppNavGraph(
     navController: NavHostController,
     isAuthenticated: Boolean,
     activeRole: ActiveRole,
+    onSwitchToStudent: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val startDestination: Route = if (!isAuthenticated) {
@@ -46,7 +47,7 @@ fun AppNavGraph(
     ) {
         authNavGraph(navController)
         studentNavGraph(navController)
-        instructorNavGraph(navController)
+        instructorNavGraph(navController, onSwitchToStudent = onSwitchToStudent)
 
         composable<Route.InstructorProfile> {
             InstructorProfileScreen(

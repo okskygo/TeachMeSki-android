@@ -13,7 +13,10 @@ import com.teachmeski.app.ui.chat.ChatRoomListScreen
 import com.teachmeski.app.ui.explore.ExploreScreen
 import com.teachmeski.app.ui.unlocked.UnlockedScreen
 
-fun NavGraphBuilder.instructorNavGraph(navController: NavHostController) {
+fun NavGraphBuilder.instructorNavGraph(
+    navController: NavHostController,
+    onSwitchToStudent: () -> Unit,
+) {
     navigation<Route.InstructorGraph>(startDestination = Route.Explore) {
         composable<Route.Explore> {
             ExploreScreen(
@@ -41,15 +44,12 @@ fun NavGraphBuilder.instructorNavGraph(navController: NavHostController) {
         composable<Route.ChatRoomList> { ChatRoomListScreen() }
         composable<Route.InstructorAccount> {
             InstructorAccountScreen(
+                onSwitchToStudent = onSwitchToStudent,
                 onNavigateToWallet = { navController.navigate(Route.Wallet) },
                 onNavigateToProfile = { navController.navigate(Route.InstructorProfile) },
-                onNavigateToWizard = {
-                    navController.navigate(Route.InstructorWizard()) {
-                        launchSingleTop = true
-                    }
-                },
                 onNavigateToContact = { navController.navigate(Route.Contact) },
-                onNavigateToLegal = { navController.navigate(Route.Legal(type = "terms")) },
+                onNavigateToTerms = { navController.navigate(Route.Legal(type = "terms")) },
+                onNavigateToPrivacy = { navController.navigate(Route.Legal(type = "privacy")) },
                 onSignedOut = { },
             )
         }
