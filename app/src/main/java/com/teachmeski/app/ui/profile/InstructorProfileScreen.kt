@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -39,6 +40,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -742,6 +745,80 @@ private fun InstructorLevelsList(levels: List<Int>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LevelOptionCard(
+    level: Int,
+    description: String,
+    selected: Boolean,
+    implied: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = TmsColor.SurfaceLowest),
+        border = when {
+            selected -> BorderStroke(2.dp, TmsColor.Primary)
+            implied -> BorderStroke(1.dp, TmsColor.Primary.copy(alpha = 0.40f))
+            else -> null
+        },
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (selected || implied) 0.dp else 1.dp,
+        ),
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.explore_card_skill_level_fmt, level.toString()),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (implied) TmsColor.Primary.copy(alpha = 0.60f) else TmsColor.Primary,
+                )
+                if (selected || implied) {
+                    Text(
+                        text = "✓",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TmsColor.Outline,
+                    )
+                }
+            }
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (implied) TmsColor.OnSurfaceVariant else TmsColor.OnSurface,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+    }
+}
+
+private fun wizardLevelDescRes(useSnowboard: Boolean, level: Int): Int =
+    if (useSnowboard) {
+        when (level) {
+            0 -> R.string.instructor_wizard_step2_level_snowboard_0
+            1 -> R.string.instructor_wizard_step2_level_snowboard_1
+            2 -> R.string.instructor_wizard_step2_level_snowboard_2
+            3 -> R.string.instructor_wizard_step2_level_snowboard_3
+            4 -> R.string.instructor_wizard_step2_level_snowboard_4
+            else -> R.string.instructor_wizard_step2_level_snowboard_0
+        }
+    } else {
+        when (level) {
+            0 -> R.string.instructor_wizard_step2_level_ski_0
+            1 -> R.string.instructor_wizard_step2_level_ski_1
+            2 -> R.string.instructor_wizard_step2_level_ski_2
+            3 -> R.string.instructor_wizard_step2_level_ski_3
+            4 -> R.string.instructor_wizard_step2_level_ski_4
+            else -> R.string.instructor_wizard_step2_level_ski_0
+        }
+    }
+
 @Composable
 private fun InstructorServicesRows(
     offersTransport: Boolean,
@@ -1114,35 +1191,34 @@ private fun ProfileEditDialogs(
             var levels by remember(profile.teachableLevels, openDialog) {
                 mutableStateOf(profile.teachableLevels.toSet())
             }
+            val useSnowboardOnly = profile.discipline == Discipline.Snowboard
             AlertDialog(
                 onDismissRequest = onDismiss,
                 properties = DialogProperties(usePlatformDefaultWidth = false),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 title = { Text(stringResource(R.string.instructor_profile_levels_label)) },
                 text = {
-                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            (0..4).forEach { lv ->
-                                val sel = lv in levels
-                                FilterChip(
-                                    selected = sel,
-                                    onClick = {
-                                        levels =
-                                            if (sel) levels - lv else levels + lv
-                                    },
-                                    label = {
-                                        Text(
-                                            stringResource(
-                                                R.string.explore_card_skill_level_fmt,
-                                                lv.toString(),
-                                            ),
-                                        )
-                                    },
-                                )
-                            }
+                    Column(
+                        modifier = Modifier.verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        val maxSelected = levels.maxOrNull() ?: -1
+                        (0..4).forEach { lv ->
+                            val isMax = lv == maxSelected
+                            val implied = lv < maxSelected && lv in levels
+                            LevelOptionCard(
+                                level = lv,
+                                description = stringResource(wizardLevelDescRes(useSnowboardOnly, lv)),
+                                selected = isMax,
+                                implied = implied,
+                                onClick = {
+                                    levels = if (lv == maxSelected && lv in levels) {
+                                        (0 until lv).toSet()
+                                    } else {
+                                        (0..lv).toSet()
+                                    }
+                                },
+                            )
                         }
                         saveError?.let { err ->
                             Spacer(Modifier.height(8.dp))
@@ -1270,6 +1346,10 @@ private fun ProfileEditDialogs(
                                             if (sel) certs - id else certs + id
                                     },
                                     label = { Text(stringResource(certificationLabelRes(id))) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = TmsColor.Primary,
+                                        selectedLabelColor = TmsColor.OnPrimary,
+                                    ),
                                 )
                             }
                         }
