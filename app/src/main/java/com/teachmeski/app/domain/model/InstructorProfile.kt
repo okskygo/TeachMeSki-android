@@ -19,6 +19,7 @@ data class InstructorProfile(
     val offersPhotography: Boolean,
     val isAcceptingRequests: Boolean,
     val certificateUrls: List<String>,
+    val phone: String?,
     val phoneVerifiedAt: String?,
     val resortIds: List<String>,
     val resortNames: List<String>,

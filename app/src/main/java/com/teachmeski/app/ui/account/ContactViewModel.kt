@@ -3,7 +3,9 @@ package com.teachmeski.app.ui.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ContactRepository
+import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,10 +34,31 @@ data class ContactUiState(
 @HiltViewModel
 class ContactViewModel @Inject constructor(
     private val contactRepository: ContactRepository,
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ContactUiState())
     val uiState: StateFlow<ContactUiState> = _uiState.asStateFlow()
+
+    init {
+        prefillUserInfo()
+    }
+
+    private fun prefillUserInfo() {
+        viewModelScope.launch {
+            val email = authRepository.currentUserEmail().orEmpty()
+            _uiState.update { it.copy(email = email) }
+            val userId = authRepository.currentUserId() ?: return@launch
+            when (val result = userRepository.getUserById(userId)) {
+                is Resource.Success -> {
+                    val displayName = result.data.displayName.orEmpty()
+                    _uiState.update { it.copy(name = displayName) }
+                }
+                else -> Unit
+            }
+        }
+    }
 
     fun onNameChange(value: String) {
         _uiState.update {

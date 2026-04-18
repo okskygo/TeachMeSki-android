@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -30,9 +31,16 @@ import com.teachmeski.app.ui.theme.TmsColor
 fun InstructorAccountSettingsScreen(
     onBack: () -> Unit,
     viewModel: InstructorAccountSettingsViewModel = hiltViewModel(),
+    phoneViewModel: PhoneVerificationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scroll = rememberScrollState()
+
+    LaunchedEffect(uiState.initialPhone, uiState.initialPhoneVerifiedAt) {
+        if (!uiState.isLoading) {
+            phoneViewModel.initialize(uiState.initialPhone, uiState.initialPhoneVerifiedAt)
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -50,6 +58,7 @@ fun InstructorAccountSettingsScreen(
                 .padding(padding)
                 .verticalScroll(scroll)
                 .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Column(
                 modifier = Modifier
@@ -67,6 +76,10 @@ fun InstructorAccountSettingsScreen(
                     value = uiState.userId,
                     isMono = true,
                 )
+            }
+
+            if (!uiState.isLoading) {
+                PhoneVerificationSection(viewModel = phoneViewModel)
             }
         }
     }

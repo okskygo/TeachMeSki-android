@@ -7,6 +7,7 @@ import com.teachmeski.app.data.repository.InstructorRepositoryImpl
 import com.teachmeski.app.data.repository.LessonRequestRepositoryImpl
 import com.teachmeski.app.data.repository.ResortRepositoryImpl
 import com.teachmeski.app.data.repository.UserRepositoryImpl
+import com.teachmeski.app.data.repository.PhoneVerificationRepositoryImpl
 import com.teachmeski.app.data.repository.WalletRepositoryImpl
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ContactRepository
@@ -15,6 +16,7 @@ import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.LessonRequestRepository
 import com.teachmeski.app.domain.repository.ResortRepository
 import com.teachmeski.app.domain.repository.UserRepository
+import com.teachmeski.app.domain.repository.PhoneVerificationRepository
 import com.teachmeski.app.domain.repository.WalletRepository
 import dagger.Binds
 import dagger.Module
@@ -56,4 +58,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWalletRepository(impl: WalletRepositoryImpl): WalletRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPhoneVerificationRepository(
+        impl: PhoneVerificationRepositoryImpl,
+    ): PhoneVerificationRepository
 }

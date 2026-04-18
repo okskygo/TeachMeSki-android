@@ -477,6 +477,29 @@
     <string name="instructor_account_user_id_label">User ID</string>
     <string name="instructor_account_switch_to_student">Switch to Student</string>
     <string name="instructor_account_become_instructor">Become an Instructor</string>
+
+    <!-- Phone verification -->
+    <string name="phone_section_title">Phone Verification</string>
+    <string name="phone_section_desc">Verify your phone number to earn a verified badge and build student trust.</string>
+    <string name="phone_input_label">Phone Number</string>
+    <string name="phone_input_placeholder">09xx-xxx-xxx or +81 80-xxxx-xxxx</string>
+    <string name="phone_input_hint">Supports Taiwan (09 prefix) and Japan (080/090 prefix)</string>
+    <string name="phone_send_button">Send Code</string>
+    <string name="phone_sending">Sending…</string>
+    <string name="phone_verified_label">Phone Verified</string>
+    <string name="phone_unverified_label">Phone Not Verified</string>
+    <string name="phone_verified_locked">Locked. Contact support to change.</string>
+    <string name="phone_otp_title">Enter Verification Code</string>
+    <string name="phone_otp_subtitle_fmt">Code sent to %1$s. Valid for 10 minutes.</string>
+    <string name="phone_resend">Resend Code</string>
+    <string name="phone_resend_cooldown_fmt">Resend in %1$ds</string>
+    <string name="phone_success">Phone number verified!</string>
+    <string name="phone_error_invalid_format">Invalid phone number format. Please try again.</string>
+    <string name="phone_error_unsupported_country">Only Taiwan (+886) and Japan (+81) numbers are supported.</string>
+    <string name="phone_error_phone_taken">This phone number is already linked to another account.</string>
+    <string name="phone_error_otp">Invalid or expired code. Please request a new one.</string>
+    <string name="phone_error_cooldown_fmt">Please wait %1$ds before retrying.</string>
+    <string name="phone_error_unknown">Something went wrong. Please try again.</string>
     <string name="instructor_account_short_id_fmt">\@%1$s</string>
     <string name="instructor_account_legal_entry">Legal</string>
 

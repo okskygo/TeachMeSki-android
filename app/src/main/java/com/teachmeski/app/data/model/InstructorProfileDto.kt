@@ -24,6 +24,7 @@ data class InstructorProfileDto(
     @SerialName("offers_photography") val offersPhotography: Boolean = false,
     @SerialName("is_accepting_requests") val isAcceptingRequests: Boolean = true,
     @SerialName("certificate_urls") val certificateUrls: List<String> = emptyList(),
+    val phone: String? = null,
     @SerialName("phone_verified_at") val phoneVerifiedAt: String? = null,
     @SerialName("resort_ids") val resortIds: List<String> = emptyList(),
 )
@@ -50,6 +51,7 @@ fun InstructorProfileDto.toDomain(
     offersPhotography = offersPhotography,
     isAcceptingRequests = isAcceptingRequests,
     certificateUrls = certificateUrls,
+    phone = phone,
     phoneVerifiedAt = phoneVerifiedAt,
     resortIds = resortIds,
     resortNames = resortNames,
