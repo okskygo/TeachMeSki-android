@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.UserRole
+import com.teachmeski.app.ui.account.InstructorAccountSettingsScreen
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardScreen
@@ -52,6 +53,11 @@ fun AppNavGraph(
         studentNavGraph(navController, userRole = userRole, onSwitchToInstructor = onSwitchToInstructor)
         instructorNavGraph(navController, onSwitchToStudent = onSwitchToStudent)
 
+        composable<Route.InstructorAccountSettings> {
+            InstructorAccountSettingsScreen(
+                onBack = { navController.popBackStack() },
+            )
+        }
         composable<Route.InstructorProfile> {
             InstructorProfileScreen(
                 onBack = { navController.popBackStack() },

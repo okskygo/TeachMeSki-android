@@ -45,6 +45,9 @@ fun NavGraphBuilder.instructorNavGraph(
         composable<Route.InstructorAccount> {
             InstructorAccountScreen(
                 onSwitchToStudent = onSwitchToStudent,
+                onNavigateToAccountSettings = {
+                    navController.navigate(Route.InstructorAccountSettings)
+                },
                 onNavigateToWallet = { navController.navigate(Route.Wallet) },
                 onNavigateToProfile = { navController.navigate(Route.InstructorProfile) },
                 onNavigateToContact = { navController.navigate(Route.Contact) },

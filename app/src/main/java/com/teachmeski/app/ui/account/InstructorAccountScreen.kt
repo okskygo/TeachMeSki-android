@@ -47,6 +47,7 @@ import com.teachmeski.app.ui.theme.TmsColor
 fun InstructorAccountScreen(
     viewModel: InstructorAccountViewModel = hiltViewModel(),
     onSwitchToStudent: () -> Unit = {},
+    onNavigateToAccountSettings: () -> Unit = {},
     onNavigateToWallet: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToContact: () -> Unit = {},
@@ -87,6 +88,10 @@ fun InstructorAccountScreen(
             InstructorAccountMenuRow(
                 title = stringResource(R.string.instructor_account_switch_to_student),
                 onClick = onSwitchToStudent,
+            )
+            InstructorAccountMenuRow(
+                title = stringResource(R.string.instructor_account_settings_entry),
+                onClick = onNavigateToAccountSettings,
             )
             InstructorAccountMenuRow(
                 title = stringResource(R.string.instructor_account_wallet_entry),

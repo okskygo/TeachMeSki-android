@@ -23,6 +23,7 @@ sealed interface Route {
     @Serializable data object Account : Route
     @Serializable data object AccountSettings : Route
     @Serializable data object InstructorAccount : Route
+    @Serializable data object InstructorAccountSettings : Route
     @Serializable data object InstructorProfile : Route
     @Serializable data class InstructorWizard(val isGuestMode: Boolean = false) : Route
 
