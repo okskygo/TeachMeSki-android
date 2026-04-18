@@ -92,13 +92,10 @@ data class InstructorWizardUiState(
         }
 
     private fun pricingStepValid(): Boolean {
-        val h = priceHalfDay.trim()
-        val f = priceFullDay.trim()
-        if (h.isEmpty() || f.isEmpty()) return false
-        val half = h.toIntOrNull() ?: return false
-        val full = f.toIntOrNull() ?: return false
-        if (half <= 0 || full <= 0) return false
-        return full >= half
+        val half = priceHalfDay.trim().toIntOrNull() ?: 0
+        val full = priceFullDay.trim().toIntOrNull() ?: 0
+        if (half > 0 && full > 0) return full >= half
+        return true
     }
 }
 
