@@ -30,12 +30,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.component.EmptyState
-import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.theme.TmsColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,19 +50,27 @@ fun UnlockedScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            TmsTopBar(title = stringResource(R.string.unlocked_title))
-        },
     ) { innerPadding ->
-        PullToRefreshBox(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.load(isRefresh = true) },
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            when {
-                uiState.isLoading && uiState.rooms.isEmpty() -> {
+            Text(
+                text = stringResource(R.string.nav_unlocked),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = TmsColor.OnSurface,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+            )
+
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.load(isRefresh = true) },
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                when {
+                    uiState.isLoading && uiState.rooms.isEmpty() -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -165,6 +173,7 @@ fun UnlockedScreen(
                             )
                         }
                     }
+                }
                 }
             }
         }

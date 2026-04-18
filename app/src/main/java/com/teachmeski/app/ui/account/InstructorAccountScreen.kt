@@ -76,7 +76,7 @@ fun InstructorAccountScreen(
             .padding(horizontal = 20.dp, vertical = 8.dp),
     ) {
         Text(
-            text = stringResource(R.string.instructor_account_title),
+            text = stringResource(R.string.nav_instructor_account),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.ExtraBold,
             color = TmsColor.OnSurface,

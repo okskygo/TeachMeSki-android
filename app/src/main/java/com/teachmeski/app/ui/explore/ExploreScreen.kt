@@ -38,7 +38,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.component.EmptyState
-import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.theme.TmsColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -75,26 +74,6 @@ fun ExploreScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            TmsTopBar(
-                title = stringResource(R.string.explore_title),
-                actions = {
-                    Surface(
-                        color = TmsColor.PrimaryFixed,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.padding(end = 8.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.wallet_tokens_fmt, uiState.tokenBalance),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TmsColor.Primary,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        )
-                    }
-                },
-            )
-        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -106,6 +85,33 @@ fun ExploreScreen(
                     .fillMaxSize()
                     .background(TmsColor.Background),
             ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.nav_explore),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = TmsColor.OnSurface,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Surface(
+                        color = TmsColor.PrimaryFixed,
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.wallet_tokens_fmt, uiState.tokenBalance),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TmsColor.Primary,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        )
+                    }
+                }
+
                 DisciplineFilterRow(
                     selected = uiState.disciplineFilter,
                     onSelect = viewModel::setDisciplineFilter,
