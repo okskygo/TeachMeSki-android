@@ -296,6 +296,7 @@ fun InstructorProfileScreen(
                         isSaving = state.isSaving,
                         onAvatarClick = { avatarPicker.launch("image/*") },
                         onEditName = { viewModel.openDialog(ProfileEditDialog.DisplayName) },
+                        onEditBio = { viewModel.openDialog(ProfileEditDialog.Bio) },
                         onEditDiscipline = { viewModel.openDialog(ProfileEditDialog.Discipline) },
                         onToggleAccepting = { viewModel.toggleAccepting(it) },
                     )
@@ -392,13 +393,6 @@ fun InstructorProfileScreen(
                             offersPhotography = profile.offersPhotography,
                         )
                     }
-                    ProfileSectionCard(
-                        title = stringResource(R.string.instructor_profile_bio_label),
-                        onEdit = { viewModel.openDialog(ProfileEditDialog.Bio) },
-                    ) {
-                        Spacer(modifier = Modifier.height(0.dp))
-                    }
-
                     CertificatesSection(
                         urls = profile.certificateUrls,
                         isBusy = state.isUploadingCert,
@@ -565,6 +559,7 @@ private fun HeaderCard(
     isSaving: Boolean,
     onAvatarClick: () -> Unit,
     onEditName: () -> Unit,
+    onEditBio: () -> Unit,
     onEditDiscipline: () -> Unit,
     onToggleAccepting: (Boolean) -> Unit,
 ) {
@@ -631,6 +626,32 @@ private fun HeaderCard(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(R.string.instructor_profile_bio_label),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = TmsColor.OnSurface,
+                )
+                IconButton(onClick = onEditBio, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = stringResource(R.string.common_edit),
+                        tint = TmsColor.Primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            Text(
+                text =
+                    profile.bio?.takeIf { it.isNotBlank() }
+                        ?: stringResource(R.string.instructor_profile_bio_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TmsColor.OnSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -677,13 +698,6 @@ private fun HeaderCard(
                     )
                 }
             }
-            Text(
-                text =
-                    profile.bio?.takeIf { it.isNotBlank() }
-                        ?: stringResource(R.string.instructor_profile_bio_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TmsColor.OnSurfaceVariant,
-            )
         }
     }
 }
