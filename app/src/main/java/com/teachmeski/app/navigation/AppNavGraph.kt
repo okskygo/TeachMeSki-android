@@ -21,6 +21,7 @@ import com.teachmeski.app.ui.account.InstructorAccountSettingsScreen
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardScreen
+import com.teachmeski.app.ui.profile.InstructorDetailScreen
 import com.teachmeski.app.ui.profile.InstructorProfileScreen
 import com.teachmeski.app.ui.wallet.CreditHistoryScreen
 import com.teachmeski.app.ui.wallet.WalletScreen
@@ -60,6 +61,14 @@ fun AppNavGraph(
         }
         composable<Route.InstructorProfile> {
             InstructorProfileScreen(
+                onBack = { navController.popBackStack() },
+                onPreview = { shortId ->
+                    navController.navigate(Route.InstructorDetail(shortId))
+                },
+            )
+        }
+        composable<Route.InstructorDetail> {
+            InstructorDetailScreen(
                 onBack = { navController.popBackStack() },
             )
         }

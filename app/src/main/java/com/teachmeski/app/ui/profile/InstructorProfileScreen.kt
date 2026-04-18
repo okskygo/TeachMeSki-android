@@ -1,6 +1,7 @@
 package com.teachmeski.app.ui.profile
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -92,6 +93,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val SITE_BASE_URL = "https://www.teachmeski.com"
+
 private val certificationOptionIds = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "other")
 
 @Composable
@@ -143,6 +146,7 @@ private fun resortDisplayName(
 fun InstructorProfileScreen(
     viewModel: InstructorProfileViewModel = hiltViewModel(),
     onBack: () -> Unit,
+    onPreview: (shortId: String) -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -261,7 +265,7 @@ fun InstructorProfileScreen(
                     ) {
                         Spacer(modifier = Modifier.weight(1f))
                         OutlinedButton(
-                            onClick = { /* preview placeholder */ },
+                            onClick = { onPreview(profile.shortId) },
                             colors =
                                 ButtonDefaults.outlinedButtonColors(
                                     contentColor = TmsColor.Primary,
@@ -276,7 +280,14 @@ fun InstructorProfileScreen(
                             Text(stringResource(R.string.instructor_profile_preview))
                         }
                         OutlinedButton(
-                            onClick = { /* share placeholder */ },
+                            onClick = {
+                                val shareUrl = "$SITE_BASE_URL/instructors/${profile.shortId}"
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, shareUrl)
+                                }
+                                context.startActivity(Intent.createChooser(intent, null))
+                            },
                             colors =
                                 ButtonDefaults.outlinedButtonColors(
                                     contentColor = TmsColor.Primary,
