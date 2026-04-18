@@ -228,6 +228,7 @@ fun ExploreScreen(
             uiState.unlockDialogRequest?.let { req ->
                 UnlockDialog(
                     request = req,
+                    tokenBalance = uiState.tokenBalance,
                     message = uiState.unlockMessage,
                     onMessageChange = viewModel::setUnlockMessage,
                     isUnlocking = uiState.isUnlocking,

@@ -410,8 +410,16 @@
     <string name="explore_card_discipline_badge_both">Ski &amp; Snowboard</string>
     <string name="explore_unlock_button">Unlock %1$d credits</string>
     <string name="explore_unlock_dialog_title">Unlock Lesson Request</string>
-    <string name="explore_unlock_dialog_hint">Add your teaching style, experience, or certifications here</string>
+    <string name="explore_unlock_dialog_cost_section_label">Unlock Cost</string>
     <string name="explore_unlock_dialog_cost_label">Unlocking this request will cost %1$d credits</string>
+    <string name="explore_unlock_dialog_balance_label">Current balance:</string>
+    <string name="explore_unlock_dialog_balance_value">%1$d credits</string>
+    <string name="explore_unlock_dialog_insufficient_title">Insufficient Credits</string>
+    <string name="explore_unlock_dialog_insufficient_message">You don\'t have enough credits to complete this unlock.</string>
+    <string name="explore_unlock_dialog_message_label">Your first message to the student</string>
+    <string name="explore_unlock_dialog_hint">Add your teaching style, experience, or certifications here</string>
+    <string name="explore_unlock_dialog_char_count">%1$d / %2$d</string>
+    <string name="explore_unlock_dialog_message_tip">Tip: A personalized first message significantly increases your conversion rate.</string>
     <string name="explore_unlock_dialog_confirm">Confirm Unlock (%1$d credits)</string>
     <string name="explore_unlock_dialog_cancel">Cancel</string>
     <string name="explore_unlock_success_title">Unlocked! Chat room created.</string>

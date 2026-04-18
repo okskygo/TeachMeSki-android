@@ -410,8 +410,16 @@
     <string name="explore_card_discipline_badge_both">雙板與單板</string>
     <string name="explore_unlock_button">解鎖 %1$d 點</string>
     <string name="explore_unlock_dialog_title">解鎖課程需求</string>
-    <string name="explore_unlock_dialog_hint">請在此補充：您的教學風格、相關經驗或證照資訊</string>
+    <string name="explore_unlock_dialog_cost_section_label">解鎖費用</string>
     <string name="explore_unlock_dialog_cost_label">解鎖此課程需求將扣除 %1$d 點</string>
+    <string name="explore_unlock_dialog_balance_label">目前餘額：</string>
+    <string name="explore_unlock_dialog_balance_value">%1$d 點</string>
+    <string name="explore_unlock_dialog_insufficient_title">點數餘額不足</string>
+    <string name="explore_unlock_dialog_insufficient_message">您的點數餘額不足，無法完成解鎖。</string>
+    <string name="explore_unlock_dialog_message_label">傳送給學員的第一則訊息</string>
+    <string name="explore_unlock_dialog_hint">請在此補充：您的教學風格、相關經驗或證照資訊</string>
+    <string name="explore_unlock_dialog_char_count">%1$d / %2$d</string>
+    <string name="explore_unlock_dialog_message_tip">提示：個人化的第一則訊息可以顯著提高您的成交率。</string>
     <string name="explore_unlock_dialog_confirm">確認解鎖（扣除 %1$d 點）</string>
     <string name="explore_unlock_dialog_cancel">取消</string>
     <string name="explore_unlock_success_title">解鎖成功！聊天室已建立。</string>
