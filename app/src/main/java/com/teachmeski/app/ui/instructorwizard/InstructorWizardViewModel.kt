@@ -226,11 +226,12 @@ class InstructorWizardViewModel @Inject constructor(
     fun toggleTeachableLevel(level: Int) {
         val lv = level.coerceIn(0, 4)
         _uiState.update { s ->
+            val maxSelected = s.teachableLevels.maxOrNull() ?: -1
             val next =
-                if (lv in s.teachableLevels) {
-                    s.teachableLevels - lv
+                if (lv in s.teachableLevels && lv == maxSelected) {
+                    (0 until lv).toSet()
                 } else {
-                    s.teachableLevels + lv
+                    (0..lv).toSet()
                 }
             s.copy(teachableLevels = next)
         }

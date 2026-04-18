@@ -1,27 +1,28 @@
 package com.teachmeski.app.ui.instructorwizard.steps
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardUiState
 import com.teachmeski.app.ui.theme.TmsColor
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LevelsStep(
     state: InstructorWizardUiState,
@@ -32,72 +33,109 @@ fun LevelsStep(
         state.selectedDisciplines.contains("snowboard") &&
             !state.selectedDisciplines.contains("ski")
 
-    LazyColumn(modifier = modifier) {
-        item {
-            Text(
-                text = stringResource(R.string.instructor_wizard_step2_heading),
-                style = MaterialTheme.typography.headlineSmall,
-                color = TmsColor.OnSurface,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
+    val maxSelected = state.teachableLevels.maxOrNull() ?: -1
+
+    Column(
+        modifier =
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.instructor_wizard_step2_heading),
+            style = MaterialTheme.typography.headlineSmall,
+            color = TmsColor.OnSurface,
+        )
+        Text(
+            text = stringResource(R.string.instructor_wizard_step2_subheading),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TmsColor.OnSurfaceVariant,
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            for (lv in 0..4) {
+                val isMax = lv == maxSelected
+                val implied = lv < maxSelected && lv in state.teachableLevels
+                LevelCard(
+                    level = lv,
+                    description = stringResource(levelDescriptionRes(useSnowboardOnly, lv)),
+                    selected = isMax,
+                    implied = implied,
+                    onClick = { onToggleLevel(lv) },
+                )
+            }
         }
-        item {
-            Text(
-                text = stringResource(R.string.instructor_wizard_step2_subheading),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TmsColor.OnSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LevelCard(
+    level: Int,
+    description: String,
+    selected: Boolean,
+    implied: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val shape = RoundedCornerShape(12.dp)
+    val backgroundColor =
+        when {
+            selected -> TmsColor.Primary.copy(alpha = 0.05f)
+            implied -> TmsColor.Primary.copy(alpha = 0.03f)
+            else -> TmsColor.SurfaceLowest
         }
-        item {
-            Spacer(modifier = Modifier.height(12.dp))
+    val borderColor =
+        when {
+            selected -> TmsColor.Primary
+            implied -> TmsColor.Primary.copy(alpha = 0.30f)
+            else -> TmsColor.OutlineVariant.copy(alpha = 0f)
         }
-        item {
-            FlowRow(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+    val borderWidth = if (selected) 2.dp else if (implied) 1.dp else 0.dp
+
+    Surface(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = shape,
+        color = backgroundColor,
+        border = if (borderWidth > 0.dp) BorderStroke(borderWidth, borderColor) else null,
+        shadowElevation = 1.dp,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                for (lv in 0..4) {
-                    val sel = lv in state.teachableLevels
-                    FilterChip(
-                        selected = sel,
-                        onClick = { onToggleLevel(lv) },
-                        label = {
-                            Text(
-                                text =
-                                    stringResource(
-                                        R.string.explore_card_skill_level_fmt,
-                                        lv.toString(),
-                                    ),
-                            )
+                Text(
+                    text = stringResource(R.string.explore_card_skill_level_fmt, level.toString()),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color =
+                        when {
+                            selected -> TmsColor.Primary
+                            implied -> TmsColor.Primary.copy(alpha = 0.60f)
+                            else -> TmsColor.Primary
                         },
-                    )
-                }
-            }
-        }
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        item {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                state.teachableLevels.sorted().forEach { lv ->
+                )
+                if (selected || implied) {
                     Text(
-                        text = stringResource(levelDescriptionRes(useSnowboardOnly, lv)),
+                        text = "✓",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TmsColor.OnSurfaceVariant,
+                        color = TmsColor.Outline,
                     )
                 }
             }
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (implied) TmsColor.OnSurfaceVariant else TmsColor.OnSurface,
+            )
         }
     }
 }
