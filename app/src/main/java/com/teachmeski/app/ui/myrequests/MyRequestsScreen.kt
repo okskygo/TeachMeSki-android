@@ -86,14 +86,25 @@ fun MyRequestsScreen(
             }
         },
     ) { innerPadding ->
-        PullToRefreshBox(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.refresh() },
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            when {
+            Text(
+                text = stringResource(R.string.nav_my_requests),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = TmsColor.OnSurface,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+            )
+
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                when {
                 uiState.isLoading && uiState.requests.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -147,15 +158,6 @@ fun MyRequestsScreen(
                             bottom = 88.dp,
                         ),
                     ) {
-                        item {
-                            Text(
-                                text = stringResource(R.string.nav_my_requests),
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = TmsColor.OnSurface,
-                                modifier = Modifier.padding(bottom = 4.dp),
-                            )
-                        }
                         uiState.error?.let { err ->
                             item {
                                 Row(
@@ -184,6 +186,7 @@ fun MyRequestsScreen(
                     }
                 }
             }
+        }
         }
     }
 }
