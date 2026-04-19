@@ -67,7 +67,7 @@ fun MessageBubble(
                         } else {
                             Modifier.background(
                                 color = TmsColor.SurfaceLowest,
-                                shape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp),
+                                shape = RoundedCornerShape(4.dp, 16.dp, 16.dp, 16.dp),
                             )
                         },
                     )
