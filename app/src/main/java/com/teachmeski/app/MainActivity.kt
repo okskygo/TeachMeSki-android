@@ -57,8 +57,10 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
                 isAuthenticated = false,
                 activeRole = ActiveRole.Student,
                 userRole = UserRole.Student,
+                unreadCount = 0,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
                 onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
+                onRefreshUnreadCount = { mainViewModel.refreshUnreadCount() },
             )
         }
         is MainUiState.Authenticated -> {
@@ -66,8 +68,10 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
                 isAuthenticated = true,
                 activeRole = state.activeRole,
                 userRole = state.userRole,
+                unreadCount = state.unreadCount,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
                 onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
+                onRefreshUnreadCount = { mainViewModel.refreshUnreadCount() },
             )
         }
     }
@@ -78,8 +82,10 @@ private fun AuthenticatedApp(
     isAuthenticated: Boolean,
     activeRole: ActiveRole,
     userRole: UserRole,
+    unreadCount: Int,
     onSwitchToStudent: () -> Unit,
     onSwitchToInstructor: () -> Unit,
+    onRefreshUnreadCount: () -> Unit,
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -139,7 +145,11 @@ private fun AuthenticatedApp(
                 TmsBottomBar(
                     activeRole = activeRole,
                     currentRoute = currentTabRoute,
+                    unreadCount = unreadCount,
                     onTabSelected = { route ->
+                        if (route == Route.ChatRoomList) {
+                            onRefreshUnreadCount()
+                        }
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true

@@ -5,6 +5,8 @@ import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -45,6 +47,7 @@ fun TmsBottomBar(
     activeRole: ActiveRole,
     currentRoute: Route?,
     onTabSelected: (Route) -> Unit,
+    unreadCount: Int = 0,
 ) {
     val tabs =
         when (activeRole) {
@@ -67,7 +70,30 @@ fun TmsBottomBar(
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = { onTabSelected(item.route) },
-                icon = { Icon(item.icon, contentDescription = null) },
+                icon = {
+                    if (item.route == Route.ChatRoomList && unreadCount > 0) {
+                        BadgedBox(
+                            badge = {
+                                Badge(
+                                    containerColor = TmsColor.Error,
+                                    contentColor = TmsColor.OnPrimary,
+                                ) {
+                                    Text(
+                                        text = if (unreadCount > 9) {
+                                            stringResource(R.string.chat_unread_overflow)
+                                        } else {
+                                            unreadCount.toString()
+                                        },
+                                    )
+                                }
+                            },
+                        ) {
+                            Icon(item.icon, contentDescription = null)
+                        }
+                    } else {
+                        Icon(item.icon, contentDescription = null)
+                    }
+                },
                 label = { Text(stringResource(item.labelResId)) },
                 colors = navItemColors,
             )

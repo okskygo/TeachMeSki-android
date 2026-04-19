@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.domain.model.PendingInstructorProfile
 import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.domain.repository.AuthRepository
+import com.teachmeski.app.domain.repository.ChatRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.ui.component.ActiveRole
@@ -21,7 +22,11 @@ import javax.inject.Inject
 
 sealed interface MainUiState {
     data object Loading : MainUiState
-    data class Authenticated(val activeRole: ActiveRole, val userRole: UserRole) : MainUiState
+    data class Authenticated(
+        val activeRole: ActiveRole,
+        val userRole: UserRole,
+        val unreadCount: Int = 0,
+    ) : MainUiState
     data object Unauthenticated : MainUiState
 }
 
@@ -32,6 +37,7 @@ class MainViewModel @Inject constructor(
     private val rolePreferences: RolePreferences,
     private val instructorRepository: InstructorRepository,
     private val pendingProfile: PendingInstructorProfile,
+    private val chatRepository: ChatRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MainUiState>(MainUiState.Loading)
@@ -119,6 +125,7 @@ class MainViewModel @Inject constructor(
                 }
                 rolePreferences.setLastActiveRole(userId, activeRole)
                 _uiState.value = MainUiState.Authenticated(activeRole, user.role)
+                refreshUnreadCount()
             }
             is Resource.Error -> {
                 _uiState.value = MainUiState.Unauthenticated
@@ -129,11 +136,20 @@ class MainViewModel @Inject constructor(
 
     fun switchRole(newRole: ActiveRole) {
         val userId = authRepository.currentUserId() ?: return
-        val currentUserRole = (_uiState.value as? MainUiState.Authenticated)?.userRole
-            ?: return
+        val current = _uiState.value as? MainUiState.Authenticated ?: return
         viewModelScope.launch {
             rolePreferences.setLastActiveRole(userId, newRole)
-            _uiState.value = MainUiState.Authenticated(newRole, currentUserRole)
+            _uiState.value = MainUiState.Authenticated(newRole, current.userRole, current.unreadCount)
+        }
+    }
+
+    fun refreshUnreadCount() {
+        viewModelScope.launch {
+            val res = chatRepository.getUnreadCount()
+            if (res is Resource.Success) {
+                val current = _uiState.value as? MainUiState.Authenticated ?: return@launch
+                _uiState.value = current.copy(unreadCount = res.data)
+            }
         }
     }
 
