@@ -3,8 +3,8 @@ package com.teachmeski.app.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -36,13 +36,11 @@ fun MessageBubble(
 ) {
     val context = LocalContext.current
     val bubbleAlpha = if (message.isOptimistic) 0.5f else 1f
-    val maxBubbleWidth = LocalConfiguration.current.screenWidthDp.dp * 0.75f
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        horizontalArrangement = if (isOwn) Arrangement.End else Arrangement.Start,
         verticalAlignment = Alignment.Top,
     ) {
         if (!isOwn) {
@@ -54,10 +52,10 @@ fun MessageBubble(
             )
         }
 
-        val bubble: @Composable () -> Unit = {
+        val bubble: @Composable RowScope.() -> Unit = {
             Box(
                 modifier = Modifier
-                    .widthIn(max = maxBubbleWidth)
+                    .weight(1f, fill = false)
                     .then(
                         if (isOwn) {
                             Modifier.background(
@@ -86,12 +84,15 @@ fun MessageBubble(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(horizontal = 6.dp),
+                modifier = Modifier
+                    .wrapContentWidth(unbounded = false)
+                    .padding(horizontal = 6.dp),
             ) {
                 Text(
                     text = RelativeTime.format(message.sentAt, context),
                     style = MaterialTheme.typography.bodySmall,
                     color = TmsColor.Outline,
+                    maxLines = 1,
                 )
                 if (message.isFailed) {
                     Text(
@@ -103,16 +104,27 @@ fun MessageBubble(
                         text = stringResource(R.string.chat_send_error),
                         style = MaterialTheme.typography.labelSmall,
                         color = TmsColor.Error,
+                        maxLines = 1,
                     )
                 }
             }
         }
 
-        Row(verticalAlignment = Alignment.Bottom) {
-            if (isOwn) {
+        if (isOwn) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+            ) {
                 timestamp()
                 bubble()
-            } else {
+            }
+        } else {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.Start,
+            ) {
                 bubble()
                 timestamp()
             }
