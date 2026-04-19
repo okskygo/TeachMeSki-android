@@ -100,6 +100,7 @@ private fun AuthenticatedApp(
         setOf(
             Route.LessonRequestWizard::class,
             Route.InstructorWizard::class,
+            Route.Chat::class,
         )
     val isFullscreenRoute =
         currentDestRoute?.let { route ->

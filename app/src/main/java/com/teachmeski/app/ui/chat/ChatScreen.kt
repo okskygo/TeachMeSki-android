@@ -3,14 +3,18 @@ package com.teachmeski.app.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -121,32 +125,41 @@ fun ChatScreen(
             }
         },
     ) { innerPadding ->
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(TmsColor.SurfaceLow),
         ) {
-            AnimatedVisibility(visible = uiState.infoPanelExpanded) {
-                val info = detail?.infoPanelData
-                when (info) {
-                    is InfoPanelData.StudentPanel -> StudentInfoPanel(
-                        data = info,
-                        isBlockedByMe = uiState.isBlockedByMe,
-                        onReviewClick = viewModel::showReviewDialog,
-                        onNavigateToInstructor = onNavigateToInstructor,
-                        onBlockToggle = viewModel::toggleBlock,
-                        onReportClick = viewModel::showReportDialog,
-                    )
-                    is InfoPanelData.InstructorPanel -> InstructorInfoPanel(
-                        data = info,
-                        isBlockedByMe = uiState.isBlockedByMe,
-                        onBlockToggle = viewModel::toggleBlock,
-                        onReportClick = viewModel::showReportDialog,
-                    )
-                    null -> Unit
+            val infoPanelMaxHeight = maxHeight * 0.6f
+            Column(modifier = Modifier.fillMaxSize()) {
+                AnimatedVisibility(visible = uiState.infoPanelExpanded) {
+                    val info = detail?.infoPanelData
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = infoPanelMaxHeight)
+                            .verticalScroll(rememberScrollState()),
+                    ) {
+                        when (info) {
+                            is InfoPanelData.StudentPanel -> StudentInfoPanel(
+                                data = info,
+                                isBlockedByMe = uiState.isBlockedByMe,
+                                onReviewClick = viewModel::showReviewDialog,
+                                onNavigateToInstructor = onNavigateToInstructor,
+                                onBlockToggle = viewModel::toggleBlock,
+                                onReportClick = viewModel::showReportDialog,
+                            )
+                            is InfoPanelData.InstructorPanel -> InstructorInfoPanel(
+                                data = info,
+                                isBlockedByMe = uiState.isBlockedByMe,
+                                onBlockToggle = viewModel::toggleBlock,
+                                onReportClick = viewModel::showReportDialog,
+                            )
+                            null -> Unit
+                        }
+                    }
                 }
-            }
 
             when {
                 uiState.isLoading && uiState.messages.isEmpty() -> {
@@ -243,6 +256,7 @@ fun ChatScreen(
                         }
                     }
                 }
+            }
             }
         }
     }
