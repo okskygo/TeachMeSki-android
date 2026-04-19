@@ -44,6 +44,9 @@ data class ChatUiState(
     val isSubmittingReport: Boolean = false,
     val isBlockInFlight: Boolean = false,
     val toast: UiText? = null,
+    val showUnlockDialog: Boolean = false,
+    val isUnlocking: Boolean = false,
+    val unlockMessageDraft: String = "",
 )
 
 @HiltViewModel
@@ -333,6 +336,51 @@ class ChatViewModel @Inject constructor(
                 }
                 Resource.Loading -> {
                     _uiState.update { it.copy(isSubmittingReport = false) }
+                }
+            }
+        }
+    }
+
+    fun showUnlockDialog() {
+        _uiState.update { it.copy(showUnlockDialog = true, unlockMessageDraft = "") }
+    }
+
+    fun dismissUnlockDialog() {
+        if (_uiState.value.isUnlocking) return
+        _uiState.update { it.copy(showUnlockDialog = false) }
+    }
+
+    fun updateUnlockMessage(text: String) {
+        if (text.length > 2000) return
+        _uiState.update { it.copy(unlockMessageDraft = text) }
+    }
+
+    fun confirmUnlock() {
+        val draft = _uiState.value.unlockMessageDraft.trim()
+        if (draft.isEmpty()) return
+        _uiState.update { it.copy(isUnlocking = true) }
+        viewModelScope.launch {
+            when (val res = chatRepository.unlockPathBConversation(roomId, draft)) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isUnlocking = false,
+                            showUnlockDialog = false,
+                            unlockMessageDraft = "",
+                        )
+                    }
+                    refresh()
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isUnlocking = false,
+                            error = res.message,
+                        )
+                    }
+                }
+                Resource.Loading -> {
+                    _uiState.update { it.copy(isUnlocking = false) }
                 }
             }
         }

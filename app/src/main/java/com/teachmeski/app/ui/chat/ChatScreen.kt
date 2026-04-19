@@ -94,18 +94,10 @@ fun ChatScreen(
 
             when {
                 needsUnlockPlaceholder -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.chat_placeholder_unlock_bar),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TmsColor.OnSurfaceVariant,
-                        )
-                    }
+                    ChatUnlockBar(
+                        unlockInfo = detail!!.unlockInfo!!,
+                        onUnlockClick = viewModel::showUnlockDialog,
+                    )
                 }
                 blocked -> {
                     Surface(
@@ -268,6 +260,16 @@ fun ChatScreen(
             isSubmitting = uiState.isSubmittingReport,
             onDismiss = viewModel::dismissReportDialog,
             onSubmit = viewModel::submitReport,
+        )
+    }
+
+    if (uiState.showUnlockDialog) {
+        ChatUnlockDialog(
+            messageDraft = uiState.unlockMessageDraft,
+            isUnlocking = uiState.isUnlocking,
+            onDraftChange = viewModel::updateUnlockMessage,
+            onDismiss = viewModel::dismissUnlockDialog,
+            onConfirm = viewModel::confirmUnlock,
         )
     }
 }
