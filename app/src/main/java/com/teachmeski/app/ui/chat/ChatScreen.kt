@@ -32,7 +32,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.animation.AnimatedVisibility
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.InfoPanelData
 import com.teachmeski.app.ui.theme.TmsColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -133,18 +135,24 @@ fun ChatScreen(
                 .padding(innerPadding)
                 .background(TmsColor.SurfaceLow),
         ) {
-            if (uiState.infoPanelExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = stringResource(R.string.chat_placeholder_info_panel),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TmsColor.OnSurfaceVariant,
+            AnimatedVisibility(visible = uiState.infoPanelExpanded) {
+                val info = detail?.infoPanelData
+                when (info) {
+                    is InfoPanelData.StudentPanel -> StudentInfoPanel(
+                        data = info,
+                        isBlockedByMe = uiState.isBlockedByMe,
+                        onReviewClick = { /* TODO(Task 10): wire review dialog */ },
+                        onNavigateToInstructor = onNavigateToInstructor,
+                        onBlockToggle = { /* TODO(Task 10): wire block action */ },
+                        onReportClick = { /* TODO(Task 10): wire report dialog */ },
                     )
+                    is InfoPanelData.InstructorPanel -> InstructorInfoPanel(
+                        data = info,
+                        isBlockedByMe = uiState.isBlockedByMe,
+                        onBlockToggle = { /* TODO(Task 10): wire block action */ },
+                        onReportClick = { /* TODO(Task 10): wire report dialog */ },
+                    )
+                    null -> Unit
                 }
             }
 
