@@ -43,7 +43,7 @@ fun MessageBubble(
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         horizontalArrangement = if (isOwn) Arrangement.End else Arrangement.Start,
-        verticalAlignment = Alignment.Bottom,
+        verticalAlignment = Alignment.Top,
     ) {
         if (!isOwn) {
             UserAvatar(
@@ -53,14 +53,11 @@ fun MessageBubble(
                 modifier = Modifier.padding(end = 8.dp),
             )
         }
-        Column(
-            horizontalAlignment = if (isOwn) Alignment.End else Alignment.Start,
-            modifier = Modifier
-                .widthIn(max = maxBubbleWidth)
-                .wrapContentWidth(if (isOwn) Alignment.End else Alignment.Start),
-        ) {
+
+        val bubble: @Composable () -> Unit = {
             Box(
                 modifier = Modifier
+                    .widthIn(max = maxBubbleWidth)
                     .then(
                         if (isOwn) {
                             Modifier.background(
@@ -83,12 +80,13 @@ fun MessageBubble(
                     color = if (isOwn) TmsColor.OnPrimary else TmsColor.OnSurface,
                 )
             }
+        }
+
+        val timestamp: @Composable () -> Unit = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier
-                    .align(if (isOwn) Alignment.Start else Alignment.End)
-                    .padding(top = 2.dp),
+                modifier = Modifier.padding(horizontal = 6.dp),
             ) {
                 Text(
                     text = RelativeTime.format(message.sentAt, context),
@@ -107,6 +105,16 @@ fun MessageBubble(
                         color = TmsColor.Error,
                     )
                 }
+            }
+        }
+
+        Row(verticalAlignment = Alignment.Bottom) {
+            if (isOwn) {
+                timestamp()
+                bubble()
+            } else {
+                bubble()
+                timestamp()
             }
         }
     }
