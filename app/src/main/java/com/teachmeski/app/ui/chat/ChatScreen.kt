@@ -28,10 +28,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,17 +61,18 @@ fun ChatScreen(
     val detail = uiState.roomDetail
     val otherParty = detail?.otherParty
 
-    LaunchedEffect(uiState.messages.size) {
-        val count = uiState.messages.size
-        if (count > 0) {
-            listState.animateScrollToItem(count - 1)
+    val isAtBottom by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisible == null || lastVisible.index >= layoutInfo.totalItemsCount - 1
         }
     }
 
-    LaunchedEffect(uiState.infoPanelExpanded) {
+    LaunchedEffect(uiState.messages.size) {
         val count = uiState.messages.size
-        if (count > 0) {
-            listState.scrollToItem(count - 1)
+        if (count > 0 && isAtBottom) {
+            listState.animateScrollToItem(count - 1)
         }
     }
 
@@ -139,41 +146,14 @@ fun ChatScreen(
                 .background(TmsColor.SurfaceLow),
         ) {
             val infoPanelMaxHeight = maxHeight * 0.6f
-            Column(modifier = Modifier.fillMaxSize()) {
-                AnimatedVisibility(visible = uiState.infoPanelExpanded) {
-                    val info = detail?.infoPanelData
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = infoPanelMaxHeight)
-                            .verticalScroll(rememberScrollState()),
-                    ) {
-                        when (info) {
-                            is InfoPanelData.StudentPanel -> StudentInfoPanel(
-                                data = info,
-                                isBlockedByMe = uiState.isBlockedByMe,
-                                onReviewClick = viewModel::showReviewDialog,
-                                onNavigateToInstructor = onNavigateToInstructor,
-                                onBlockToggle = viewModel::toggleBlock,
-                                onReportClick = viewModel::showReportDialog,
-                            )
-                            is InfoPanelData.InstructorPanel -> InstructorInfoPanel(
-                                data = info,
-                                isBlockedByMe = uiState.isBlockedByMe,
-                                onBlockToggle = viewModel::toggleBlock,
-                                onReportClick = viewModel::showReportDialog,
-                            )
-                            null -> Unit
-                        }
-                    }
-                }
+            val density = LocalDensity.current
+            var infoPanelHeightPx by remember { mutableStateOf(0) }
+            val infoPanelHeightDp = with(density) { infoPanelHeightPx.toDp() }
 
             when {
                 uiState.isLoading && uiState.messages.isEmpty() -> {
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(color = TmsColor.Primary)
@@ -181,11 +161,14 @@ fun ChatScreen(
                 }
                 else -> {
                     LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         state = listState,
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 8.dp + infoPanelHeightDp,
+                            bottom = 8.dp,
+                        ),
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                     ) {
                         uiState.error?.let { err ->
@@ -264,6 +247,44 @@ fun ChatScreen(
                     }
                 }
             }
+
+            AnimatedVisibility(
+                visible = uiState.infoPanelExpanded,
+                modifier = Modifier.align(Alignment.TopCenter),
+            ) {
+                val info = detail?.infoPanelData
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = infoPanelMaxHeight)
+                        .background(TmsColor.SurfaceLow)
+                        .verticalScroll(rememberScrollState())
+                        .onSizeChanged { infoPanelHeightPx = it.height },
+                ) {
+                    when (info) {
+                        is InfoPanelData.StudentPanel -> StudentInfoPanel(
+                            data = info,
+                            isBlockedByMe = uiState.isBlockedByMe,
+                            onReviewClick = viewModel::showReviewDialog,
+                            onNavigateToInstructor = onNavigateToInstructor,
+                            onBlockToggle = viewModel::toggleBlock,
+                            onReportClick = viewModel::showReportDialog,
+                        )
+                        is InfoPanelData.InstructorPanel -> InstructorInfoPanel(
+                            data = info,
+                            isBlockedByMe = uiState.isBlockedByMe,
+                            onBlockToggle = viewModel::toggleBlock,
+                            onReportClick = viewModel::showReportDialog,
+                        )
+                        null -> Unit
+                    }
+                }
+            }
+
+            LaunchedEffect(uiState.infoPanelExpanded) {
+                if (!uiState.infoPanelExpanded) {
+                    infoPanelHeightPx = 0
+                }
             }
         }
     }
