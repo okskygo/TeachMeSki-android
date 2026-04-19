@@ -138,7 +138,7 @@ fun ChatRoomListScreen(
             }
             PrimaryTabRow(
                 selectedTabIndex = tabIndex,
-                containerColor = TmsColor.SurfaceLowest,
+                containerColor = TmsColor.Background,
                 contentColor = TmsColor.Primary,
             ) {
                 Tab(
