@@ -40,6 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InfoPanelData
 import com.teachmeski.app.ui.theme.TmsColor
@@ -240,6 +244,8 @@ fun ChatScreen(
             AnimatedVisibility(
                 visible = uiState.infoPanelExpanded,
                 modifier = Modifier.align(Alignment.TopCenter),
+                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
             ) {
                 val info = detail?.infoPanelData
                 Column(
