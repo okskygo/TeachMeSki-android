@@ -62,6 +62,13 @@ fun ChatScreen(
         }
     }
 
+    LaunchedEffect(uiState.infoPanelExpanded) {
+        val count = uiState.messages.size
+        if (count > 0) {
+            listState.scrollToItem(count - 1)
+        }
+    }
+
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
             .distinctUntilChanged()
