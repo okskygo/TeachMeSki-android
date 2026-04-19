@@ -32,6 +32,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,14 +71,25 @@ fun ChatScreen(
         }
     }
 
+    var hasInitialScrolled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isLoading, uiState.messages.size) {
+        val count = uiState.messages.size
+        if (!hasInitialScrolled && !uiState.isLoading && count > 0) {
+            listState.scrollToItem(count - 1)
+            hasInitialScrolled = true
+        }
+    }
+
     LaunchedEffect(uiState.messages.size) {
         val count = uiState.messages.size
-        if (count > 0 && isAtBottom) {
+        if (hasInitialScrolled && count > 0 && isAtBottom) {
             listState.animateScrollToItem(count - 1)
         }
     }
 
-    LaunchedEffect(listState) {
+    LaunchedEffect(listState, hasInitialScrolled) {
+        if (!hasInitialScrolled) return@LaunchedEffect
         snapshotFlow { listState.firstVisibleItemIndex }
             .distinctUntilChanged()
             .collect { index ->
