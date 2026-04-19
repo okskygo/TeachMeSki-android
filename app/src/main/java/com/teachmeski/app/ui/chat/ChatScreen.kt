@@ -141,16 +141,16 @@ fun ChatScreen(
                     is InfoPanelData.StudentPanel -> StudentInfoPanel(
                         data = info,
                         isBlockedByMe = uiState.isBlockedByMe,
-                        onReviewClick = { /* TODO(Task 10): wire review dialog */ },
+                        onReviewClick = viewModel::showReviewDialog,
                         onNavigateToInstructor = onNavigateToInstructor,
-                        onBlockToggle = { /* TODO(Task 10): wire block action */ },
-                        onReportClick = { /* TODO(Task 10): wire report dialog */ },
+                        onBlockToggle = viewModel::toggleBlock,
+                        onReportClick = viewModel::showReportDialog,
                     )
                     is InfoPanelData.InstructorPanel -> InstructorInfoPanel(
                         data = info,
                         isBlockedByMe = uiState.isBlockedByMe,
-                        onBlockToggle = { /* TODO(Task 10): wire block action */ },
-                        onReportClick = { /* TODO(Task 10): wire report dialog */ },
+                        onBlockToggle = viewModel::toggleBlock,
+                        onReportClick = viewModel::showReportDialog,
                     )
                     null -> Unit
                 }
@@ -253,5 +253,21 @@ fun ChatScreen(
                 }
             }
         }
+    }
+
+    if (uiState.showReviewDialog) {
+        ReviewDialog(
+            isSubmitting = uiState.isSubmittingReview,
+            onDismiss = viewModel::dismissReviewDialog,
+            onSubmit = viewModel::submitReview,
+        )
+    }
+
+    if (uiState.showReportDialog) {
+        ReportDialog(
+            isSubmitting = uiState.isSubmittingReport,
+            onDismiss = viewModel::dismissReportDialog,
+            onSubmit = viewModel::submitReport,
+        )
     }
 }

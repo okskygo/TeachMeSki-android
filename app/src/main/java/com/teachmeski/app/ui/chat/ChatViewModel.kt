@@ -7,7 +7,10 @@ import com.teachmeski.app.domain.model.ChatMessage
 import com.teachmeski.app.domain.model.ChatRoomDetail
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.repository.AuthRepository
+import com.teachmeski.app.domain.repository.BlockRepository
 import com.teachmeski.app.domain.repository.ChatRepository
+import com.teachmeski.app.domain.repository.ReportRepository
+import com.teachmeski.app.domain.repository.ReviewRepository
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,12 +38,21 @@ data class ChatUiState(
     val error: UiText? = null,
     val isBlockedByMe: Boolean = false,
     val isBlockedByOther: Boolean = false,
+    val showReviewDialog: Boolean = false,
+    val showReportDialog: Boolean = false,
+    val isSubmittingReview: Boolean = false,
+    val isSubmittingReport: Boolean = false,
+    val isBlockInFlight: Boolean = false,
+    val toast: UiText? = null,
 )
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val authRepository: AuthRepository,
+    private val blockRepository: BlockRepository,
+    private val reportRepository: ReportRepository,
+    private val reviewRepository: ReviewRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -242,6 +254,128 @@ class ChatViewModel @Inject constructor(
 
     fun consumeError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun consumeToast() {
+        _uiState.update { it.copy(toast = null) }
+    }
+
+    fun showReviewDialog() {
+        _uiState.update { it.copy(showReviewDialog = true) }
+    }
+
+    fun dismissReviewDialog() {
+        _uiState.update { it.copy(showReviewDialog = false) }
+    }
+
+    fun showReportDialog() {
+        _uiState.update { it.copy(showReportDialog = true) }
+    }
+
+    fun dismissReportDialog() {
+        _uiState.update { it.copy(showReportDialog = false) }
+    }
+
+    fun submitReview(rating: Int, comment: String?) {
+        val detail = _uiState.value.roomDetail ?: return
+        val panel = detail.infoPanelData as? com.teachmeski.app.domain.model.InfoPanelData.StudentPanel
+            ?: return
+        _uiState.update { it.copy(isSubmittingReview = true) }
+        viewModelScope.launch {
+            when (val res = reviewRepository.submitReview(panel.instructorId, rating, comment)) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubmittingReview = false,
+                            showReviewDialog = false,
+                            toast = UiText.StringResource(R.string.review_success),
+                        )
+                    }
+                    refresh()
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubmittingReview = false,
+                            error = res.message,
+                        )
+                    }
+                }
+                Resource.Loading -> {
+                    _uiState.update { it.copy(isSubmittingReview = false) }
+                }
+            }
+        }
+    }
+
+    fun submitReport(reason: String) {
+        val detail = _uiState.value.roomDetail ?: return
+        val otherUserId = detail.otherParty.userId
+        _uiState.update { it.copy(isSubmittingReport = true) }
+        viewModelScope.launch {
+            when (val res = reportRepository.reportUser(otherUserId, reason, detail.roomId)) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubmittingReport = false,
+                            showReportDialog = false,
+                            toast = UiText.StringResource(R.string.report_success),
+                        )
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubmittingReport = false,
+                            error = res.message,
+                        )
+                    }
+                }
+                Resource.Loading -> {
+                    _uiState.update { it.copy(isSubmittingReport = false) }
+                }
+            }
+        }
+    }
+
+    fun toggleBlock() {
+        val detail = _uiState.value.roomDetail ?: return
+        if (_uiState.value.isBlockInFlight) return
+        val otherUserId = detail.otherParty.userId
+        val currentlyBlocked = _uiState.value.isBlockedByMe
+        _uiState.update { it.copy(isBlockInFlight = true) }
+        viewModelScope.launch {
+            val res = if (currentlyBlocked) {
+                blockRepository.unblockUser(otherUserId)
+            } else {
+                blockRepository.blockUser(otherUserId)
+            }
+            when (res) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isBlockInFlight = false,
+                            isBlockedByMe = !currentlyBlocked,
+                            toast = UiText.StringResource(
+                                if (currentlyBlocked) R.string.unblock_success
+                                else R.string.block_success,
+                            ),
+                        )
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isBlockInFlight = false,
+                            error = res.message,
+                        )
+                    }
+                }
+                Resource.Loading -> {
+                    _uiState.update { it.copy(isBlockInFlight = false) }
+                }
+            }
+        }
     }
 
     fun refresh() {
