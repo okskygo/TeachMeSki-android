@@ -105,20 +105,30 @@ private fun AuthenticatedApp(
     val isFullscreenRoute =
         currentDestRoute?.let { route ->
             fullscreenRoutes.any { kClass ->
-                kClass.simpleName?.let { route.contains(it) } == true
+                val simple = kClass.simpleName ?: return@any false
+                // Match Route.X exactly OR Route.X/... OR Route.X? (arg separators)
+                // to avoid false-positives like "ChatRoomList" matching "Chat".
+                route.endsWith(".$simple") ||
+                    route.contains(".$simple/") ||
+                    route.contains(".$simple?")
             }
         } == true
 
     val showBottomBar = isAuthenticated && !isOnAuthScreen && !isFullscreenRoute
 
+    fun String.matchesRoute(simpleName: String): Boolean =
+        endsWith(".$simpleName") ||
+            contains(".$simpleName/") ||
+            contains(".$simpleName?")
+
     val currentTabRoute: Route? = when {
-        currentDestRoute?.contains("MyRequests") == true -> Route.MyRequests
-        currentDestRoute?.contains("Explore") == true -> Route.Explore
-        currentDestRoute?.contains("Unlocked") == true -> Route.Unlocked
-        currentDestRoute?.contains("ChatRoomList") == true -> Route.ChatRoomList
-        currentDestRoute?.contains("Account") == true &&
+        currentDestRoute?.matchesRoute("MyRequests") == true -> Route.MyRequests
+        currentDestRoute?.matchesRoute("Explore") == true -> Route.Explore
+        currentDestRoute?.matchesRoute("Unlocked") == true -> Route.Unlocked
+        currentDestRoute?.matchesRoute("ChatRoomList") == true -> Route.ChatRoomList
+        currentDestRoute?.matchesRoute("InstructorAccount") == true -> Route.InstructorAccount
+        currentDestRoute?.matchesRoute("Account") == true &&
             activeRole == ActiveRole.Student -> Route.Account
-        currentDestRoute?.contains("InstructorAccount") == true -> Route.InstructorAccount
         else -> null
     }
 

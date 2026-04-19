@@ -408,19 +408,24 @@ private fun ChatRoomCard(
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                val preview = room.lastMessage?.takeIf { it.isNotBlank() }
-                Text(
-                    text = preview
-                        ?: stringResource(R.string.chat_last_message_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TmsColor.OnSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            if (room.unreadCount > 0) {
-                UnreadBadge(count = room.unreadCount)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    val preview = room.lastMessage?.takeIf { it.isNotBlank() }
+                    Text(
+                        text = preview
+                            ?: stringResource(R.string.chat_last_message_none),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TmsColor.OnSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (room.unreadCount > 0) {
+                        UnreadBadge(count = room.unreadCount)
+                    }
+                }
             }
         }
     }
