@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InstructorPreview
+import com.teachmeski.app.domain.model.InstructorSection
 import com.teachmeski.app.domain.model.LessonRequest
+import com.teachmeski.app.domain.repository.ChatRepository
 import com.teachmeski.app.domain.repository.LessonRequestRepository
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
@@ -28,11 +30,21 @@ data class RequestDetailUiState(
     val error: UiText? = null,
     val isClosing: Boolean = false,
     val closeSuccess: Boolean = false,
-)
+    val firstMessageTarget: InstructorPreview? = null,
+    val firstMessageDraft: String = "",
+    val isSendingFirstMessage: Boolean = false,
+    val firstMessageRoomId: String? = null,
+) {
+    val userInitiatedInstructors: List<InstructorPreview>
+        get() = unlockedInstructors.filter { it.section == InstructorSection.UserInitiated }
+    val expertInitiatedInstructors: List<InstructorPreview>
+        get() = unlockedInstructors.filter { it.section == InstructorSection.ExpertInitiated }
+}
 
 @HiltViewModel
 class RequestDetailViewModel @Inject constructor(
     private val lessonRequestRepository: LessonRequestRepository,
+    private val chatRepository: ChatRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -157,5 +169,63 @@ class RequestDetailViewModel @Inject constructor(
 
     fun consumeCloseSuccess() {
         _uiState.update { it.copy(closeSuccess = false) }
+    }
+
+    fun openFirstMessageDialog(instructor: InstructorPreview) {
+        _uiState.update {
+            it.copy(
+                firstMessageTarget = instructor,
+                firstMessageDraft = "",
+                firstMessageRoomId = null,
+            )
+        }
+    }
+
+    fun dismissFirstMessageDialog() {
+        if (_uiState.value.isSendingFirstMessage) return
+        _uiState.update { it.copy(firstMessageTarget = null) }
+    }
+
+    fun updateFirstMessageDraft(text: String) {
+        if (text.length > 2000) return
+        _uiState.update { it.copy(firstMessageDraft = text) }
+    }
+
+    fun sendFirstMessage() {
+        val s = _uiState.value
+        val target = s.firstMessageTarget ?: return
+        val body = s.firstMessageDraft.trim()
+        if (body.isEmpty() || requestId.isEmpty()) return
+        _uiState.update { it.copy(isSendingFirstMessage = true) }
+        viewModelScope.launch {
+            when (val res = chatRepository.createPathBChatRoom(target.instructorId, requestId, body)) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isSendingFirstMessage = false,
+                            firstMessageTarget = null,
+                            firstMessageDraft = "",
+                            firstMessageRoomId = res.data,
+                        )
+                    }
+                    load()
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isSendingFirstMessage = false,
+                            error = res.message,
+                        )
+                    }
+                }
+                is Resource.Loading -> {
+                    _uiState.update { it.copy(isSendingFirstMessage = false) }
+                }
+            }
+        }
+    }
+
+    fun consumeFirstMessageRoomId() {
+        _uiState.update { it.copy(firstMessageRoomId = null) }
     }
 }

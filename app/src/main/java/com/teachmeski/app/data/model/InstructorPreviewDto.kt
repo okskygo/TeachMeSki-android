@@ -1,8 +1,12 @@
 package com.teachmeski.app.data.model
 
 import com.teachmeski.app.domain.model.InstructorPreview
+import com.teachmeski.app.domain.model.InstructorSection
 
-fun ChatRoomPreviewDto.toInstructorPreview(currentUserId: String): InstructorPreview {
+fun ChatRoomPreviewDto.toInstructorPreview(
+    currentUserId: String,
+    section: InstructorSection = InstructorSection.UserInitiated,
+): InstructorPreview {
     val profile = instructorProfile
     val hasUnread =
         lastMessageAt != null &&
@@ -20,5 +24,8 @@ fun ChatRoomPreviewDto.toInstructorPreview(currentUserId: String): InstructorPre
         ratingCount = profile?.ratingCount ?: 0,
         phoneVerifiedAt = profile?.phoneVerifiedAt,
         shortId = profile?.shortId,
+        section = section,
+        lastMessageContent = lastMessageContent,
+        lastMessageAt = lastMessageAt,
     )
 }

@@ -99,6 +99,14 @@ fun RequestDetailScreen(
         }
     }
 
+    LaunchedEffect(state.firstMessageRoomId) {
+        val roomId = state.firstMessageRoomId
+        if (roomId != null) {
+            onChatClick(roomId)
+            viewModel.consumeFirstMessageRoomId()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -130,17 +138,32 @@ fun RequestDetailScreen(
                 state.detail != null -> {
                     RequestDetailContent(
                         detail = state.detail!!,
-                        unlocked = state.unlockedInstructors,
+                        userInitiated = state.userInitiatedInstructors,
+                        expertInitiated = state.expertInitiatedInstructors,
                         recommended = state.recommendedInstructors,
                         isClosing = state.isClosing,
                         loadError = state.error,
                         onChatClick = onChatClick,
                         onInstructorClick = onInstructorClick,
                         onCloseClick = { showCloseDialog = true },
+                        onContactInstructor = viewModel::openFirstMessageDialog,
                     )
                 }
             }
         }
+    }
+
+    val firstMessageTarget = state.firstMessageTarget
+    if (firstMessageTarget != null) {
+        com.teachmeski.app.ui.chat.FirstMessageDialog(
+            instructorName = firstMessageTarget.displayName.orEmpty(),
+            instructorAvatarUrl = firstMessageTarget.avatarUrl,
+            messageDraft = state.firstMessageDraft,
+            isSending = state.isSendingFirstMessage,
+            onDraftChange = viewModel::updateFirstMessageDraft,
+            onDismiss = viewModel::dismissFirstMessageDialog,
+            onSend = viewModel::sendFirstMessage,
+        )
     }
 
     if (showCloseDialog) {
@@ -173,13 +196,15 @@ private const val RECOMMENDED_PAGE_SIZE = 6
 @Composable
 private fun RequestDetailContent(
     detail: LessonRequest,
-    unlocked: List<InstructorPreview>,
+    userInitiated: List<InstructorPreview>,
+    expertInitiated: List<InstructorPreview>,
     recommended: List<InstructorPreview>,
     isClosing: Boolean,
     loadError: UiText?,
     onChatClick: (String) -> Unit,
     onInstructorClick: (String) -> Unit,
     onCloseClick: () -> Unit,
+    onContactInstructor: (InstructorPreview) -> Unit,
 ) {
     var visibleRecommendedCount by remember { mutableStateOf(RECOMMENDED_PAGE_SIZE) }
 
@@ -212,12 +237,29 @@ private fun RequestDetailContent(
         item {
             SectionLabel(text = stringResource(R.string.request_detail_section_user_initiated))
         }
-        if (unlocked.isEmpty()) {
+        if (userInitiated.isEmpty()) {
             item {
                 EmptySection(text = stringResource(R.string.request_detail_no_user_initiated_yet))
             }
         } else {
-            items(unlocked, key = { it.instructorId }) { preview ->
+            items(userInitiated, key = { "u_" + it.instructorId }) { preview ->
+                UnlockedInstructorCard(
+                    preview = preview,
+                    onChatClick = onChatClick,
+                    onInstructorClick = onInstructorClick,
+                )
+            }
+        }
+
+        item {
+            SectionLabel(text = stringResource(R.string.request_detail_section_expert_initiated))
+        }
+        if (expertInitiated.isEmpty()) {
+            item {
+                EmptySection(text = stringResource(R.string.request_detail_no_expert_initiated))
+            }
+        } else {
+            items(expertInitiated, key = { "e_" + it.instructorId }) { preview ->
                 UnlockedInstructorCard(
                     preview = preview,
                     onChatClick = onChatClick,
@@ -235,10 +277,11 @@ private fun RequestDetailContent(
             }
         } else {
             val visible = recommended.take(visibleRecommendedCount)
-            items(visible, key = { it.instructorId }) { preview ->
+            items(visible, key = { "r_" + it.instructorId }) { preview ->
                 RecommendedInstructorCard(
                     preview = preview,
                     onInstructorClick = onInstructorClick,
+                    onContactClick = { onContactInstructor(preview) },
                 )
             }
             if (visibleRecommendedCount < recommended.size) {
@@ -817,6 +860,7 @@ private fun UnlockedInstructorCard(
 private fun RecommendedInstructorCard(
     preview: InstructorPreview,
     onInstructorClick: (String) -> Unit,
+    onContactClick: () -> Unit,
 ) {
     val shortId = preview.shortId.orEmpty()
     Surface(
@@ -858,22 +902,20 @@ private fun RecommendedInstructorCard(
                     count = preview.ratingCount,
                 )
             }
-            if (shortId.isNotEmpty()) {
-                Button(
-                    onClick = { onInstructorClick(shortId) },
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = TmsColor.Primary,
-                        contentColor = TmsColor.OnPrimary,
-                    ),
-                ) {
-                    Text(
-                        text = stringResource(R.string.request_detail_recommended_contact),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
+            Button(
+                onClick = onContactClick,
+                modifier = Modifier.align(Alignment.CenterVertically),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = TmsColor.Primary,
+                    contentColor = TmsColor.OnPrimary,
+                ),
+            ) {
+                Text(
+                    text = stringResource(R.string.request_detail_contact_instructor),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
     }

@@ -132,9 +132,16 @@ class LessonRequestRepositoryImpl @Inject constructor(
         val userId = authRepository.currentUserId()
             ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
         val chatRooms = lessonRequestDataSource.getChatRoomsForRequest(lessonRequestId, userId)
-        Log.d(TAG, "getUnlockedInstructors: ${chatRooms.size} chat rooms")
+        val expertUnlockedIds = lessonRequestDataSource.getUnlockedInstructorIds(lessonRequestId).toSet()
+        Log.d(TAG, "getUnlockedInstructors: ${chatRooms.size} chat rooms, ${expertUnlockedIds.size} expert-initiated")
         val previews = chatRooms.map { room ->
-            room.toInstructorPreview(userId).copy(isReviewed = false)
+            val section =
+                if (expertUnlockedIds.contains(room.instructorId)) {
+                    com.teachmeski.app.domain.model.InstructorSection.ExpertInitiated
+                } else {
+                    com.teachmeski.app.domain.model.InstructorSection.UserInitiated
+                }
+            room.toInstructorPreview(userId, section).copy(isReviewed = false)
         }
         Resource.Success(previews)
     } catch (e: Exception) {

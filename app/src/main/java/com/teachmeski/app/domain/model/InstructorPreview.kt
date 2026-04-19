@@ -1,5 +1,7 @@
 package com.teachmeski.app.domain.model
 
+enum class InstructorSection { UserInitiated, ExpertInitiated }
+
 data class InstructorPreview(
     val instructorId: String,
     val userId: String?,
@@ -12,4 +14,7 @@ data class InstructorPreview(
     val ratingCount: Int = 0,
     val phoneVerifiedAt: String? = null,
     val shortId: String? = null,
+    val section: InstructorSection = InstructorSection.UserInitiated,
+    val lastMessageContent: String? = null,
+    val lastMessageAt: String? = null,
 )
