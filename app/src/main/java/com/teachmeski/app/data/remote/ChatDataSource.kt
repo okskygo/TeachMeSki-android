@@ -66,7 +66,7 @@ class ChatDataSource @Inject constructor(
             .select {
                 filter { eq("user_id", userId) }
                 order("last_message_at", Order.DESCENDING)
-                range(offset.toLong(), (offset + limit).toLong())
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<ChatRoomDto>()
 
@@ -75,7 +75,7 @@ class ChatDataSource @Inject constructor(
             .select {
                 filter { eq("instructor_id", instructorProfileId) }
                 order("last_message_at", Order.DESCENDING)
-                range(offset.toLong(), (offset + limit).toLong())
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<ChatRoomDto>()
 
