@@ -130,6 +130,12 @@
     <string name="explore_error_quota_full">此需求的教練名額已滿</string>
     <string name="explore_error_request_not_active">此需求已無法解鎖</string>
     <string name="error_load_wallet">載入錢包失敗</string>
+    <!-- Chat (Phase 5 temp placeholders — Task 5 will add EN + finalize) -->
+    <string name="error_load_chat_rooms">無法載入訊息列表</string>
+    <string name="error_load_chat_detail">無法載入對話</string>
+    <string name="error_load_messages">無法載入訊息</string>
+    <string name="error_send_message">傳送失敗</string>
+    <string name="review_error_duplicate">你已經評價過這位教練了</string>
 
     <!-- Common -->
     <string name="common_loading">載入中…</string>
