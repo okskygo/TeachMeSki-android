@@ -701,4 +701,129 @@
     <string name="common_discipline_ski">Ski</string>
     <string name="common_discipline_snowboard">Snowboard</string>
     <string name="common_discipline_both">Ski &amp; Snowboard</string>
+
+    <!-- Phase 5: Error strings (matching zh-TW temp keys) -->
+    <string name="error_load_chat_rooms">Failed to load messages</string>
+    <string name="error_load_chat_detail">Failed to load conversation</string>
+    <string name="error_load_messages">Failed to load messages</string>
+    <string name="error_send_message">Failed to send</string>
+    <string name="review_error_duplicate">You have already reviewed this instructor</string>
+
+    <!-- Phase 5: Chat Room List -->
+    <string name="chat_title_seeker">Messages</string>
+    <string name="chat_title_instructor">Conversations</string>
+    <string name="chat_tab_all">All</string>
+    <string name="chat_tab_unread">Unread</string>
+    <string name="chat_empty_seeker_title">No messages yet</string>
+    <string name="chat_empty_seeker_cta">Create Lesson Request</string>
+    <string name="chat_empty_instructor_title">No conversations yet</string>
+    <string name="chat_empty_instructor_cta">Explore Lesson Requests</string>
+    <string name="chat_load_more">Load More</string>
+    <string name="chat_last_message_none">No messages yet</string>
+    <string name="chat_badge_ski">Ski</string>
+    <string name="chat_badge_snowboard">Snowboard</string>
+    <string name="chat_time_just_now">Just now</string>
+    <string name="chat_time_minutes_ago_fmt">%1$d min ago</string>
+    <string name="chat_time_today_fmt">Today %1$s</string>
+    <string name="chat_time_yesterday">Yesterday</string>
+    <string name="chat_time_date_fmt">%1$s</string>
+
+    <!-- Phase 5: Chat Screen -->
+    <string name="chat_input_placeholder">Type a message…</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_send_error">Failed to send. Please try again.</string>
+    <string name="chat_char_count_fmt">%1$d / 2000</string>
+    <string name="chat_blocked_notice">This conversation has been blocked</string>
+    <string name="chat_new_messages">New messages</string>
+    <string name="chat_loading_older">Loading…</string>
+    <string name="chat_no_messages">No messages yet</string>
+
+    <!-- Phase 5: Info Panel -->
+    <string name="chat_panel_view_profile">View Instructor Profile</string>
+    <string name="chat_panel_new_instructor">New Instructor</string>
+    <string name="chat_panel_rating_fmt">%1$.1f (%2$d)</string>
+    <string name="chat_panel_review_btn">Review Instructor</string>
+    <string name="chat_panel_reviewed">Reviewed</string>
+    <string name="chat_panel_section_lesson_request">Lesson Request</string>
+    <string name="chat_panel_discipline">Discipline</string>
+    <string name="chat_panel_skill_level">Level</string>
+    <string name="chat_panel_group">Group Size</string>
+    <string name="chat_panel_group_fmt">%1$d person(s)</string>
+    <string name="chat_panel_group_with_children_fmt">%1$d person(s) (incl. children)</string>
+    <string name="chat_panel_dates">Dates</string>
+    <string name="chat_panel_dates_flexible">Flexible dates</string>
+    <string name="chat_panel_duration">Duration</string>
+    <string name="chat_panel_duration_fmt">%1$s day(s)</string>
+    <string name="chat_panel_resorts">Resorts</string>
+    <string name="chat_panel_all_regions">All Regions</string>
+    <string name="chat_panel_languages">Languages</string>
+    <string name="chat_panel_equipment">Equipment Rental</string>
+    <string name="chat_panel_equipment_all">Full rental</string>
+    <string name="chat_panel_equipment_partial">Partial rental</string>
+    <string name="chat_panel_equipment_none">Not needed</string>
+    <string name="chat_panel_transport">Transportation</string>
+    <string name="chat_panel_transport_yes">Needed</string>
+    <string name="chat_panel_transport_no">Not needed</string>
+    <string name="chat_panel_certs">Certification Preference</string>
+    <string name="chat_panel_notes">Notes</string>
+    <string name="chat_panel_expand">Show more</string>
+    <string name="chat_panel_collapse">Show less</string>
+
+    <!-- Phase 5: Review Dialog -->
+    <string name="review_title">Review Instructor</string>
+    <string name="review_star_label_fmt">%1$d star(s)</string>
+    <string name="review_comment_placeholder">Leave a review (optional)</string>
+    <string name="review_submit">Submit Review</string>
+    <string name="review_cancel">Cancel</string>
+    <string name="review_success">Review submitted!</string>
+
+    <!-- Phase 5: Block / Report -->
+    <string name="block_user">Block User</string>
+    <string name="unblock_user">Unblock User</string>
+    <string name="block_success">Blocked</string>
+    <string name="unblock_success">Unblocked</string>
+    <string name="report_user">Report User</string>
+    <string name="report_title">Report Reason</string>
+    <string name="report_reason_spam">Spam</string>
+    <string name="report_reason_misconduct">Misconduct</string>
+    <string name="report_reason_fraud">Fraud</string>
+    <string name="report_reason_other">Other</string>
+    <string name="report_submit">Submit Report</string>
+    <string name="report_cancel">Cancel</string>
+    <string name="report_success">Report submitted</string>
+
+    <!-- Phase 5: Chat Unlock Bar -->
+    <string name="chat_unlock_title">Unlock this conversation</string>
+    <string name="chat_unlock_description">Unlock to chat with the student</string>
+    <string name="chat_unlock_cost_fmt">Cost: %1$d tokens</string>
+    <string name="chat_unlock_balance_fmt">Balance: %1$d tokens</string>
+    <string name="chat_unlock_insufficient">Insufficient balance</string>
+    <string name="chat_unlock_btn">Unlock</string>
+
+    <!-- Phase 5: First Message Dialog -->
+    <string name="first_message_title">Send message to instructor</string>
+    <string name="first_message_subtitle_fmt">Send to %1$s</string>
+    <string name="first_message_placeholder">Type your first message…</string>
+    <string name="first_message_send">Send</string>
+    <string name="first_message_cancel">Cancel</string>
+    <string name="first_message_error">Failed to send. Please try again.</string>
+
+    <!-- Phase 5: RequestDetail split sections -->
+    <string name="request_detail_expert_initiated">Instructors who contacted you</string>
+    <string name="request_detail_user_initiated">Instructors you contacted</string>
+    <string name="request_detail_contact_instructor">Contact Instructor</string>
+    <string name="request_detail_no_expert_initiated">No instructors have contacted you yet</string>
+    <string name="request_detail_no_user_initiated">You haven\'t contacted any instructors yet</string>
+
+    <!-- Phase 5: Skill levels -->
+    <string name="skill_level_0">Complete beginner</string>
+    <string name="skill_level_1">Beginner (Lv 1)</string>
+    <string name="skill_level_2">Lower Intermediate (Lv 2)</string>
+    <string name="skill_level_3">Intermediate (Lv 3)</string>
+    <string name="skill_level_4">Advanced (Lv 4)</string>
+
+    <!-- Phase 5: Languages -->
+    <string name="lang_zh">Chinese</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ja">Japanese</string>
 </resources>

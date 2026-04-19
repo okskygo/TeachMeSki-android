@@ -706,4 +706,122 @@
     <string name="common_discipline_ski">雙板 Ski</string>
     <string name="common_discipline_snowboard">單板 Snowboard</string>
     <string name="common_discipline_both">雙板與單板</string>
+
+    <!-- Phase 5: Chat Room List -->
+    <string name="chat_title_seeker">訊息</string>
+    <string name="chat_title_instructor">對話</string>
+    <string name="chat_tab_all">全部</string>
+    <string name="chat_tab_unread">未讀</string>
+    <string name="chat_empty_seeker_title">尚無訊息</string>
+    <string name="chat_empty_seeker_cta">建立課程需求</string>
+    <string name="chat_empty_instructor_title">尚無對話</string>
+    <string name="chat_empty_instructor_cta">探索課程需求</string>
+    <string name="chat_load_more">載入更多</string>
+    <string name="chat_last_message_none">尚無訊息</string>
+    <string name="chat_badge_ski">雙板</string>
+    <string name="chat_badge_snowboard">單板</string>
+    <string name="chat_time_just_now">剛剛</string>
+    <string name="chat_time_minutes_ago_fmt">%1$d 分鐘前</string>
+    <string name="chat_time_today_fmt">今天 %1$s</string>
+    <string name="chat_time_yesterday">昨天</string>
+    <string name="chat_time_date_fmt">%1$s</string>
+
+    <!-- Phase 5: Chat Screen -->
+    <string name="chat_input_placeholder">輸入訊息…</string>
+    <string name="chat_send">傳送</string>
+    <string name="chat_send_error">傳送失敗，請再試一次</string>
+    <string name="chat_char_count_fmt">%1$d / 2000</string>
+    <string name="chat_blocked_notice">此對話已被封鎖</string>
+    <string name="chat_new_messages">新訊息</string>
+    <string name="chat_loading_older">載入中…</string>
+    <string name="chat_no_messages">尚無訊息</string>
+
+    <!-- Phase 5: Info Panel -->
+    <string name="chat_panel_view_profile">查看教練檔案</string>
+    <string name="chat_panel_new_instructor">新教練</string>
+    <string name="chat_panel_rating_fmt">%1$.1f (%2$d)</string>
+    <string name="chat_panel_review_btn">評價教練</string>
+    <string name="chat_panel_reviewed">已評價</string>
+    <string name="chat_panel_section_lesson_request">課程需求</string>
+    <string name="chat_panel_discipline">滑行項目</string>
+    <string name="chat_panel_skill_level">程度</string>
+    <string name="chat_panel_group">人數</string>
+    <string name="chat_panel_group_fmt">%1$d 人</string>
+    <string name="chat_panel_group_with_children_fmt">%1$d 人（含兒童）</string>
+    <string name="chat_panel_dates">日期</string>
+    <string name="chat_panel_dates_flexible">彈性日期</string>
+    <string name="chat_panel_duration">時長</string>
+    <string name="chat_panel_duration_fmt">%1$s 天</string>
+    <string name="chat_panel_resorts">雪場</string>
+    <string name="chat_panel_all_regions">全部地區</string>
+    <string name="chat_panel_languages">語言</string>
+    <string name="chat_panel_equipment">裝備租借</string>
+    <string name="chat_panel_equipment_all">全部租借</string>
+    <string name="chat_panel_equipment_partial">部分租借</string>
+    <string name="chat_panel_equipment_none">不需要</string>
+    <string name="chat_panel_transport">交通接送</string>
+    <string name="chat_panel_transport_yes">需要</string>
+    <string name="chat_panel_transport_no">不需要</string>
+    <string name="chat_panel_certs">證照偏好</string>
+    <string name="chat_panel_notes">備註</string>
+    <string name="chat_panel_expand">展開</string>
+    <string name="chat_panel_collapse">收合</string>
+
+    <!-- Phase 5: Review Dialog -->
+    <string name="review_title">評價教練</string>
+    <string name="review_star_label_fmt">%1$d 星</string>
+    <string name="review_comment_placeholder">留下你的評價（選填）</string>
+    <string name="review_submit">送出評價</string>
+    <string name="review_cancel">取消</string>
+    <string name="review_success">評價已送出！</string>
+
+    <!-- Phase 5: Block / Report -->
+    <string name="block_user">封鎖使用者</string>
+    <string name="unblock_user">解除封鎖</string>
+    <string name="block_success">已封鎖</string>
+    <string name="unblock_success">已解除封鎖</string>
+    <string name="report_user">檢舉使用者</string>
+    <string name="report_title">檢舉原因</string>
+    <string name="report_reason_spam">垃圾訊息</string>
+    <string name="report_reason_misconduct">不當行為</string>
+    <string name="report_reason_fraud">詐騙</string>
+    <string name="report_reason_other">其他</string>
+    <string name="report_submit">送出檢舉</string>
+    <string name="report_cancel">取消</string>
+    <string name="report_success">檢舉已送出</string>
+
+    <!-- Phase 5: Chat Unlock Bar -->
+    <string name="chat_unlock_title">解鎖此對話</string>
+    <string name="chat_unlock_description">解鎖後即可與學員對話</string>
+    <string name="chat_unlock_cost_fmt">費用：%1$d 點</string>
+    <string name="chat_unlock_balance_fmt">餘額：%1$d 點</string>
+    <string name="chat_unlock_insufficient">餘額不足</string>
+    <string name="chat_unlock_btn">解鎖</string>
+
+    <!-- Phase 5: First Message Dialog -->
+    <string name="first_message_title">傳送訊息給教練</string>
+    <string name="first_message_subtitle_fmt">傳送給 %1$s</string>
+    <string name="first_message_placeholder">輸入你的第一則訊息…</string>
+    <string name="first_message_send">傳送</string>
+    <string name="first_message_cancel">取消</string>
+    <string name="first_message_error">傳送失敗，請再試一次</string>
+
+    <!-- Phase 5: RequestDetail split sections -->
+    <string name="request_detail_expert_initiated">想與你聯繫的教練</string>
+    <string name="request_detail_user_initiated">我主動聯繫的教練</string>
+    <string name="request_detail_contact_instructor">聯繫教練</string>
+    <string name="request_detail_no_expert_initiated">還沒有教練主動聯繫</string>
+    <string name="request_detail_no_user_initiated">你尚未主動聯繫任何教練</string>
+
+    <!-- Phase 5: Skill levels -->
+    <string name="skill_level_0">完全初學</string>
+    <string name="skill_level_1">初學（Lv 1）</string>
+    <string name="skill_level_2">初中級（Lv 2）</string>
+    <string name="skill_level_3">中級（Lv 3）</string>
+    <string name="skill_level_4">進階（Lv 4）</string>
+
+    <!-- Phase 5: Languages -->
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">英文</string>
+    <string name="lang_ja">日文</string>
 </resources>
