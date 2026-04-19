@@ -86,7 +86,9 @@ fun MessageBubble(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(top = 2.dp, start = if (isOwn) 0.dp else 0.dp, end = if (isOwn) 0.dp else 0.dp),
+                modifier = Modifier
+                    .align(if (isOwn) Alignment.Start else Alignment.End)
+                    .padding(top = 2.dp),
             ) {
                 Text(
                     text = RelativeTime.format(message.sentAt, context),
