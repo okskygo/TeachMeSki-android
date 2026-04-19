@@ -30,9 +30,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -119,23 +117,6 @@ fun ChatRoomListScreen(
     Scaffold(
         containerColor = TmsColor.Background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(titleRes),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = TmsColor.OnSurface,
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = TmsColor.SurfaceLowest,
-                    scrolledContainerColor = TmsColor.SurfaceLowest,
-                ),
-                windowInsets = WindowInsets(0, 0, 0, 0),
-            )
-        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -143,6 +124,14 @@ fun ChatRoomListScreen(
                 .padding(innerPadding)
                 .background(TmsColor.Background),
         ) {
+            Text(
+                text = stringResource(titleRes),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = TmsColor.OnSurface,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+            )
+
             val tabIndex = when (uiState.selectedTab) {
                 ChatRoomListUiState.Tab.All -> 0
                 ChatRoomListUiState.Tab.Unread -> 1

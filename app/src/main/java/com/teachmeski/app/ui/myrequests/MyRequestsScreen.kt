@@ -224,14 +224,15 @@ private fun OrderCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .alpha(if (isDimmed) 0.6f else 1f),
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = TmsColor.SurfaceLowest,
         shadowElevation = 4.dp,
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .padding(20.dp)
+                .alpha(if (isDimmed) 0.6f else 1f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
