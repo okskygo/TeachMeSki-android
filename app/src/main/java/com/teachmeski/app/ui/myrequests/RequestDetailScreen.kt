@@ -61,7 +61,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -804,6 +806,18 @@ private fun UnlockedInstructorCard(
     onInstructorClick: (String) -> Unit,
 ) {
     val shortId = preview.shortId.orEmpty()
+
+    val infiniteTransition = rememberInfiniteTransition(label = "unread_pulse")
+    val unreadPulse by infiniteTransition.animateFloat(
+        initialValue = 0.45f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "unread_pulse_alpha",
+    )
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -819,11 +833,25 @@ private fun UnlockedInstructorCard(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                UserAvatar(
-                    displayName = preview.displayName,
-                    avatarUrl = preview.avatarUrl,
-                    size = 56.dp,
-                )
+                Box {
+                    UserAvatar(
+                        displayName = preview.displayName,
+                        avatarUrl = preview.avatarUrl,
+                        size = 56.dp,
+                    )
+                    if (preview.hasUnread) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 4.dp, y = (-2).dp)
+                                .size(14.dp)
+                                .graphicsLayer { alpha = unreadPulse }
+                                .clip(CircleShape)
+                                .background(TmsColor.Error)
+                                .border(2.dp, TmsColor.SurfaceLowest, CircleShape),
+                        )
+                    }
+                }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = preview.displayName ?: stringResource(R.string.common_empty_value),
