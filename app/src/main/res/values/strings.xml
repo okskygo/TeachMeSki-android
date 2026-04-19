@@ -716,6 +716,8 @@
     <string name="chat_empty_seeker_cta">建立課程需求</string>
     <string name="chat_empty_instructor_title">尚無對話</string>
     <string name="chat_empty_instructor_cta">探索課程需求</string>
+    <string name="chat_empty_unread_title">沒有未讀訊息</string>
+    <string name="chat_unread_overflow">9+</string>
     <string name="chat_load_more">載入更多</string>
     <string name="chat_last_message_none">尚無訊息</string>
     <string name="chat_badge_ski">雙板</string>

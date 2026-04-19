@@ -60,7 +60,19 @@ fun NavGraphBuilder.studentNavGraph(
                 onSuccess = { navController.popBackStack() },
             )
         }
-        composable<Route.ChatRoomList> { ChatRoomListScreen() }
+        composable<Route.ChatRoomList> {
+            ChatRoomListScreen(
+                isInstructorView = false,
+                onRoomClick = { roomId ->
+                    navController.navigate(Route.Chat(roomId))
+                },
+                onEmptyCtaClick = {
+                    navController.navigate(Route.LessonRequestWizard) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
         composable<Route.Account> {
             AccountScreen(
                 userRole = userRole,

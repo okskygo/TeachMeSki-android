@@ -718,6 +718,8 @@
     <string name="chat_empty_seeker_cta">Create Lesson Request</string>
     <string name="chat_empty_instructor_title">No conversations yet</string>
     <string name="chat_empty_instructor_cta">Explore Lesson Requests</string>
+    <string name="chat_empty_unread_title">No unread messages</string>
+    <string name="chat_unread_overflow">9+</string>
     <string name="chat_load_more">Load More</string>
     <string name="chat_last_message_none">No messages yet</string>
     <string name="chat_badge_ski">Ski</string>

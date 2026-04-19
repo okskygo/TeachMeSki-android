@@ -41,7 +41,23 @@ fun NavGraphBuilder.instructorNavGraph(
                 },
             )
         }
-        composable<Route.ChatRoomList> { ChatRoomListScreen() }
+        composable<Route.ChatRoomList> {
+            ChatRoomListScreen(
+                isInstructorView = true,
+                onRoomClick = { roomId ->
+                    navController.navigate(Route.Chat(roomId))
+                },
+                onEmptyCtaClick = {
+                    navController.navigate(Route.Explore) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+            )
+        }
         composable<Route.InstructorAccount> {
             InstructorAccountScreen(
                 onSwitchToStudent = onSwitchToStudent,
