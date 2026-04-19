@@ -32,12 +32,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -146,9 +143,6 @@ fun ChatScreen(
                 .background(TmsColor.SurfaceLow),
         ) {
             val infoPanelMaxHeight = maxHeight * 0.6f
-            val density = LocalDensity.current
-            var infoPanelHeightPx by remember { mutableStateOf(0) }
-            val infoPanelHeightDp = with(density) { infoPanelHeightPx.toDp() }
 
             when {
                 uiState.isLoading && uiState.messages.isEmpty() -> {
@@ -163,12 +157,7 @@ fun ChatScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         state = listState,
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 8.dp + infoPanelHeightDp,
-                            bottom = 8.dp,
-                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                     ) {
                         uiState.error?.let { err ->
@@ -258,8 +247,7 @@ fun ChatScreen(
                         .fillMaxWidth()
                         .heightIn(max = infoPanelMaxHeight)
                         .background(TmsColor.SurfaceLow)
-                        .verticalScroll(rememberScrollState())
-                        .onSizeChanged { infoPanelHeightPx = it.height },
+                        .verticalScroll(rememberScrollState()),
                 ) {
                     when (info) {
                         is InfoPanelData.StudentPanel -> StudentInfoPanel(
@@ -281,11 +269,6 @@ fun ChatScreen(
                 }
             }
 
-            LaunchedEffect(uiState.infoPanelExpanded) {
-                if (!uiState.infoPanelExpanded) {
-                    infoPanelHeightPx = 0
-                }
-            }
         }
     }
 
