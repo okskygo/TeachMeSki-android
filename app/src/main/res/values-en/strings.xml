@@ -739,6 +739,8 @@
     <string name="chat_new_messages">New messages</string>
     <string name="chat_loading_older">Loading…</string>
     <string name="chat_no_messages">No messages yet</string>
+    <string name="chat_placeholder_info_panel">Details will appear here in a later update</string>
+    <string name="chat_placeholder_unlock_bar">Unlock actions will appear here in a later update</string>
 
     <!-- Phase 5: Info Panel -->
     <string name="chat_panel_view_profile">View Instructor Profile</string>

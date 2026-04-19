@@ -23,6 +23,7 @@ import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardScreen
 import com.teachmeski.app.ui.profile.InstructorDetailScreen
 import com.teachmeski.app.ui.profile.InstructorProfileScreen
+import com.teachmeski.app.ui.chat.ChatScreen
 import com.teachmeski.app.ui.wallet.CreditHistoryScreen
 import com.teachmeski.app.ui.wallet.WalletScreen
 
@@ -93,39 +94,12 @@ fun AppNavGraph(
                 },
             )
         }
-        composable<Route.Chat> { entry ->
-            val chatRoute = entry.toRoute<Route.Chat>()
-            AppChatPlaceholderScreen(
-                roomId = chatRoute.roomId,
-                onBack = { navController.popBackStack() },
-            )
-        }
-    }
-}
-
-@Composable
-private fun AppChatPlaceholderScreen(
-    roomId: String,
-    onBack: () -> Unit,
-) {
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            TmsTopBar(
-                title = stringResource(R.string.nav_inbox),
-                onBack = onBack,
-            )
-        },
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = stringResource(R.string.chat_placeholder_room_fmt, roomId),
-                style = MaterialTheme.typography.bodyLarge,
+        composable<Route.Chat> {
+            ChatScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToInstructor = { shortId ->
+                    navController.navigate(Route.InstructorDetail(shortId))
+                },
             )
         }
     }

@@ -737,6 +737,8 @@
     <string name="chat_new_messages">新訊息</string>
     <string name="chat_loading_older">載入中…</string>
     <string name="chat_no_messages">尚無訊息</string>
+    <string name="chat_placeholder_info_panel">詳細資訊將在後續版本顯示於此</string>
+    <string name="chat_placeholder_unlock_bar">解鎖列將在後續版本完成</string>
 
     <!-- Phase 5: Info Panel -->
     <string name="chat_panel_view_profile">查看教練檔案</string>

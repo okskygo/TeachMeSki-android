@@ -13,8 +13,14 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.rpc
+import io.github.jan.supabase.realtime.broadcastFlow
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.realtime
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
@@ -400,6 +406,40 @@ class ChatDataSource @Inject constructor(
     // --- Broadcast helpers ---
 
     fun getRealtimeChannel(channelId: String) = supabaseClient.realtime.channel(channelId)
+
+    /**
+     * Subscribes to Realtime topic `room:{roomId}` broadcast event [NEW_MESSAGE_EVENT].
+     * Matches web `ChatMessages.tsx` subscription.
+     */
+    fun roomNewMessagesFlow(roomId: String): Flow<ChatMessageDto> = channelFlow {
+        val topic = "room:$roomId"
+        val channel = supabaseClient.realtime.channel(topic)
+        val collectJob = launch {
+            channel.broadcastFlow<ChatMessageDto>(NEW_MESSAGE_EVENT).collect { dto ->
+                send(dto)
+            }
+        }
+        try {
+            channel.subscribe(blockUntilSubscribed = true)
+        } catch (e: Exception) {
+            collectJob.cancel()
+            close(e)
+            return@channelFlow
+        }
+        awaitClose {
+            collectJob.cancel()
+            runBlocking {
+                try {
+                    channel.unsubscribe()
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
+    private companion object {
+        const val NEW_MESSAGE_EVENT = "new_message"
+    }
 
     private fun JsonObject.toAnyValueMap(): Map<String, Any?> =
         mapValues { (_, element) -> element.toKotlinValue() }

@@ -20,6 +20,8 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -288,6 +290,9 @@ class ChatRepositoryImpl @Inject constructor(
             Resource.Error(UiText.StringResource(R.string.error_generic))
         }
     }
+
+    override fun subscribeToRoomFlow(roomId: String): Flow<ChatMessage> =
+        chatDataSource.roomNewMessagesFlow(roomId).map { it.toDomain() }
 
     override suspend fun unlockPathBConversation(roomId: String, message: String): Resource<String> {
         return try {
