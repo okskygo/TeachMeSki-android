@@ -8,24 +8,34 @@ import com.teachmeski.app.domain.model.InstructorDetailBundle
 import com.teachmeski.app.domain.model.Region
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 
 @Singleton
 class GetInstructorDetailUseCase @Inject constructor(
     private val instructorDataSource: InstructorDataSource,
     private val resortDataSource: ResortDataSource,
 ) {
-    suspend operator fun invoke(shortId: String): Result<InstructorDetailBundle, DetailError> {
-        val dto = runCatching { instructorDataSource.getProfileByShortId(shortId) }
-            .getOrElse { return Result.Err(DetailError.Generic(it)) }
-            ?: return Result.Err(DetailError.NotFound)
+    suspend operator fun invoke(shortId: String): DetailLoadResult<InstructorDetailBundle, DetailError> {
+        val dto = try {
+            instructorDataSource.getProfileByShortId(shortId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            return DetailLoadResult.Err(DetailError.Generic(e))
+        } ?: return DetailLoadResult.Err(DetailError.NotFound)
 
-        val allRegions = runCatching { resortDataSource.getResortsWithRegions().map { it.toDomain() } }
-            .getOrElse { return Result.Err(DetailError.Generic(it)) }
+        val allRegions = try {
+            resortDataSource.getResortsWithRegions().map { it.toDomain() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            return DetailLoadResult.Err(DetailError.Generic(e))
+        }
 
         val grouped = groupResortsByRegion(allRegions, dto.resortIds)
-        val resortNames = grouped.flatMap { it.resorts }.map { it.nameZh }
+        val resortNames = grouped.flatMap { it.resorts }.map { "${it.nameZh} (${it.nameEn})" }
 
-        return Result.Ok(
+        return DetailLoadResult.Ok(
             InstructorDetailBundle(
                 profile = dto.toDomain(resortNames = resortNames),
                 resortsByRegion = grouped,
@@ -51,7 +61,7 @@ class GetInstructorDetailUseCase @Inject constructor(
     }
 }
 
-sealed interface Result<out T, out E> {
-    data class Ok<T>(val value: T) : Result<T, Nothing>
-    data class Err<E>(val error: E) : Result<Nothing, E>
+sealed interface DetailLoadResult<out T, out E> {
+    data class Ok<T>(val value: T) : DetailLoadResult<T, Nothing>
+    data class Err<E>(val error: E) : DetailLoadResult<Nothing, E>
 }
