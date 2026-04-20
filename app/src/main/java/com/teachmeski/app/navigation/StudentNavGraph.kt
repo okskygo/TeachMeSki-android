@@ -14,7 +14,7 @@ import com.teachmeski.app.ui.account.LegalScreen
 import com.teachmeski.app.ui.chat.ChatRoomListScreen
 import com.teachmeski.app.ui.myrequests.MyRequestsScreen
 import com.teachmeski.app.ui.myrequests.RequestDetailScreen
-import com.teachmeski.app.ui.profile.InstructorDetailScreen
+import com.teachmeski.app.ui.profile.detail.InstructorDetailScreen
 import com.teachmeski.app.ui.wizard.LessonRequestWizardScreen
 
 fun NavGraphBuilder.studentNavGraph(

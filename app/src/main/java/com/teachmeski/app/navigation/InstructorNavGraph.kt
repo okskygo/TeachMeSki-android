@@ -11,6 +11,7 @@ import com.teachmeski.app.ui.account.InstructorAccountScreen
 import com.teachmeski.app.ui.account.LegalScreen
 import com.teachmeski.app.ui.chat.ChatRoomListScreen
 import com.teachmeski.app.ui.explore.ExploreScreen
+import com.teachmeski.app.ui.profile.detail.InstructorDetailScreen
 import com.teachmeski.app.ui.unlocked.UnlockedScreen
 
 fun NavGraphBuilder.instructorNavGraph(
@@ -70,6 +71,11 @@ fun NavGraphBuilder.instructorNavGraph(
                 onNavigateToTerms = { navController.navigate(Route.Legal(type = "terms")) },
                 onNavigateToPrivacy = { navController.navigate(Route.Legal(type = "privacy")) },
                 onSignedOut = { },
+            )
+        }
+        composable<Route.InstructorDetail> {
+            InstructorDetailScreen(
+                onBack = { navController.popBackStack() },
             )
         }
         composable<Route.Contact> {
