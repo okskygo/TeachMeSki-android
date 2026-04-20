@@ -23,12 +23,7 @@ import com.teachmeski.app.domain.model.Discipline
 @Composable
 fun DetailDisciplineSection(discipline: Discipline) {
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_discipline_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_discipline_label))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (discipline == Discipline.Ski || discipline == Discipline.Both) {
                 DisciplineRow(Icons.Filled.DownhillSkiing, R.string.instructor_detail_discipline_ski)

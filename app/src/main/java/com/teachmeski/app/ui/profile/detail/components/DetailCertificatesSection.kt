@@ -33,12 +33,7 @@ fun DetailCertificatesSection(certificates: List<String>) {
     var lightboxIndex by remember { mutableStateOf<Int?>(null) }
 
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_certificates_title),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_certificates_title))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 4.dp),

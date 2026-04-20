@@ -32,12 +32,7 @@ fun DetailLanguagesSection(languages: List<String>) {
     }
     val separator = stringResource(R.string.instructor_detail_language_separator)
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_languages_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_languages_label))
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,

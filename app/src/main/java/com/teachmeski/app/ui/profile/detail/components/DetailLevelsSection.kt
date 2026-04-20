@@ -26,12 +26,7 @@ fun DetailLevelsSection(
 ) {
     val sorted = levels.sorted()
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_levels_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_levels_label))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             sorted.forEach { lv ->
                 LevelRow(lv, discipline)
@@ -72,19 +67,19 @@ private fun descriptionRes(level: Int, discipline: Discipline): Int? {
     val isSnowboardOnly = discipline == Discipline.Snowboard
     return when {
         isSnowboardOnly -> when (level) {
+            0 -> R.string.instructor_detail_level_desc_snowboard_0
             1 -> R.string.instructor_detail_level_desc_snowboard_1
             2 -> R.string.instructor_detail_level_desc_snowboard_2
             3 -> R.string.instructor_detail_level_desc_snowboard_3
             4 -> R.string.instructor_detail_level_desc_snowboard_4
-            5 -> R.string.instructor_detail_level_desc_snowboard_5
             else -> null
         }
         else -> when (level) {
+            0 -> R.string.instructor_detail_level_desc_ski_0
             1 -> R.string.instructor_detail_level_desc_ski_1
             2 -> R.string.instructor_detail_level_desc_ski_2
             3 -> R.string.instructor_detail_level_desc_ski_3
             4 -> R.string.instructor_detail_level_desc_ski_4
-            5 -> R.string.instructor_detail_level_desc_ski_5
             else -> null
         }
     }

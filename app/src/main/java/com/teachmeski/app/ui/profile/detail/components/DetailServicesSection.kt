@@ -27,12 +27,7 @@ fun DetailServicesSection(
     offersPhotography: Boolean,
 ) {
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_services_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_services_label))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ServiceRow(
                 icon = Icons.Default.DirectionsCar,

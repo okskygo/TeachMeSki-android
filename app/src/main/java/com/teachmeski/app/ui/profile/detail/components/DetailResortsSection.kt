@@ -29,12 +29,7 @@ import com.teachmeski.app.domain.model.Region
 @Composable
 fun DetailResortsSection(groups: List<Region>) {
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_resorts_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_resorts_label))
         if (groups.isEmpty()) {
             Text(
                 text = stringResource(R.string.instructor_detail_no_resorts),

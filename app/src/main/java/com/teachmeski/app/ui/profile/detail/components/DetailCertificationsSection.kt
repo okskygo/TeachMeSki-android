@@ -25,12 +25,7 @@ fun DetailCertificationsSection(
     val hasOther = !certificationOther.isNullOrBlank()
     val isEmpty = certifications.isEmpty() && !hasOther
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_certifications_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_certifications_label))
         if (isEmpty) {
             Text(
                 text = stringResource(R.string.instructor_detail_no_certifications),

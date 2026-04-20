@@ -26,12 +26,7 @@ fun DetailPricingSection(
 ) {
     val noPrice = priceHalfDay == null && priceFullDay == null
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_pricing_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_pricing_label))
         if (noPrice) {
             Text(
                 text = stringResource(R.string.instructor_detail_price_not_set),

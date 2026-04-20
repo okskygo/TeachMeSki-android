@@ -10,12 +10,7 @@ import com.teachmeski.app.R
 @Composable
 fun DetailBioSection(bio: String) {
     SectionCard {
-        Text(
-            text = stringResource(R.string.instructor_detail_bio_label),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SectionLabel(text = stringResource(R.string.instructor_detail_bio_label))
         Text(
             text = bio,
             style = MaterialTheme.typography.bodyLarge,
