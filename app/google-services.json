@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "839392381703",
+    "project_id": "teachmeski",
+    "storage_bucket": "teachmeski.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839392381703:android:f1f768a5ce97b7e115d3a2",
+        "android_client_info": {
+          "package_name": "com.teachmeski.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3B2WAkgV1mTpjPGQxSolM4pU9sHAM7RY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

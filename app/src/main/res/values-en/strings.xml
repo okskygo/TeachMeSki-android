@@ -889,4 +889,14 @@
     <string name="instructor_detail_lightbox_prev">Previous</string>
     <string name="instructor_detail_lightbox_next">Next</string>
     <string name="instructor_detail_rating_default">0.0</string>
+
+    <!-- Notification channels -->
+    <string name="notif_channel_lesson_requests">Lesson Requests</string>
+    <string name="notif_channel_lesson_requests_desc">New ski lesson request notifications</string>
+    <string name="notif_channel_messages">Messages</string>
+    <string name="notif_channel_messages_desc">Chat messages and student connections</string>
+    <string name="notif_channel_wallet">Wallet</string>
+    <string name="notif_channel_wallet_desc">Token refunds and transactions</string>
+    <string name="notif_permission_rationale_title">Turn on notifications</string>
+    <string name="notif_permission_rationale_body">Get notified about lesson requests, chat messages and token changes.</string>
 </resources>

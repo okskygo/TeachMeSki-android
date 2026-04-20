@@ -887,4 +887,14 @@
     <string name="instructor_detail_lightbox_prev">上一張</string>
     <string name="instructor_detail_lightbox_next">下一張</string>
     <string name="instructor_detail_rating_default">0.0</string>
+
+    <!-- Notification channels -->
+    <string name="notif_channel_lesson_requests">課程需求</string>
+    <string name="notif_channel_lesson_requests_desc">新的滑雪課程需求通知</string>
+    <string name="notif_channel_messages">訊息</string>
+    <string name="notif_channel_messages_desc">聊天訊息與學員聯繫通知</string>
+    <string name="notif_channel_wallet">代幣錢包</string>
+    <string name="notif_channel_wallet_desc">代幣退還與交易通知</string>
+    <string name="notif_permission_rationale_title">開啟通知</string>
+    <string name="notif_permission_rationale_body">接收課程需求、聊天訊息與代幣變動通知</string>
 </resources>

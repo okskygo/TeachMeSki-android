@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.UserRepository
+import com.teachmeski.app.notifications.PushTokenManager
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,6 +43,7 @@ data class AccountUiState(
 class AccountViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
+    private val pushTokenManager: PushTokenManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -216,5 +218,8 @@ class AccountViewModel @Inject constructor(
         _uiState.update { it.copy(saveSuccess = false) }
     }
 
-    suspend fun signOut(): Resource<Unit> = authRepository.signOut()
+    suspend fun signOut(): Resource<Unit> {
+        pushTokenManager.unregisterCurrentDeviceToken()
+        return authRepository.signOut()
+    }
 }

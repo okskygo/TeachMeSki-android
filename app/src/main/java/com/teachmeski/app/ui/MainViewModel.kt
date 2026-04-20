@@ -9,6 +9,8 @@ import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ChatRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.UserRepository
+import com.teachmeski.app.notifications.NotificationDeepLinkBus
+import com.teachmeski.app.notifications.PushTokenManager
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.RolePreferences
@@ -38,6 +40,8 @@ class MainViewModel @Inject constructor(
     private val instructorRepository: InstructorRepository,
     private val pendingProfile: PendingInstructorProfile,
     private val chatRepository: ChatRepository,
+    private val pushTokenManager: PushTokenManager,
+    val notificationDeepLinkBus: NotificationDeepLinkBus,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MainUiState>(MainUiState.Loading)
@@ -126,6 +130,7 @@ class MainViewModel @Inject constructor(
                 rolePreferences.setLastActiveRole(userId, activeRole)
                 _uiState.value = MainUiState.Authenticated(activeRole, user.role)
                 refreshUnreadCount()
+                pushTokenManager.registerCurrentDeviceToken(userId)
             }
             is Resource.Error -> {
                 _uiState.value = MainUiState.Unauthenticated
@@ -155,6 +160,7 @@ class MainViewModel @Inject constructor(
 
     fun signOut() {
         viewModelScope.launch {
+            pushTokenManager.unregisterCurrentDeviceToken()
             authRepository.signOut()
         }
     }

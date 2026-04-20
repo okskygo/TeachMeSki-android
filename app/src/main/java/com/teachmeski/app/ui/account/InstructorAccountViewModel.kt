@@ -7,6 +7,7 @@ import com.teachmeski.app.domain.model.TokenWallet
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.WalletRepository
+import com.teachmeski.app.notifications.PushTokenManager
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,7 @@ class InstructorAccountViewModel @Inject constructor(
     private val instructorRepository: InstructorRepository,
     private val walletRepository: WalletRepository,
     private val authRepository: AuthRepository,
+    private val pushTokenManager: PushTokenManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InstructorAccountUiState())
@@ -82,6 +84,7 @@ class InstructorAccountViewModel @Inject constructor(
     fun signOut() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSigningOut = true, error = null) }
+            pushTokenManager.unregisterCurrentDeviceToken()
             when (val result = authRepository.signOut()) {
                 is Resource.Success -> {
                     _uiState.update {

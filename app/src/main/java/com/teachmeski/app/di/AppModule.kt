@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.teachmeski.app.BuildConfig
 import dagger.Module
 import dagger.Provides
@@ -42,4 +43,8 @@ object AppModule {
     @Singleton
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         context.dataStore
+
+    @Provides
+    @Singleton
+    fun provideFirebaseMessaging(): FirebaseMessaging = FirebaseMessaging.getInstance()
 }

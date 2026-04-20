@@ -4,6 +4,7 @@ import com.teachmeski.app.data.repository.AuthRepositoryImpl
 import com.teachmeski.app.data.repository.BlockRepositoryImpl
 import com.teachmeski.app.data.repository.ChatRepositoryImpl
 import com.teachmeski.app.data.repository.ContactRepositoryImpl
+import com.teachmeski.app.data.repository.DeviceTokenRepositoryImpl
 import com.teachmeski.app.data.repository.ExploreRepositoryImpl
 import com.teachmeski.app.data.repository.InstructorRepositoryImpl
 import com.teachmeski.app.data.repository.LessonRequestRepositoryImpl
@@ -17,6 +18,7 @@ import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.BlockRepository
 import com.teachmeski.app.domain.repository.ChatRepository
 import com.teachmeski.app.domain.repository.ContactRepository
+import com.teachmeski.app.domain.repository.DeviceTokenRepository
 import com.teachmeski.app.domain.repository.ExploreRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.LessonRequestRepository
@@ -88,4 +90,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindReviewRepository(impl: ReviewRepositoryImpl): ReviewRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDeviceTokenRepository(impl: DeviceTokenRepositoryImpl): DeviceTokenRepository
 }

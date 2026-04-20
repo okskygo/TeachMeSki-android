@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.teachmeski.app.notifications.NotificationChannelRegistry
 import dagger.hilt.android.HiltAndroidApp
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.realtime.realtime
@@ -25,6 +26,7 @@ class TeachMeSkiApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        NotificationChannelRegistry.createAll(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(RealtimeLifecycleObserver())
     }
 
