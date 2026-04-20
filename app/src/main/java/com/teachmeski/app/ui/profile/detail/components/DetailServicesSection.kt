@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
+import com.teachmeski.app.ui.theme.TmsColor
 
 @Composable
 fun DetailServicesSection(
@@ -70,14 +71,14 @@ private fun ServiceRow(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.tertiary,
+                    tint = TmsColor.Success,
                     modifier = Modifier.size(16.dp),
                 )
                 Text(
                     text = stringResource(R.string.instructor_detail_service_yes),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = TmsColor.Success,
                 )
             }
         } else {
