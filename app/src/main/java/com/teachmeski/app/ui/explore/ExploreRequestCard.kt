@@ -59,9 +59,15 @@ import java.util.TimeZone
 private fun parseIsoMillis(raw: String): Long? {
     val s = raw.trim()
     if (s.isEmpty()) return null
-    try {
-        SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(s)?.time?.let { return it }
-    } catch (_: Exception) { /* fall through */ }
+    // Only take the date-only fast path for strings that are exactly a plain
+    // `yyyy-MM-dd` (10 chars). SimpleDateFormat silently accepts trailing
+    // input, so without this guard `2026-04-20T16:04:49+00:00` would be
+    // parsed as local-midnight 2026-04-20 and render as "1 day ago".
+    if (s.length == 10) {
+        try {
+            SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(s)?.time?.let { return it }
+        } catch (_: Exception) { /* fall through */ }
+    }
 
     val patterns = listOf(
         "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
