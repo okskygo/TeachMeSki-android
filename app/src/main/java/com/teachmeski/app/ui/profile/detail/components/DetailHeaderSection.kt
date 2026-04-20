@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InstructorProfile
+import com.teachmeski.app.ui.component.PhoneVerificationBadge
 import java.util.Locale
 
 @Composable
@@ -35,12 +36,18 @@ fun DetailHeaderSection(profile: InstructorProfile) {
         ) {
             AvatarCircle(profile)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = profile.displayName,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = profile.displayName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    PhoneVerificationBadge(verified = profile.phoneVerifiedAt != null)
+                }
                 RatingRow(profile)
             }
         }
