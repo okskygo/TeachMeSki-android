@@ -35,19 +35,14 @@ fun DetailHeaderSection(profile: InstructorProfile) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AvatarCircle(profile)
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = profile.displayName,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    PhoneVerificationBadge(verified = profile.phoneVerifiedAt != null)
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = profile.displayName,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                PhoneVerificationBadge(verified = profile.phoneVerifiedAt != null)
                 RatingRow(profile)
             }
         }
