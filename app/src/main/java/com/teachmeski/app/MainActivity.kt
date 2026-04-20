@@ -5,13 +5,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,12 +51,28 @@ class MainActivity : ComponentActivity() {
 private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
     val mainState by mainViewModel.uiState.collectAsStateWithLifecycle()
 
-    when (val state = mainState) {
-        is MainUiState.Loading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+    // Keep the last resolved (non-Loading) state so that transient Loading
+    // emissions (e.g. Supabase re-emitting Initializing after the app returns
+    // from background) do NOT tear down AuthenticatedApp and rebuild the
+    // NavController, which would reset the user's current screen.
+    var lastResolved by remember { mutableStateOf<MainUiState?>(null) }
+    LaunchedEffect(mainState) {
+        if (mainState !is MainUiState.Loading) {
+            lastResolved = mainState
         }
+    }
+
+    val resolved = lastResolved
+    if (resolved == null) {
+        // Initial cold start — no state resolved yet.
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    when (resolved) {
+        is MainUiState.Loading -> Unit // unreachable by construction
         is MainUiState.Unauthenticated -> {
             AuthenticatedApp(
                 isAuthenticated = false,
@@ -66,9 +87,9 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
         is MainUiState.Authenticated -> {
             AuthenticatedApp(
                 isAuthenticated = true,
-                activeRole = state.activeRole,
-                userRole = state.userRole,
-                unreadCount = state.unreadCount,
+                activeRole = resolved.activeRole,
+                userRole = resolved.userRole,
+                unreadCount = resolved.unreadCount,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
                 onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
                 onRefreshUnreadCount = { mainViewModel.refreshUnreadCount() },
@@ -132,7 +153,18 @@ private fun AuthenticatedApp(
         else -> null
     }
 
+    // Only reset the nav back stack when the (isAuthenticated, activeRole)
+    // tuple ACTUALLY changes — not on every recomposition. Without this guard,
+    // returning from background can re-run this effect and pop the user back
+    // to the home tab, losing their current screen.
+    var lastHandled by remember {
+        mutableStateOf<Pair<Boolean, ActiveRole>?>(null)
+    }
     LaunchedEffect(isAuthenticated, activeRole) {
+        val current = isAuthenticated to activeRole
+        if (lastHandled == current) return@LaunchedEffect
+        lastHandled = current
+
         if (isAuthenticated) {
             val startRoute: Route = when (activeRole) {
                 ActiveRole.Student -> Route.StudentGraph
@@ -151,6 +183,11 @@ private fun AuthenticatedApp(
     }
 
     Scaffold(
+        // Fullscreen routes (Chat, wizards) handle system bar insets themselves
+        // via their own TopAppBar / bottom bars. Zero out here so the outer
+        // Scaffold does NOT reserve status/nav bar space that would leak the
+        // default background color behind inner content.
+        contentWindowInsets = if (isFullscreenRoute) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
         bottomBar = {
             if (showBottomBar) {
                 TmsBottomBar(

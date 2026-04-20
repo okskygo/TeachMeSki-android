@@ -1,8 +1,12 @@
 package com.teachmeski.app.ui.theme
 
+import android.app.Activity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val TmsLightColorScheme = lightColorScheme(
     primary = TmsColor.Primary,
@@ -33,6 +37,19 @@ private val TmsLightColorScheme = lightColorScheme(
 
 @Composable
 fun TeachMeSkiTheme(content: @Composable () -> Unit) {
+    // The app currently only supports a light color scheme on a light surface
+    // background. Force dark status/navigation bar icons so they remain legible
+    // against the light background under edge-to-edge.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = true
+            controller.isAppearanceLightNavigationBars = true
+        }
+    }
+
     MaterialTheme(
         colorScheme = TmsLightColorScheme,
         typography = TmsTypography,
