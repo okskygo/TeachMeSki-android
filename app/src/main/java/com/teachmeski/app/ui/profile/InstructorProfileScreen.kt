@@ -152,6 +152,7 @@ fun InstructorProfileScreen(
     viewModel: InstructorProfileViewModel = hiltViewModel(),
     onBack: () -> Unit,
     onPreview: (shortId: String) -> Unit = {},
+    onNavigateToAccountSettings: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -313,6 +314,7 @@ fun InstructorProfileScreen(
                         onAvatarClick = { avatarPicker.launch("image/*") },
                         onEditName = { viewModel.openDialog(ProfileEditDialog.DisplayName) },
                         onEditBio = { viewModel.openDialog(ProfileEditDialog.Bio) },
+                        onVerifyPhone = onNavigateToAccountSettings,
                     )
                     AcceptingToggleCard(
                         isAccepting = profile.isAcceptingRequests,
@@ -585,7 +587,10 @@ private fun HeaderCard(
     onAvatarClick: () -> Unit,
     onEditName: () -> Unit,
     onEditBio: () -> Unit,
+    onVerifyPhone: () -> Unit,
 ) {
+    var showVerifyPhoneDialog by remember { mutableStateOf(false) }
+    val phoneVerified = profile.phoneVerifiedAt != null
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -635,17 +640,21 @@ private fun HeaderCard(
                             )
                         }
                     }
-                    Text(
-                        text = profile.email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
                 }
             }
             PhoneVerificationBadge(
-                verified = profile.phoneVerifiedAt != null,
+                verified = phoneVerified,
                 verifiedLabel = stringResource(R.string.instructor_profile_phone_verified),
                 unverifiedLabel = stringResource(R.string.instructor_profile_phone_not_verified),
+                modifier =
+                    if (!phoneVerified) {
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) { showVerifyPhoneDialog = true }
+                    } else {
+                        Modifier
+                    },
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -674,6 +683,29 @@ private fun HeaderCard(
                 color = TmsColor.OnSurfaceVariant,
             )
         }
+    }
+
+    if (showVerifyPhoneDialog) {
+        AlertDialog(
+            onDismissRequest = { showVerifyPhoneDialog = false },
+            title = { Text(stringResource(R.string.instructor_profile_phone_verify_dialog_title)) },
+            text = { Text(stringResource(R.string.instructor_profile_phone_verify_dialog_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showVerifyPhoneDialog = false
+                        onVerifyPhone()
+                    },
+                ) {
+                    Text(stringResource(R.string.instructor_profile_phone_verify_dialog_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showVerifyPhoneDialog = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            },
+        )
     }
 }
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,11 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -74,26 +75,33 @@ fun AccountScreen(
             modifier = Modifier.padding(bottom = 16.dp),
         )
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            AccountMenuRow(
-                title = stringResource(R.string.account_title),
-                onClick = onAccountSettingsClick,
-            )
+        // Group 1 — Role expansion & account settings
+        AccountSection {
             AccountMenuRow(
                 title = stringResource(R.string.role_switch_to_instructor),
                 onClick = if (userRole == UserRole.Both) onSwitchToInstructor else onNavigateToWizard,
             )
+            AccountRowDivider()
+            AccountMenuRow(
+                title = stringResource(R.string.account_title),
+                onClick = onAccountSettingsClick,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Group 2 — Support & legal
+        AccountSection {
             AccountMenuRow(
                 title = stringResource(R.string.contact_title),
                 onClick = onContactClick,
             )
+            AccountRowDivider()
             AccountMenuRow(
                 title = stringResource(R.string.legal_terms_title),
                 onClick = onTermsClick,
             )
+            AccountRowDivider()
             AccountMenuRow(
                 title = stringResource(R.string.legal_privacy_title),
                 onClick = onPrivacyClick,
@@ -148,6 +156,26 @@ fun AccountScreen(
 }
 
 @Composable
+private fun AccountSection(content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TmsColor.SurfaceLowest, RoundedCornerShape(16.dp)),
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun AccountRowDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        thickness = 1.dp,
+        color = TmsColor.SurfaceVariant,
+    )
+}
+
+@Composable
 private fun AccountMenuRow(
     title: String,
     onClick: () -> Unit,
@@ -165,11 +193,7 @@ private fun AccountMenuRow(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .background(
-                TmsColor.SurfaceLowest,
-                MaterialTheme.shapes.medium,
-            ),
+            .clickable(onClick = onClick),
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     )
 }

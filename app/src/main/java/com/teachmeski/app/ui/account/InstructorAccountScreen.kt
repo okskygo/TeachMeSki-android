@@ -3,7 +3,6 @@ package com.teachmeski.app.ui.account
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,12 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -81,18 +82,13 @@ fun InstructorAccountScreen(
             modifier = Modifier.padding(bottom = 16.dp),
         )
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        // Group 1 — Instructor identity & assets
+        InstructorAccountSection {
             InstructorAccountMenuRow(
-                title = stringResource(R.string.instructor_account_switch_to_student),
-                onClick = onSwitchToStudent,
+                title = stringResource(R.string.instructor_account_profile_entry),
+                onClick = onNavigateToProfile,
             )
-            InstructorAccountMenuRow(
-                title = stringResource(R.string.instructor_account_settings_entry),
-                onClick = onNavigateToAccountSettings,
-            )
+            InstructorAccountRowDivider()
             InstructorAccountMenuRow(
                 title = stringResource(R.string.instructor_account_wallet_entry),
                 trailingText = stringResource(
@@ -101,18 +97,37 @@ fun InstructorAccountScreen(
                 ),
                 onClick = onNavigateToWallet,
             )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Group 2 — Role switching & account settings
+        InstructorAccountSection {
             InstructorAccountMenuRow(
-                title = stringResource(R.string.instructor_account_profile_entry),
-                onClick = onNavigateToProfile,
+                title = stringResource(R.string.instructor_account_switch_to_student),
+                onClick = onSwitchToStudent,
             )
+            InstructorAccountRowDivider()
+            InstructorAccountMenuRow(
+                title = stringResource(R.string.instructor_account_settings_entry),
+                onClick = onNavigateToAccountSettings,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Group 3 — Support & legal
+        InstructorAccountSection {
             InstructorAccountMenuRow(
                 title = stringResource(R.string.contact_title),
                 onClick = onNavigateToContact,
             )
+            InstructorAccountRowDivider()
             InstructorAccountMenuRow(
                 title = stringResource(R.string.legal_terms_title),
                 onClick = onNavigateToTerms,
             )
+            InstructorAccountRowDivider()
             InstructorAccountMenuRow(
                 title = stringResource(R.string.legal_privacy_title),
                 onClick = onNavigateToPrivacy,
@@ -168,6 +183,26 @@ fun InstructorAccountScreen(
 }
 
 @Composable
+private fun InstructorAccountSection(content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TmsColor.SurfaceLowest, RoundedCornerShape(16.dp)),
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun InstructorAccountRowDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        thickness = 1.dp,
+        color = TmsColor.SurfaceVariant,
+    )
+}
+
+@Composable
 private fun InstructorAccountMenuRow(
     title: String,
     trailingText: String? = null,
@@ -196,11 +231,7 @@ private fun InstructorAccountMenuRow(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .background(
-                TmsColor.SurfaceLowest,
-                MaterialTheme.shapes.medium,
-            ),
+            .clickable(onClick = onClick),
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     )
 }
