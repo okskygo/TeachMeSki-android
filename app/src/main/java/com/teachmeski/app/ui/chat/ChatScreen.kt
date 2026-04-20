@@ -271,6 +271,7 @@ fun ChatScreen(
                         is InfoPanelData.StudentPanel -> StudentInfoPanel(
                             data = info,
                             isBlockedByMe = uiState.isBlockedByMe,
+                            hasSentMessage = detail?.hasSentMessage == true,
                             onReviewClick = viewModel::showReviewDialog,
                             onNavigateToInstructor = onNavigateToInstructor,
                             onBlockToggle = viewModel::toggleBlock,

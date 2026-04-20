@@ -730,7 +730,7 @@
 
     <!-- Phase 5: Chat Screen -->
     <string name="chat_input_placeholder">輸入訊息…</string>
-    <string name="chat_send">傳送</string>
+    <string name="chat_send">送出</string>
     <string name="chat_send_error">傳送失敗，請再試一次</string>
     <string name="chat_char_count_fmt">%1$d / 2000</string>
     <string name="chat_blocked_notice">此對話已被封鎖</string>
@@ -747,6 +747,14 @@
     <string name="chat_panel_review_btn">評價教練</string>
     <string name="chat_panel_reviewed">已評價</string>
     <string name="chat_panel_section_lesson_request">課程需求</string>
+    <string name="chat_panel_my_request_title">MY LESSON REQUEST</string>
+    <string name="chat_panel_rating_short_fmt">★ %1$.1f</string>
+    <string name="chat_panel_skill_level_short_fmt">Lv %1$d</string>
+    <string name="chat_panel_dates_undecided">日期尚未確定</string>
+    <string name="chat_panel_dates_flexible_suffix">（彈性）</string>
+    <string name="chat_panel_duration_half_day">半天</string>
+    <string name="chat_panel_review_disabled_hint">請先發送訊息後才能評價</string>
+    <string name="chat_panel_resort_count_fmt">%1$d 個雪場</string>
     <string name="chat_panel_discipline">滑行項目</string>
     <string name="chat_panel_skill_level">程度</string>
     <string name="chat_panel_group">人數</string>

@@ -264,6 +264,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun showReviewDialog() {
+        if (_uiState.value.roomDetail?.hasSentMessage != true) return
         _uiState.update { it.copy(showReviewDialog = true) }
     }
 

@@ -749,6 +749,14 @@
     <string name="chat_panel_review_btn">Review Instructor</string>
     <string name="chat_panel_reviewed">Reviewed</string>
     <string name="chat_panel_section_lesson_request">Lesson Request</string>
+    <string name="chat_panel_my_request_title">MY LESSON REQUEST</string>
+    <string name="chat_panel_rating_short_fmt">★ %1$.1f</string>
+    <string name="chat_panel_skill_level_short_fmt">Lv %1$d</string>
+    <string name="chat_panel_dates_undecided">Dates not yet decided</string>
+    <string name="chat_panel_dates_flexible_suffix">(flexible)</string>
+    <string name="chat_panel_duration_half_day">Half day</string>
+    <string name="chat_panel_review_disabled_hint">Send a message first to review</string>
+    <string name="chat_panel_resort_count_fmt">%1$d resorts</string>
     <string name="chat_panel_discipline">Discipline</string>
     <string name="chat_panel_skill_level">Level</string>
     <string name="chat_panel_group">Group Size</string>
