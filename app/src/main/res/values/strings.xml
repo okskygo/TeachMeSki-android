@@ -897,4 +897,7 @@
     <string name="notif_channel_wallet_desc">代幣退還與交易通知</string>
     <string name="notif_permission_rationale_title">開啟通知</string>
     <string name="notif_permission_rationale_body">接收課程需求、聊天訊息與代幣變動通知</string>
+    <plurals name="notif_chat_new_messages_count">
+        <item quantity="other">%d 則新訊息</item>
+    </plurals>
 </resources>

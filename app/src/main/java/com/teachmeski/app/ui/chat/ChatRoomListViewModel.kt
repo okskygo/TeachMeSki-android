@@ -3,14 +3,17 @@ package com.teachmeski.app.ui.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.domain.model.ChatRoom
+import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ChatRepository
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -35,17 +38,66 @@ data class ChatRoomListUiState(
 @HiltViewModel
 class ChatRoomListViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatRoomListUiState())
     val uiState: StateFlow<ChatRoomListUiState> = _uiState.asStateFlow()
 
     private val loadMutex = Mutex()
+    private var inboxJob: Job? = null
 
     init {
         viewModelScope.launch {
             loadPage(reset = true)
         }
+        startInboxSubscription()
+    }
+
+    private fun startInboxSubscription() {
+        if (inboxJob?.isActive == true) return
+        inboxJob = viewModelScope.launch {
+            chatRepository.subscribeToInboxFlow()
+                .catch { /* Non-fatal: list will still refresh on resume/pull-to-refresh */ }
+                .collect { update -> applyInboxUpdate(update) }
+        }
+    }
+
+    private suspend fun applyInboxUpdate(update: com.teachmeski.app.domain.model.InboxRoomUpdate) {
+        val currentUserId = authRepository.currentUserId() ?: return
+        val existing = _uiState.value.rooms.firstOrNull { it.id == update.roomId }
+        if (existing == null) {
+            // New room for this user (e.g. first message in a freshly-created Path-B room).
+            loadPage(reset = true)
+            return
+        }
+
+        val senderIsMe = update.senderId != null && update.senderId == currentUserId
+        val newUnread = when {
+            senderIsMe -> existing.unreadCount
+            else -> existing.unreadCount + 1
+        }
+
+        val updatedRoom = existing.copy(
+            lastMessage = update.lastMessage ?: existing.lastMessage,
+            lastMessageAt = update.lastMessageAt ?: existing.lastMessageAt,
+            lastMessageSenderId = update.senderId ?: existing.lastMessageSenderId,
+            unreadCount = newUnread,
+        )
+
+        _uiState.update { s ->
+            val reordered = buildList<ChatRoom>(s.rooms.size) {
+                add(updatedRoom)
+                s.rooms.forEach { if (it.id != updatedRoom.id) add(it) }
+            }
+            s.copy(rooms = reordered)
+        }
+    }
+
+    override fun onCleared() {
+        inboxJob?.cancel()
+        inboxJob = null
+        super.onCleared()
     }
 
     fun loadPage(reset: Boolean) {

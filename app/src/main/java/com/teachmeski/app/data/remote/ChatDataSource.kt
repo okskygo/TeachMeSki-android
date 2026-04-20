@@ -437,8 +437,48 @@ class ChatDataSource @Inject constructor(
         }
     }
 
+    /**
+     * Subscribes to Realtime topic `inbox:{userId}` broadcast event [ROOM_UPDATED_EVENT].
+     * Matches web `ChatRoomList.tsx` subscription. Payload shape:
+     * { room_id, last_message, last_message_at, sender_id }
+     */
+    fun inboxUpdatesFlow(userId: String): Flow<InboxRoomUpdateDto> = channelFlow {
+        val topic = "inbox:$userId"
+        val channel = supabaseClient.realtime.channel(topic)
+        val collectJob = launch {
+            channel.broadcastFlow<InboxRoomUpdateDto>(ROOM_UPDATED_EVENT).collect { dto ->
+                send(dto)
+            }
+        }
+        try {
+            channel.subscribe(blockUntilSubscribed = true)
+        } catch (e: Exception) {
+            collectJob.cancel()
+            close(e)
+            return@channelFlow
+        }
+        awaitClose {
+            collectJob.cancel()
+            runBlocking {
+                try {
+                    channel.unsubscribe()
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
+    @Serializable
+    data class InboxRoomUpdateDto(
+        @SerialName("room_id") val roomId: String,
+        @SerialName("last_message") val lastMessage: String? = null,
+        @SerialName("last_message_at") val lastMessageAt: String? = null,
+        @SerialName("sender_id") val senderId: String? = null,
+    )
+
     private companion object {
         const val NEW_MESSAGE_EVENT = "new_message"
+        const val ROOM_UPDATED_EVENT = "room_updated"
     }
 
     private fun JsonObject.toAnyValueMap(): Map<String, Any?> =

@@ -899,4 +899,8 @@
     <string name="notif_channel_wallet_desc">Token refunds and transactions</string>
     <string name="notif_permission_rationale_title">Turn on notifications</string>
     <string name="notif_permission_rationale_body">Get notified about lesson requests, chat messages and token changes.</string>
+    <plurals name="notif_chat_new_messages_count">
+        <item quantity="one">%d new message</item>
+        <item quantity="other">%d new messages</item>
+    </plurals>
 </resources>

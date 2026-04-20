@@ -7,6 +7,7 @@ import com.teachmeski.app.domain.model.ChatMessage
 import com.teachmeski.app.domain.model.ChatRole
 import com.teachmeski.app.domain.model.ChatRoom
 import com.teachmeski.app.domain.model.ChatRoomDetail
+import com.teachmeski.app.domain.model.InboxRoomUpdate
 import com.teachmeski.app.domain.model.InfoPanelData
 import com.teachmeski.app.domain.model.LessonRequestDisplay
 import com.teachmeski.app.domain.model.OtherParty
@@ -21,6 +22,9 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 @Singleton
@@ -293,6 +297,21 @@ class ChatRepositoryImpl @Inject constructor(
 
     override fun subscribeToRoomFlow(roomId: String): Flow<ChatMessage> =
         chatDataSource.roomNewMessagesFlow(roomId).map { it.toDomain() }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override fun subscribeToInboxFlow(): Flow<InboxRoomUpdate> =
+        flow { emit(authRepository.currentUserId()) }
+            .flatMapLatest { userId ->
+                if (userId.isNullOrBlank()) emptyFlow()
+                else chatDataSource.inboxUpdatesFlow(userId).map { dto ->
+                    InboxRoomUpdate(
+                        roomId = dto.roomId,
+                        lastMessage = dto.lastMessage,
+                        lastMessageAt = dto.lastMessageAt,
+                        senderId = dto.senderId,
+                    )
+                }
+            }
 
     override suspend fun unlockPathBConversation(roomId: String, message: String): Resource<String> {
         return try {

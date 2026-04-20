@@ -11,9 +11,13 @@ import com.teachmeski.app.domain.repository.BlockRepository
 import com.teachmeski.app.domain.repository.ChatRepository
 import com.teachmeski.app.domain.repository.ReportRepository
 import com.teachmeski.app.domain.repository.ReviewRepository
+import com.teachmeski.app.notifications.ActiveRoomTracker
+import com.teachmeski.app.notifications.NotificationDisplay
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import android.content.Context
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -56,6 +60,8 @@ class ChatViewModel @Inject constructor(
     private val blockRepository: BlockRepository,
     private val reportRepository: ReportRepository,
     private val reviewRepository: ReviewRepository,
+    private val activeRoomTracker: ActiveRoomTracker,
+    @ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -68,6 +74,10 @@ class ChatViewModel @Inject constructor(
     private var realtimeJob: Job? = null
 
     init {
+        if (roomId.isNotBlank()) {
+            activeRoomTracker.setActiveRoom(roomId)
+            NotificationDisplay.clearRoomNotifications(appContext, roomId)
+        }
         load(showFullScreenLoader = true)
     }
 
@@ -434,6 +444,7 @@ class ChatViewModel @Inject constructor(
 
     override fun onCleared() {
         stopRealtimeSubscription()
+        if (roomId.isNotBlank()) activeRoomTracker.clearActiveRoom(roomId)
         super.onCleared()
     }
 }
