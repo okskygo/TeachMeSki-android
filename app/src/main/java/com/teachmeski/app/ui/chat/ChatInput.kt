@@ -1,19 +1,25 @@
 package com.teachmeski.app.ui.chat
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -36,64 +44,81 @@ fun ChatInput(
 ) {
     var text by remember { mutableStateOf("") }
     val max = 2000
-    val showCounter = text.length > max * 0.8
+    val canSend = text.isNotBlank() && !isSending && text.length <= max
 
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .background(TmsColor.SurfaceLowest)
-            .padding(12.dp),
+            .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.Bottom,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(TmsColor.SurfaceLow)
+                .border(
+                    width = 1.dp,
+                    color = TmsColor.OutlineVariant.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(12.dp),
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
-            OutlinedTextField(
+            BasicTextField(
                 value = text,
                 onValueChange = { if (it.length <= max) text = it },
-                modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.chat_input_placeholder),
-                        color = TmsColor.Outline,
-                    )
-                },
-                minLines = 1,
-                maxLines = 5,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = TmsColor.OnSurface,
-                    unfocusedTextColor = TmsColor.OnSurface,
-                    focusedContainerColor = TmsColor.SurfaceLowest,
-                    unfocusedContainerColor = TmsColor.SurfaceLowest,
-                    focusedBorderColor = TmsColor.OutlineVariant,
-                    unfocusedBorderColor = TmsColor.OutlineVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 20.dp, max = 124.dp),
+                textStyle = LocalTextStyle.current.merge(
+                    MaterialTheme.typography.bodyMedium.copy(color = TmsColor.OnSurface),
                 ),
+                cursorBrush = SolidColor(TmsColor.Primary),
+                maxLines = 5,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                 keyboardActions = KeyboardActions(),
-            )
-            IconButton(
-                onClick = {
-                    val t = text.trim()
-                    if (t.isNotEmpty() && !isSending && t.length <= max) {
-                        onSend(t)
-                        text = ""
+                decorationBox = { innerTextField ->
+                    if (text.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.chat_input_placeholder),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TmsColor.Outline,
+                        )
                     }
+                    innerTextField()
                 },
-                enabled = text.isNotBlank() && !isSending && text.length <= max,
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.chat_send),
-                    tint = TmsColor.Primary,
-                )
-            }
+            )
         }
-        if (showCounter) {
+
+        Button(
+            onClick = {
+                val t = text.trim()
+                if (t.isNotEmpty() && !isSending && t.length <= max) {
+                    onSend(t)
+                    text = ""
+                }
+            },
+            enabled = canSend,
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = TmsColor.Primary,
+                contentColor = TmsColor.OnPrimary,
+                disabledContainerColor = TmsColor.Primary.copy(alpha = 0.4f),
+                disabledContentColor = TmsColor.OnPrimary.copy(alpha = 0.8f),
+            ),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                horizontal = 20.dp,
+                vertical = 12.dp,
+            ),
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .heightIn(min = 44.dp),
+        ) {
             Text(
-                text = stringResource(R.string.chat_char_count_fmt, text.length),
-                style = MaterialTheme.typography.labelSmall,
-                color = TmsColor.Outline,
-                modifier = Modifier.padding(top = 4.dp, start = 4.dp),
+                text = stringResource(R.string.chat_send),
+                style = MaterialTheme.typography.labelLarge,
             )
         }
     }

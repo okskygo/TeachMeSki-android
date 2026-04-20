@@ -40,15 +40,15 @@ fun MessageBubble(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Top,
     ) {
         if (!isOwn) {
             UserAvatar(
                 displayName = otherPartyName,
                 avatarUrl = otherPartyAvatarUrl,
-                size = 32.dp,
-                modifier = Modifier.padding(end = 8.dp),
+                size = 36.dp,
+                modifier = Modifier.padding(end = 10.dp),
             )
         }
 
@@ -86,11 +86,11 @@ fun MessageBubble(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .wrapContentWidth(unbounded = false)
-                    .padding(horizontal = 6.dp),
+                    .padding(horizontal = 4.dp),
             ) {
                 Text(
                     text = RelativeTime.format(message.sentAt, context),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = TmsColor.Outline,
                     maxLines = 1,
                 )

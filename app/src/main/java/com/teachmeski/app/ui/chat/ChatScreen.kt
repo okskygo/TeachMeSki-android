@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
@@ -104,12 +106,13 @@ fun ChatScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = TmsColor.Background,
+        containerColor = TmsColor.SurfaceLowest,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             ChatHeader(
-                otherPartyName = otherParty?.name ?: "",
+                otherPartyName = otherParty?.name,
                 otherPartyAvatarUrl = otherParty?.avatarUrl,
+                isLoaded = otherParty != null,
                 infoPanelExpanded = uiState.infoPanelExpanded,
                 onBack = onNavigateBack,
                 onToggleInfo = viewModel::toggleInfoPanel,
@@ -133,11 +136,13 @@ fun ChatScreen(
                 blocked -> {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = TmsColor.SurfaceLow,
+                        color = TmsColor.SurfaceLowest,
                     ) {
                         Text(
                             text = stringResource(R.string.chat_blocked_notice),
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier
+                                .windowInsetsPadding(WindowInsets.navigationBars)
+                                .padding(16.dp),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TmsColor.OnSurfaceVariant,
                         )

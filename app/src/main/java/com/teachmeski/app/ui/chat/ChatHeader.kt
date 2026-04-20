@@ -2,7 +2,6 @@ package com.teachmeski.app.ui.chat
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -28,8 +27,9 @@ import com.teachmeski.app.ui.theme.TmsColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatHeader(
-    otherPartyName: String,
+    otherPartyName: String?,
     otherPartyAvatarUrl: String?,
+    isLoaded: Boolean,
     infoPanelExpanded: Boolean,
     onBack: () -> Unit,
     onToggleInfo: () -> Unit,
@@ -37,7 +37,6 @@ fun ChatHeader(
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
-        windowInsets = WindowInsets(0, 0, 0, 0),
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = TmsColor.SurfaceLowest,
             scrolledContainerColor = TmsColor.SurfaceLowest,
@@ -52,34 +51,38 @@ fun ChatHeader(
             }
         },
         title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clickable(onClick = onToggleInfo)
-                    .padding(horizontal = 8.dp),
-            ) {
-                UserAvatar(
-                    displayName = otherPartyName,
-                    avatarUrl = otherPartyAvatarUrl,
-                    size = 32.dp,
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-                Text(
-                    text = otherPartyName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TmsColor.OnSurface,
-                )
+            if (isLoaded) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable(onClick = onToggleInfo)
+                        .padding(horizontal = 8.dp),
+                ) {
+                    UserAvatar(
+                        displayName = otherPartyName,
+                        avatarUrl = otherPartyAvatarUrl,
+                        size = 32.dp,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    Text(
+                        text = otherPartyName.orEmpty(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TmsColor.OnSurface,
+                    )
+                }
             }
         },
         actions = {
-            IconButton(onClick = onToggleInfo) {
-                Icon(
-                    imageVector = if (infoPanelExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = stringResource(
-                        if (infoPanelExpanded) R.string.chat_panel_collapse else R.string.chat_panel_expand,
-                    ),
-                    tint = TmsColor.OnSurface,
-                )
+            if (isLoaded) {
+                IconButton(onClick = onToggleInfo) {
+                    Icon(
+                        imageVector = if (infoPanelExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = stringResource(
+                            if (infoPanelExpanded) R.string.chat_panel_collapse else R.string.chat_panel_expand,
+                        ),
+                        tint = TmsColor.OnSurface,
+                    )
+                }
             }
         },
     )

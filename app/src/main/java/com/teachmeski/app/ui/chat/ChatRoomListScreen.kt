@@ -16,9 +16,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,7 +54,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -352,6 +361,17 @@ private fun ChatRoomCard(
     onClick: () -> Unit,
     relativeTime: String,
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "chat_unread_pulse")
+    val unreadPulse by infiniteTransition.animateFloat(
+        initialValue = 0.45f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "chat_unread_pulse_alpha",
+    )
+
     Surface(
         color = TmsColor.SurfaceLowest,
         shape = RoundedCornerShape(12.dp),
@@ -364,56 +384,61 @@ private fun ChatRoomCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            UserAvatar(
-                displayName = room.otherPartyName,
-                avatarUrl = room.otherPartyAvatarUrl,
-                size = 48.dp,
-            )
+            Box {
+                UserAvatar(
+                    displayName = room.otherPartyName,
+                    avatarUrl = room.otherPartyAvatarUrl,
+                    size = 48.dp,
+                )
+                if (room.unreadCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 6.dp, y = (-6).dp)
+                            .size(20.dp)
+                            .graphicsLayer { alpha = unreadPulse }
+                            .clip(CircleShape)
+                            .background(TmsColor.Error)
+                            .border(2.dp, TmsColor.SurfaceLowest, CircleShape),
+                    )
+                }
+            }
 
             Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = room.otherPartyName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = TmsColor.OnSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
-                    )
-                    room.discipline?.let { d ->
-                        DisciplineChip(disciplineRaw = d)
-                    }
-                    if (relativeTime.isNotBlank()) {
-                        Text(
-                            text = relativeTime,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TmsColor.Outline,
-                            maxLines = 1,
-                        )
-                    }
-                }
+                Text(
+                    text = room.otherPartyName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TmsColor.OnSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    val preview = room.lastMessage?.takeIf { it.isNotBlank() }
+                val preview = room.lastMessage?.takeIf { it.isNotBlank() }
+                Text(
+                    text = preview
+                        ?: stringResource(R.string.chat_last_message_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TmsColor.OnSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                room.discipline?.let { d ->
+                    DisciplineChip(disciplineRaw = d)
+                }
+                if (relativeTime.isNotBlank()) {
                     Text(
-                        text = preview
-                            ?: stringResource(R.string.chat_last_message_none),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TmsColor.OnSurfaceVariant,
+                        text = relativeTime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TmsColor.Outline,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
                     )
-                    if (room.unreadCount > 0) {
-                        UnreadBadge(count = room.unreadCount)
-                    }
                 }
             }
         }
@@ -437,29 +462,6 @@ private fun DisciplineChip(disciplineRaw: String) {
             fontWeight = FontWeight.Medium,
             color = TmsColor.Primary,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-        )
-    }
-}
-
-@Composable
-private fun UnreadBadge(count: Int) {
-    val label = if (count > 9) {
-        stringResource(R.string.chat_unread_overflow)
-    } else {
-        count.toString()
-    }
-    Box(
-        modifier = Modifier
-            .size(20.dp)
-            .background(TmsColor.Error, CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = label,
-            color = TmsColor.OnPrimary,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 11.sp,
-            maxLines = 1,
         )
     }
 }
