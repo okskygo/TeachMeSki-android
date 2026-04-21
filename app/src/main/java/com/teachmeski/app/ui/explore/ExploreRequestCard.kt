@@ -777,7 +777,7 @@ private fun FooterBlock(
             Spacer(modifier = Modifier.height(10.dp))
             SlotsPill(remaining = remaining, quotaLimit = quotaLimit)
         } else {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
