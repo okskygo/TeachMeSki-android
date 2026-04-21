@@ -275,6 +275,17 @@ private fun HeroBlock(
                 ),
                 color = TmsColor.OnSurface,
             )
+        } else {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.explore_card_dates_any),
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.5).sp,
+                ),
+                color = TmsColor.Secondary,
+            )
         }
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -349,12 +360,7 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean, hasDa
         )
     }
 
-    if (request.datesFlexible || !hasDates) {
-        val labelRes = if (!hasDates) {
-            R.string.explore_card_dates_any
-        } else {
-            R.string.explore_card_dates_flexible
-        }
+    if (request.datesFlexible && hasDates) {
         parts.add {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 Icon(
@@ -364,7 +370,7 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean, hasDa
                     modifier = Modifier.size(12.dp),
                 )
                 Text(
-                    text = stringResource(labelRes),
+                    text = stringResource(R.string.explore_card_dates_flexible),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = TmsColor.Secondary,
