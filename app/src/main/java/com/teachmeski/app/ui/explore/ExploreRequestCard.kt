@@ -265,8 +265,8 @@ private fun HeroBlock(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = stringResource(descRes),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TmsColor.OnSurfaceVariant,
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = TmsColor.Outline,
                             textAlign = TextAlign.End,
                         )
                     }
