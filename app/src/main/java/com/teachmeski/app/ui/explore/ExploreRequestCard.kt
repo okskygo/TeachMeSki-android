@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -841,20 +841,17 @@ internal fun ExploreRequestCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(cardShape)
-                .height(IntrinsicSize.Min),
+                .drawBehind {
+                    drawRect(
+                        color = railColor,
+                        size = Size(4.dp.toPx(), size.height),
+                    )
+                },
         ) {
-            // Full-height discipline color rail (4dp) — spans the whole card.
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .background(railColor),
-            )
-
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 20.dp),
+                    .padding(start = 24.dp, end = 20.dp),
             ) {
                 HeroBlock(request = request, isoHalf = isoHalf)
 
