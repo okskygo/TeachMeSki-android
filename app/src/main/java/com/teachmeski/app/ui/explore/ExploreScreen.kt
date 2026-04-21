@@ -31,6 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,6 +86,14 @@ fun ExploreScreen(
                     viewModel.loadMore()
                 }
             }
+    }
+
+    var wasRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isRefreshing) {
+        if (wasRefreshing && !uiState.isRefreshing) {
+            listState.animateScrollToItem(0)
+        }
+        wasRefreshing = uiState.isRefreshing
     }
 
     LaunchedEffect(uiState.unlockSuccessChatRoomId) {
