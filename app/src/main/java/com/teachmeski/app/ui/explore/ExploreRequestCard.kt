@@ -258,7 +258,7 @@ private fun HeroBlock(
                     color = TmsColor.OnPrimary,
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(TmsColor.SecondaryContainer)
+                        .background(TmsColor.Secondary)
                         .padding(horizontal = 8.dp, vertical = 3.dp),
                 )
             }
@@ -355,14 +355,14 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean) {
                 Icon(
                     Icons.Filled.SwapHoriz,
                     contentDescription = null,
-                    tint = TmsColor.SecondaryContainer,
+                    tint = TmsColor.Secondary,
                     modifier = Modifier.size(12.dp),
                 )
                 Text(
                     text = stringResource(R.string.explore_card_dates_flexible),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = TmsColor.SecondaryContainer,
+                    color = TmsColor.Secondary,
                 )
             }
         }
@@ -517,6 +517,18 @@ private fun PreferencesInset(
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        if (hasLanguage) {
+            val resolvedLangs: List<String> = preferredLanguages.map { code ->
+                val res = languageLabelRes(code)
+                if (res != null) stringResource(res)
+                else stringResource(R.string.explore_card_language_other, code)
+            }
+            PrefRow(
+                icon = Icons.Filled.Language,
+                label = stringResource(R.string.explore_card_pref_label_language),
+                value = resolvedLangs.joinToString(" · "),
+            )
+        }
         if (hasEquipment) {
             PrefRow(
                 icon = Icons.AutoMirrored.Filled.DirectionsRun,
@@ -540,18 +552,6 @@ private fun PreferencesInset(
                     modifier = Modifier.padding(start = 30.dp),
                 )
             }
-        }
-        if (hasLanguage) {
-            val resolvedLangs: List<String> = preferredLanguages.map { code ->
-                val res = languageLabelRes(code)
-                if (res != null) stringResource(res)
-                else stringResource(R.string.explore_card_language_other, code)
-            }
-            PrefRow(
-                icon = Icons.Filled.Language,
-                label = stringResource(R.string.explore_card_pref_label_language),
-                value = resolvedLangs.joinToString(" · "),
-            )
         }
         if (hasCert) {
             PrefRow(
@@ -767,7 +767,7 @@ private fun SlotsPill(remaining: Int, quotaLimit: Int) {
     val isEmpty = remaining <= 0 && quotaLimit > 0
     val dotColor = when {
         isEmpty -> TmsColor.Error
-        remaining == 1 -> TmsColor.SecondaryContainer
+        remaining == 1 -> TmsColor.Secondary
         else -> TmsColor.Success
     }
     val text = if (isEmpty) {
@@ -804,7 +804,7 @@ internal fun ExploreRequestCard(
     val cardShape = RoundedCornerShape(12.dp)
 
     val railColor = when (request.discipline) {
-        Discipline.Snowboard -> TmsColor.SecondaryContainer
+        Discipline.Snowboard -> TmsColor.Secondary
         else -> TmsColor.Primary
     }
 
