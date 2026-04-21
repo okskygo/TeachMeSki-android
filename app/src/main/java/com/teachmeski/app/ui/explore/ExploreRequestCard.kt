@@ -571,7 +571,6 @@ private fun PreferencesInset(
                 icon = Icons.Filled.WorkspacePremium,
                 label = stringResource(R.string.explore_card_pref_label_cert),
                 value = request.certPreferences.joinToString(" · "),
-                valueColor = TmsColor.Secondary,
             )
         }
     }
@@ -614,7 +613,7 @@ private fun NotesBody(note: String) {
     val trimmed = note.trim()
     if (trimmed.isEmpty()) return
     var expanded by remember(note) { mutableStateOf(false) }
-    var isOverflowing by remember(note) { mutableStateOf(false) }
+    var hasOverflow by remember(note) { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = trimmed,
@@ -622,9 +621,13 @@ private fun NotesBody(note: String) {
             color = TmsColor.OnSurfaceVariant,
             maxLines = if (expanded) Int.MAX_VALUE else 3,
             overflow = TextOverflow.Ellipsis,
-            onTextLayout = { result -> isOverflowing = result.hasVisualOverflow },
+            onTextLayout = { result ->
+                if (!expanded && result.hasVisualOverflow && !hasOverflow) {
+                    hasOverflow = true
+                }
+            },
         )
-        if (isOverflowing || expanded) {
+        if (hasOverflow) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = stringResource(if (expanded) R.string.explore_card_show_less else R.string.explore_card_show_more),
