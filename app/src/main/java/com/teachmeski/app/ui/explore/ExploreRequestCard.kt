@@ -411,7 +411,7 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean, hasDa
 private fun RequesterBlock(request: ExploreLessonRequest) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         UserAvatar(
             displayName = request.userDisplayName,
@@ -419,8 +419,7 @@ private fun RequesterBlock(request: ExploreLessonRequest) {
             size = 36.dp,
         )
         Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                 Text(
                     text = request.userDisplayName,
                     style = MaterialTheme.typography.titleSmall,
@@ -435,7 +434,6 @@ private fun RequesterBlock(request: ExploreLessonRequest) {
                     style = MaterialTheme.typography.labelSmall,
                     color = TmsColor.Outline,
                 )
-            }
         }
     }
 }
