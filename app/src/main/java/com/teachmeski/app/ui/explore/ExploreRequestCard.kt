@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -193,8 +194,9 @@ private fun equipmentRentalLabel(rental: EquipmentRental): String =
     }
 
 /**
- * Hero row: discipline label + Lv pill on top, date as hero (22sp bold),
- * duration · group · flexible inline meta below.
+ * Hero block: discipline label + posted time on top, date as hero (22sp
+ * bold), duration · group · flexible inline meta below. No color rail here
+ * — the rail lives at the outer card Row so it spans full height.
  */
 @Composable
 private fun HeroBlock(
@@ -205,10 +207,6 @@ private fun HeroBlock(
         Discipline.Ski -> stringResource(R.string.explore_card_discipline_badge_ski)
         Discipline.Snowboard -> stringResource(R.string.explore_card_discipline_badge_snowboard)
         Discipline.Both -> stringResource(R.string.explore_card_discipline_badge_both)
-    }
-    val disciplineAccent = when (request.discipline) {
-        Discipline.Snowboard -> TmsColor.SecondaryContainer
-        else -> TmsColor.Primary
     }
     val disciplineTextColor = when (request.discipline) {
         Discipline.Snowboard -> TmsColor.Secondary
@@ -228,59 +226,59 @@ private fun HeroBlock(
         }
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-    ) {
-        // Left discipline color rail (4dp, full height)
-        Box(
-            modifier = Modifier
-                .width(4.dp)
-                .fillMaxHeight()
-                .background(disciplineAccent),
-        )
-        Column(modifier = Modifier.padding(start = 16.dp, top = 14.dp, end = 20.dp, bottom = 12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DisciplineIcon(request.discipline, tint = disciplineTextColor, size = 14.dp)
-                    Text(
-                        text = disciplineLabel.uppercase(Locale.getDefault()),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.8.sp,
-                        ),
-                        color = disciplineTextColor,
-                    )
-                }
+    Column(modifier = Modifier.padding(top = 14.dp, bottom = 4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                DisciplineIcon(request.discipline, tint = disciplineTextColor, size = 14.dp)
                 Text(
-                    text = formatRelativeTime(request.createdAt),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TmsColor.Outline,
-                )
-            }
-
-            if (hasDates && dateHero.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = dateHero,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = (-0.5).sp,
+                    text = disciplineLabel.uppercase(Locale.getDefault()),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.8.sp,
                     ),
-                    color = TmsColor.OnSurface,
+                    color = disciplineTextColor,
                 )
             }
-
-            Spacer(modifier = Modifier.height(4.dp))
-            InlineMetaRow(request = request, isoHalf = isoHalf)
+            if (request.skillLevel != null) {
+                Text(
+                    text = stringResource(
+                        R.string.explore_card_skill_level_fmt,
+                        request.skillLevel.toString(),
+                    ),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.4.sp,
+                    ),
+                    color = TmsColor.OnPrimary,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(TmsColor.SecondaryContainer)
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                )
+            }
         }
+
+        if (hasDates && dateHero.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = dateHero,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.5).sp,
+                ),
+                color = TmsColor.OnSurface,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+        InlineMetaRow(request = request, isoHalf = isoHalf)
     }
 }
 
@@ -411,25 +409,11 @@ private fun RequesterBlock(request: ExploreLessonRequest) {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
-                if (request.skillLevel != null) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.explore_card_skill_level_fmt,
-                            request.skillLevel.toString(),
-                        ),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.4.sp,
-                        ),
-                        color = TmsColor.OnPrimary,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(TmsColor.SecondaryContainer)
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
-                    )
-                }
+                Text(
+                    text = " · " + formatRelativeTime(request.createdAt),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TmsColor.Outline,
+                )
             }
             if (request.skillLevel != null) {
                 val descRes = skillLevelDescriptionRes(request.discipline, request.skillLevel)
@@ -598,7 +582,9 @@ private fun PrefRow(
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = TmsColor.Outline,
-            modifier = Modifier.width(44.dp),
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.widthIn(min = 64.dp),
         )
         Text(
             text = value,
@@ -817,6 +803,11 @@ internal fun ExploreRequestCard(
 
     val cardShape = RoundedCornerShape(12.dp)
 
+    val railColor = when (request.discipline) {
+        Discipline.Snowboard -> TmsColor.SecondaryContainer
+        else -> TmsColor.Primary
+    }
+
     Surface(
         color = TmsColor.SurfaceLowest,
         shape = cardShape,
@@ -825,32 +816,60 @@ internal fun ExploreRequestCard(
             .fillMaxWidth()
             .then(if (dimCard) Modifier.alpha(0.6f) else Modifier),
     ) {
-        Column(modifier = Modifier.fillMaxWidth().clip(cardShape)) {
-            // Hero is full-bleed (so the left color rail can sit flush).
-            HeroBlock(request = request, isoHalf = isoHalf)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(cardShape)
+                .height(IntrinsicSize.Min),
+        ) {
+            // Full-height discipline color rail (4dp) — spans the whole card.
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .fillMaxHeight()
+                    .background(railColor),
+            )
 
             Column(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 20.dp),
             ) {
+                HeroBlock(request = request, isoHalf = isoHalf)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 RequesterBlock(request = request)
 
-                ResortsBlock(
-                    allRegionsSelected = request.allRegionsSelected,
-                    resortNames = request.resortNames,
-                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-                PreferencesInset(
-                    request = request,
-                    preferredLanguages = request.preferredLanguages,
-                )
+                val hasResorts = request.allRegionsSelected || request.resortNames.isNotEmpty()
+                if (hasResorts) {
+                    ResortsBlock(
+                        allRegionsSelected = request.allRegionsSelected,
+                        resortNames = request.resortNames,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-                request.additionalNotes?.takeIf { it.isNotBlank() }?.let { NotesBlock(it) }
-            }
+                val hasPrefs = request.preferredLanguages.isNotEmpty() ||
+                    request.equipmentRental != null ||
+                    request.needsTransport ||
+                    request.certPreferences.isNotEmpty()
+                if (hasPrefs) {
+                    PreferencesInset(
+                        request = request,
+                        preferredLanguages = request.preferredLanguages,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                val notes = request.additionalNotes?.takeIf { it.isNotBlank() }
+                if (notes != null) {
+                    NotesBlock(notes)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 FooterBlock(
                     remaining = remaining,
                     quotaLimit = request.quotaLimit,
@@ -861,9 +880,9 @@ internal fun ExploreRequestCard(
                     onUnlockClick = onUnlockClick,
                     onViewChatClick = onViewChatClick,
                 )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

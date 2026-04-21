@@ -24,6 +24,7 @@ fun NavGraphBuilder.instructorNavGraph(
                 onNavigateToChat = { roomId ->
                     navController.navigate(Route.Chat(roomId))
                 },
+                onNavigateToWallet = { navController.navigate(Route.Wallet) },
             )
         }
         composable<Route.Unlocked> {

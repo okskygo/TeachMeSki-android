@@ -52,6 +52,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
     onNavigateToChat: (String) -> Unit,
+    onNavigateToWallet: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -119,6 +120,7 @@ fun ExploreScreen(
                     Surface(
                         color = TmsColor.PrimaryFixed,
                         shape = RoundedCornerShape(8.dp),
+                        onClick = onNavigateToWallet,
                     ) {
                         Text(
                             text = stringResource(R.string.wallet_tokens_fmt, uiState.tokenBalance),
