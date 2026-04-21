@@ -394,6 +394,10 @@
     <string name="explore_card_label_equipment">Equipment Rental</string>
     <string name="explore_card_label_transport">Transport</string>
     <string name="explore_card_label_cert_preferences">Preferred Certifications</string>
+    <string name="explore_card_pref_label_equipment">Gear</string>
+    <string name="explore_card_pref_label_transport">Transport</string>
+    <string name="explore_card_pref_label_language">Language</string>
+    <string name="explore_card_pref_label_cert">Cert</string>
     <string name="explore_card_equipment_all">Rent everything (gear + apparel)</string>
     <string name="explore_card_equipment_partial">Partial rental</string>
     <string name="explore_card_equipment_none">Own gear</string>
@@ -844,6 +848,18 @@
     <string name="skill_level_2">Lower Intermediate (Lv 2)</string>
     <string name="skill_level_3">Intermediate (Lv 3)</string>
     <string name="skill_level_4">Advanced (Lv 4)</string>
+
+    <!-- Skill level long descriptions (by discipline). Both → fallback to ski. -->
+    <string name="skill_level_ski_0_desc">Complete beginner, never skied before</string>
+    <string name="skill_level_ski_1_desc">Can do basic snowplow / pizza stop</string>
+    <string name="skill_level_ski_2_desc">Can make parallel turns on intermediate runs</string>
+    <string name="skill_level_ski_3_desc">Comfortable on most terrain and powder</string>
+    <string name="skill_level_ski_4_desc">Expert — moguls, trees, steeps</string>
+    <string name="skill_level_snowboard_0_desc">Complete beginner, never snowboarded before</string>
+    <string name="skill_level_snowboard_1_desc">Can do falling leaf, basic stops</string>
+    <string name="skill_level_snowboard_2_desc">Can link turns on intermediate runs</string>
+    <string name="skill_level_snowboard_3_desc">Comfortable on most terrain, jumps, and powder</string>
+    <string name="skill_level_snowboard_4_desc">Expert — park, powder, steeps</string>
 
     <!-- Phase 5: Languages -->
     <string name="lang_zh">Chinese</string>

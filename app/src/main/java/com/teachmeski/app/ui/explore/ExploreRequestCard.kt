@@ -5,10 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,10 +20,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.DownhillSkiing
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Snowboarding
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -38,6 +47,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -114,6 +124,31 @@ private fun languageLabelRes(code: String): Int? =
         else -> null
     }
 
+// Skill level long description res by discipline.
+// `Both` falls back to ski per product decision (a request's discipline is
+// ski OR snowboard at creation; Both is theoretical but handled defensively).
+private fun skillLevelDescriptionRes(discipline: Discipline, level: Int): Int? {
+    val clamped = level.coerceIn(0, 4)
+    return when (discipline) {
+        Discipline.Snowboard -> when (clamped) {
+            0 -> R.string.skill_level_snowboard_0_desc
+            1 -> R.string.skill_level_snowboard_1_desc
+            2 -> R.string.skill_level_snowboard_2_desc
+            3 -> R.string.skill_level_snowboard_3_desc
+            4 -> R.string.skill_level_snowboard_4_desc
+            else -> null
+        }
+        Discipline.Ski, Discipline.Both -> when (clamped) {
+            0 -> R.string.skill_level_ski_0_desc
+            1 -> R.string.skill_level_ski_1_desc
+            2 -> R.string.skill_level_ski_2_desc
+            3 -> R.string.skill_level_ski_3_desc
+            4 -> R.string.skill_level_ski_4_desc
+            else -> null
+        }
+    }
+}
+
 @Composable
 private fun formatRelativeTime(createdAt: String): String {
     val parsed = parseIsoMillis(createdAt) ?: return stringResource(R.string.explore_time_just_now)
@@ -136,15 +171,16 @@ private fun formatRelativeTime(createdAt: String): String {
 }
 
 @Composable
-private fun ExploreCardSectionLabel(text: String) {
+private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text.uppercase(),
         style = MaterialTheme.typography.labelSmall.copy(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 1.6.sp,
+            letterSpacing = 2.sp,
         ),
-        color = TmsColor.OnSurfaceVariant,
+        color = TmsColor.Outline,
+        modifier = modifier,
     )
 }
 
@@ -156,136 +192,270 @@ private fun equipmentRentalLabel(rental: EquipmentRental): String =
         EquipmentRental.None -> stringResource(R.string.explore_card_equipment_none)
     }
 
+/**
+ * Hero row: discipline label + Lv pill on top, date as hero (22sp bold),
+ * duration · group · flexible inline meta below.
+ */
 @Composable
-private fun ExploreCardPreferencesSection(
-    equipmentRental: EquipmentRental?,
-    needsTransport: Boolean,
-    transportNote: String?,
-    certPreferences: List<String>,
+private fun HeroBlock(
+    request: ExploreLessonRequest,
+    isoHalf: Boolean,
 ) {
-    if (equipmentRental == null && !needsTransport && certPreferences.isEmpty()) return
+    val disciplineLabel = when (request.discipline) {
+        Discipline.Ski -> stringResource(R.string.explore_card_discipline_badge_ski)
+        Discipline.Snowboard -> stringResource(R.string.explore_card_discipline_badge_snowboard)
+        Discipline.Both -> stringResource(R.string.explore_card_discipline_badge_both)
+    }
+    val disciplineAccent = when (request.discipline) {
+        Discipline.Snowboard -> TmsColor.SecondaryContainer
+        else -> TmsColor.Primary
+    }
+    val disciplineTextColor = when (request.discipline) {
+        Discipline.Snowboard -> TmsColor.Secondary
+        else -> TmsColor.Primary
+    }
 
-    Column(
-        modifier = Modifier.padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        if (equipmentRental != null) {
-            Column {
-                ExploreCardSectionLabel(stringResource(R.string.explore_card_label_equipment))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = equipmentRentalLabel(equipmentRental),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TmsColor.OnSurface,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(TmsColor.SurfaceLow)
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                )
-            }
+    val hasDates = !request.startDate.isNullOrBlank() || !request.endDate.isNullOrBlank()
+    val dateHero = run {
+        val s = request.startDate
+        val e = request.endDate
+        when {
+            !s.isNullOrBlank() && (e.isNullOrBlank() || dateStringsEqual(s, e)) -> formatDisplayDate(s)
+            !s.isNullOrBlank() && !e.isNullOrBlank() ->
+                stringResource(R.string.explore_card_date_range, formatDisplayDate(s), formatDisplayDate(e))
+            !e.isNullOrBlank() -> formatDisplayDate(e)
+            else -> ""
         }
+    }
 
-        if (needsTransport) {
-            Column {
-                ExploreCardSectionLabel(stringResource(R.string.explore_card_label_transport))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.explore_card_transport_needed),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TmsColor.Primary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(TmsColor.Primary.copy(alpha = 0.1f))
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                )
-                if (!transportNote.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+    ) {
+        // Left discipline color rail (4dp, full height)
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .fillMaxHeight()
+                .background(disciplineAccent),
+        )
+        Column(modifier = Modifier.padding(start = 16.dp, top = 14.dp, end = 20.dp, bottom = 12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    DisciplineIcon(request.discipline, tint = disciplineTextColor, size = 14.dp)
                     Text(
-                        text = stringResource(
-                            R.string.explore_card_transport_note_prefix,
-                            transportNote,
+                        text = disciplineLabel.uppercase(Locale.getDefault()),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.8.sp,
                         ),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontStyle = FontStyle.Italic,
-                        color = TmsColor.OnSurfaceVariant,
+                        color = disciplineTextColor,
                     )
                 }
+                Text(
+                    text = formatRelativeTime(request.createdAt),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TmsColor.Outline,
+                )
             }
-        }
 
-        if (certPreferences.isNotEmpty()) {
-            Column {
-                ExploreCardSectionLabel(stringResource(R.string.explore_card_label_cert_preferences))
-                Spacer(modifier = Modifier.height(8.dp))
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    certPreferences.forEach { code ->
-                        Text(
-                            text = code,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = TmsColor.Secondary,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(TmsColor.Secondary.copy(alpha = 0.1f))
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                        )
-                    }
-                }
+            if (hasDates && dateHero.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = dateHero,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = (-0.5).sp,
+                    ),
+                    color = TmsColor.OnSurface,
+                )
             }
+
+            Spacer(modifier = Modifier.height(4.dp))
+            InlineMetaRow(request = request, isoHalf = isoHalf)
         }
     }
 }
 
 @Composable
-private fun ExploreCardNotesSection(notes: String) {
-    val trimmed = notes.trim()
-    if (trimmed.isEmpty()) return
-    var expanded by remember(notes) { mutableStateOf(false) }
-    var isOverflowing by remember(notes) { mutableStateOf(false) }
-    val quoted = "\u201c$trimmed\u201d"
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(TmsColor.SurfaceLow)
-            .padding(20.dp),
-    ) {
-        Text(
-            text = quoted,
-            style = MaterialTheme.typography.bodySmall,
-            fontStyle = FontStyle.Italic,
-            color = TmsColor.OnSurfaceVariant,
-            maxLines = if (expanded) Int.MAX_VALUE else 3,
-            overflow = TextOverflow.Ellipsis,
-            onTextLayout = { result -> isOverflowing = result.hasVisualOverflow },
+private fun DisciplineIcon(discipline: Discipline, tint: Color, size: androidx.compose.ui.unit.Dp) {
+    when (discipline) {
+        Discipline.Ski -> Icon(
+            Icons.Filled.DownhillSkiing,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(size),
         )
-        if (isOverflowing || expanded) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(if (expanded) R.string.explore_card_show_less else R.string.explore_card_show_more),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = TmsColor.Primary,
-                modifier = Modifier.clickable { expanded = !expanded },
+        Discipline.Snowboard -> Icon(
+            Icons.Filled.Snowboarding,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(size),
+        )
+        Discipline.Both -> Row(horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+            Icon(
+                Icons.Filled.DownhillSkiing,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(size),
+            )
+            Icon(
+                Icons.Filled.Snowboarding,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(size),
             )
         }
     }
 }
 
 @Composable
-private fun ExploreCardLocationsSection(
+private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean) {
+    val parts = mutableListOf<@Composable () -> Unit>()
+
+    if (request.durationDays != null) {
+        val durationLabel = if (isoHalf) {
+            stringResource(R.string.explore_card_half_day)
+        } else {
+            stringResource(
+                R.string.explore_card_days,
+                kotlin.math.round(request.durationDays).toInt().coerceAtLeast(1),
+            )
+        }
+        parts.add {
+            Text(
+                text = durationLabel,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = TmsColor.OnSurface,
+            )
+        }
+    }
+
+    val groupSuffix = if (request.hasChildren) {
+        " · " + stringResource(R.string.explore_card_group_has_children)
+    } else ""
+    parts.add {
+        Text(
+            text = stringResource(R.string.explore_card_group_size, request.groupSize) + groupSuffix,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = TmsColor.OnSurface,
+        )
+    }
+
+    if (request.datesFlexible) {
+        parts.add {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                Icon(
+                    Icons.Filled.SwapHoriz,
+                    contentDescription = null,
+                    tint = TmsColor.SecondaryContainer,
+                    modifier = Modifier.size(12.dp),
+                )
+                Text(
+                    text = stringResource(R.string.explore_card_dates_flexible),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TmsColor.SecondaryContainer,
+                )
+            }
+        }
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        parts.forEachIndexed { idx, block ->
+            if (idx > 0) {
+                Text(
+                    text = " · ",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TmsColor.OutlineVariant,
+                )
+            }
+            block()
+        }
+    }
+}
+
+/**
+ * Requester row: avatar 36dp + display name + Lv pill, with long level
+ * description below the pill (if skillLevel is present).
+ */
+@Composable
+private fun RequesterBlock(request: ExploreLessonRequest) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+    ) {
+        UserAvatar(
+            displayName = request.userDisplayName,
+            avatarUrl = request.userAvatarUrl,
+            size = 36.dp,
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = request.userDisplayName,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = TmsColor.OnSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (request.skillLevel != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.explore_card_skill_level_fmt,
+                            request.skillLevel.toString(),
+                        ),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.4.sp,
+                        ),
+                        color = TmsColor.OnPrimary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(TmsColor.SecondaryContainer)
+                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                    )
+                }
+            }
+            if (request.skillLevel != null) {
+                val descRes = skillLevelDescriptionRes(request.discipline, request.skillLevel)
+                if (descRes != null) {
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = stringResource(descRes),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TmsColor.OnSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ResortsBlock(
     allRegionsSelected: Boolean,
     resortNames: List<String>,
 ) {
     if (!allRegionsSelected && resortNames.isEmpty()) return
 
-    Column(modifier = Modifier.padding(bottom = 24.dp)) {
-        ExploreCardSectionLabel(stringResource(R.string.explore_card_label_locations))
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionLabel(stringResource(R.string.explore_card_label_locations))
         Spacer(modifier = Modifier.height(8.dp))
         if (allRegionsSelected) {
             Text(
@@ -340,8 +510,139 @@ private fun ExploreCardLocationsSection(
     }
 }
 
+/**
+ * Preferences inset: surface-low panel with icon + label + value rows.
+ * Only renders rows that have data; hides whole block if nothing present.
+ */
 @Composable
-private fun ExploreCardFooter(
+private fun PreferencesInset(
+    request: ExploreLessonRequest,
+    preferredLanguages: List<String>,
+) {
+    val hasLanguage = preferredLanguages.isNotEmpty()
+    val hasEquipment = request.equipmentRental != null
+    val hasTransport = request.needsTransport
+    val hasCert = request.certPreferences.isNotEmpty()
+    if (!hasLanguage && !hasEquipment && !hasTransport && !hasCert) return
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(TmsColor.SurfaceLow)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (hasEquipment) {
+            PrefRow(
+                icon = Icons.AutoMirrored.Filled.DirectionsRun,
+                label = stringResource(R.string.explore_card_pref_label_equipment),
+                value = equipmentRentalLabel(request.equipmentRental!!),
+            )
+        }
+        if (hasTransport) {
+            PrefRow(
+                icon = Icons.Filled.DirectionsCar,
+                label = stringResource(R.string.explore_card_pref_label_transport),
+                value = stringResource(R.string.explore_card_transport_needed),
+                valueColor = TmsColor.Primary,
+            )
+            if (!request.transportNote.isNullOrBlank()) {
+                Text(
+                    text = stringResource(R.string.explore_card_transport_note_prefix, request.transportNote),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontStyle = FontStyle.Italic,
+                    color = TmsColor.OnSurfaceVariant,
+                    modifier = Modifier.padding(start = 30.dp),
+                )
+            }
+        }
+        if (hasLanguage) {
+            val resolvedLangs: List<String> = preferredLanguages.map { code ->
+                val res = languageLabelRes(code)
+                if (res != null) stringResource(res)
+                else stringResource(R.string.explore_card_language_other, code)
+            }
+            PrefRow(
+                icon = Icons.Filled.Language,
+                label = stringResource(R.string.explore_card_pref_label_language),
+                value = resolvedLangs.joinToString(" · "),
+            )
+        }
+        if (hasCert) {
+            PrefRow(
+                icon = Icons.Filled.WorkspacePremium,
+                label = stringResource(R.string.explore_card_pref_label_cert),
+                value = request.certPreferences.joinToString(" · "),
+                valueColor = TmsColor.Secondary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PrefRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    valueColor: Color = TmsColor.OnSurface,
+) {
+    Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = TmsColor.Outline,
+            modifier = Modifier.size(14.dp).padding(top = 2.dp),
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = TmsColor.Outline,
+            modifier = Modifier.width(44.dp),
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = valueColor,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun NotesBlock(notes: String) {
+    val trimmed = notes.trim()
+    if (trimmed.isEmpty()) return
+    var expanded by remember(notes) { mutableStateOf(false) }
+    var isOverflowing by remember(notes) { mutableStateOf(false) }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = trimmed,
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+            color = TmsColor.OnSurfaceVariant,
+            maxLines = if (expanded) Int.MAX_VALUE else 3,
+            overflow = TextOverflow.Ellipsis,
+            onTextLayout = { result -> isOverflowing = result.hasVisualOverflow },
+        )
+        if (isOverflowing || expanded) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(if (expanded) R.string.explore_card_show_less else R.string.explore_card_show_more),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = TmsColor.Primary,
+                modifier = Modifier.clickable { expanded = !expanded },
+            )
+        }
+    }
+}
+
+/**
+ * Footer: full-width CTA on top, slots pill below.
+ */
+@Composable
+private fun FooterBlock(
     remaining: Int,
     quotaLimit: Int,
     isUnlockedByMe: Boolean,
@@ -351,46 +652,7 @@ private fun ExploreCardFooter(
     onUnlockClick: () -> Unit,
     onViewChatClick: (String) -> Unit,
 ) {
-    val quotaLine = if (remaining <= 0 && quotaLimit > 0) {
-        stringResource(R.string.explore_card_remaining_slots_zero)
-    } else {
-        stringResource(R.string.explore_card_quota_remaining, remaining)
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(TmsColor.SurfaceLow)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Row(
-            modifier = Modifier
-                .weight(1f, fill = false)
-                .clip(RoundedCornerShape(50))
-                .background(TmsColor.SecondaryFixed)
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.People,
-                contentDescription = null,
-                tint = TmsColor.Secondary,
-                modifier = Modifier.size(16.dp),
-            )
-            Text(
-                text = quotaLine,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = TmsColor.Secondary,
-                maxLines = 2,
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
+    Column(modifier = Modifier.fillMaxWidth()) {
         when {
             isUnlockedByMe && myChatRoomId != null -> {
                 Button(
@@ -399,56 +661,82 @@ private fun ExploreCardFooter(
                         containerColor = TmsColor.Primary,
                         contentColor = TmsColor.OnPrimary,
                     ),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(10.dp),
                     elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 2.dp,
+                        defaultElevation = 2.dp,
+                        pressedElevation = 1.dp,
                     ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 13.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Chat,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.explore_card_view_chat))
+                    Text(
+                        text = stringResource(R.string.explore_card_view_chat),
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
             }
 
             isUnlockedByMe -> {
-                Text(
-                    text = stringResource(R.string.explore_card_already_unlocked),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TmsColor.Outline,
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(TmsColor.SurfaceLow)
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LockOpen,
+                        contentDescription = null,
+                        tint = TmsColor.OnSurfaceVariant,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.explore_card_already_unlocked),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TmsColor.OnSurfaceVariant,
+                    )
+                }
             }
 
             !isUnlockedByMe && isActive && remaining > 0 -> {
-                val brush = Brush.horizontalGradient(listOf(TmsColor.Primary, TmsColor.PrimaryContainer))
+                val brush = Brush.linearGradient(
+                    colors = listOf(TmsColor.Primary, TmsColor.PrimaryContainer),
+                )
                 Surface(
                     onClick = onUnlockClick,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(10.dp),
                     color = Color.Transparent,
-                    shadowElevation = 0.dp,
+                    shadowElevation = 2.dp,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Row(
                         modifier = Modifier
-                            .background(brush, RoundedCornerShape(8.dp))
-                            .padding(horizontal = 32.dp, vertical = 12.dp),
+                            .fillMaxWidth()
+                            .background(brush, RoundedCornerShape(10.dp))
+                            .padding(vertical = 13.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Lock,
                             contentDescription = null,
                             tint = TmsColor.OnPrimary,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(16.dp),
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = stringResource(R.string.explore_unlock_button, baseTokenCost),
                             style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = TmsColor.OnPrimary,
                         )
                     }
@@ -456,32 +744,63 @@ private fun ExploreCardFooter(
             }
 
             else -> {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = TmsColor.SurfaceContainer,
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp)),
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(TmsColor.SurfaceContainer)
+                        .padding(vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = null,
-                            tint = TmsColor.Outline,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Text(
-                            text = stringResource(R.string.explore_card_slots_full),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TmsColor.Outline,
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = null,
+                        tint = TmsColor.Outline,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.explore_card_slots_full),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TmsColor.Outline,
+                    )
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SlotsPill(remaining = remaining, quotaLimit = quotaLimit)
+    }
+}
+
+@Composable
+private fun SlotsPill(remaining: Int, quotaLimit: Int) {
+    val isEmpty = remaining <= 0 && quotaLimit > 0
+    val dotColor = when {
+        isEmpty -> TmsColor.Error
+        remaining == 1 -> TmsColor.SecondaryContainer
+        else -> TmsColor.Success
+    }
+    val text = if (isEmpty) {
+        stringResource(R.string.explore_card_remaining_slots_zero)
+    } else {
+        stringResource(R.string.explore_card_quota_remaining, remaining)
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(RoundedCornerShape(50))
+                .background(dotColor),
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (isEmpty) TmsColor.Error else TmsColor.OnSurfaceVariant,
+        )
     }
 }
 
@@ -496,287 +815,55 @@ internal fun ExploreRequestCard(
     val dimCard = slotsFull && !request.isUnlockedByMe
     val isoHalf = request.durationDays != null && kotlin.math.abs(request.durationDays - 0.5) < 1e-6
 
-    val preferredLanguages = request.preferredLanguages
-    val hasDates = !request.startDate.isNullOrBlank() || !request.endDate.isNullOrBlank()
-    val showLangDateRow = preferredLanguages.isNotEmpty() || hasDates
-
-    val badgeText = when (request.discipline) {
-        Discipline.Ski -> stringResource(R.string.explore_card_discipline_badge_ski)
-        Discipline.Snowboard -> stringResource(R.string.explore_card_discipline_badge_snowboard)
-        Discipline.Both -> stringResource(R.string.explore_card_discipline_badge_both)
-    }
-
-    val datePrimaryText = run {
-        val s = request.startDate
-        val e = request.endDate
-        when {
-            !s.isNullOrBlank() && (e.isNullOrBlank() || dateStringsEqual(s, e)) -> formatDisplayDate(s)
-            !s.isNullOrBlank() && !e.isNullOrBlank() ->
-                stringResource(
-                    R.string.explore_card_date_range,
-                    formatDisplayDate(s),
-                    formatDisplayDate(e),
-                )
-
-            !e.isNullOrBlank() -> formatDisplayDate(e)
-            else -> ""
-        }
-    }.let { base ->
-        if (base.isEmpty()) {
-            base
-        } else if (request.datesFlexible) {
-            base + " · " + stringResource(R.string.explore_card_dates_flexible)
-        } else {
-            base
-        }
-    }
-
-    val languageLine = preferredLanguages.map { code ->
-        languageLabelRes(code)?.let { stringResource(it) }
-            ?: stringResource(R.string.explore_card_language_other, code)
-    }.joinToString(", ")
-
     val cardShape = RoundedCornerShape(12.dp)
 
     Surface(
         color = TmsColor.SurfaceLowest,
         shape = cardShape,
-        shadowElevation = 2.dp,
+        shadowElevation = 1.dp,
         modifier = Modifier
             .fillMaxWidth()
             .then(if (dimCard) Modifier.alpha(0.6f) else Modifier),
     ) {
         Column(modifier = Modifier.fillMaxWidth().clip(cardShape)) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(TmsColor.Primary.copy(alpha = 0.05f))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        when (request.discipline) {
-                            Discipline.Ski -> Icon(
-                                Icons.Filled.DownhillSkiing,
-                                contentDescription = null,
-                                tint = TmsColor.Primary,
-                                modifier = Modifier.size(18.dp),
-                            )
+            // Hero is full-bleed (so the left color rail can sit flush).
+            HeroBlock(request = request, isoHalf = isoHalf)
 
-                            Discipline.Snowboard -> Icon(
-                                Icons.Filled.Snowboarding,
-                                contentDescription = null,
-                                tint = TmsColor.Primary,
-                                modifier = Modifier.size(18.dp),
-                            )
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                RequesterBlock(request = request)
 
-                            Discipline.Both -> Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Icon(
-                                    Icons.Filled.DownhillSkiing,
-                                    contentDescription = null,
-                                    tint = TmsColor.Primary,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                                Icon(
-                                    Icons.Filled.Snowboarding,
-                                    contentDescription = null,
-                                    tint = TmsColor.Primary,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                            }
-                        }
-                        Text(
-                            text = badgeText.uppercase(Locale.getDefault()),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = TmsColor.Primary,
-                        )
-                    }
-                    Text(
-                        text = formatRelativeTime(request.createdAt),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    UserAvatar(
-                        displayName = request.userDisplayName,
-                        avatarUrl = request.userAvatarUrl,
-                        size = 48.dp,
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = request.userDisplayName,
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = TmsColor.OnSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        if (request.skillLevel != null) {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = stringResource(
-                                    R.string.explore_card_skill_level_fmt,
-                                    request.skillLevel.toString(),
-                                ),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = TmsColor.OnPrimary,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(TmsColor.SecondaryContainer)
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                            )
-                        }
-                    }
-                }
-
-                if (showLangDateRow) {
-                    val langBlock: @Composable () -> Unit = {
-                        ExploreCardSectionLabel(stringResource(R.string.explore_card_label_language))
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = languageLine,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TmsColor.OnSurface,
-                        )
-                    }
-                    val datesBlock: @Composable () -> Unit = {
-                        ExploreCardSectionLabel(stringResource(R.string.explore_card_label_dates))
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = datePrimaryText,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TmsColor.Primary,
-                        )
-                    }
-                    when {
-                        preferredLanguages.isNotEmpty() && hasDates -> {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 24.dp),
-                                verticalAlignment = Alignment.Top,
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) { langBlock() }
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 12.dp)
-                                        .width(1.dp)
-                                        .height(32.dp)
-                                        .background(TmsColor.OutlineVariant.copy(alpha = 0.3f)),
-                                )
-                                Column(modifier = Modifier.weight(1f)) { datesBlock() }
-                            }
-                        }
-
-                        preferredLanguages.isNotEmpty() -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 24.dp),
-                            ) {
-                                langBlock()
-                            }
-                        }
-
-                        else -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 24.dp),
-                            ) {
-                                datesBlock()
-                            }
-                        }
-                    }
-                }
-
-                ExploreCardLocationsSection(
+                ResortsBlock(
                     allRegionsSelected = request.allRegionsSelected,
                     resortNames = request.resortNames,
                 )
 
-                Column(modifier = Modifier.padding(bottom = 24.dp)) {
-                    ExploreCardSectionLabel(stringResource(R.string.explore_card_label_group_duration))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        val groupSuffix = if (request.hasChildren) {
-                            " · " + stringResource(R.string.explore_card_group_has_children)
-                        } else {
-                            ""
-                        }
-                        Text(
-                            text = stringResource(R.string.explore_card_group_size, request.groupSize) + groupSuffix,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = TmsColor.Secondary,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(TmsColor.Secondary.copy(alpha = 0.1f))
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                        )
-                        if (request.durationDays != null) {
-                            val durationLabel = if (isoHalf) {
-                                stringResource(R.string.explore_card_half_day)
-                            } else {
-                                stringResource(
-                                    R.string.explore_card_days,
-                                    kotlin.math.round(request.durationDays).toInt().coerceAtLeast(1),
-                                )
-                            }
-                            Text(
-                                text = durationLabel,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = TmsColor.Secondary,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(TmsColor.Secondary.copy(alpha = 0.1f))
-                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                            )
-                        }
-                    }
-                }
-
-                ExploreCardPreferencesSection(
-                    equipmentRental = request.equipmentRental,
-                    needsTransport = request.needsTransport,
-                    transportNote = request.transportNote,
-                    certPreferences = request.certPreferences,
+                PreferencesInset(
+                    request = request,
+                    preferredLanguages = request.preferredLanguages,
                 )
 
-                request.additionalNotes?.let { ExploreCardNotesSection(it) }
+                request.additionalNotes?.takeIf { it.isNotBlank() }?.let { NotesBlock(it) }
             }
 
-            ExploreCardFooter(
-                remaining = remaining,
-                quotaLimit = request.quotaLimit,
-                isUnlockedByMe = request.isUnlockedByMe,
-                isActive = request.status == LessonRequestStatus.Active,
-                myChatRoomId = request.myChatRoomId,
-                baseTokenCost = request.baseTokenCost,
-                onUnlockClick = onUnlockClick,
-                onViewChatClick = onViewChatClick,
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                FooterBlock(
+                    remaining = remaining,
+                    quotaLimit = request.quotaLimit,
+                    isUnlockedByMe = request.isUnlockedByMe,
+                    isActive = request.status == LessonRequestStatus.Active,
+                    myChatRoomId = request.myChatRoomId,
+                    baseTokenCost = request.baseTokenCost,
+                    onUnlockClick = onUnlockClick,
+                    onViewChatClick = onViewChatClick,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

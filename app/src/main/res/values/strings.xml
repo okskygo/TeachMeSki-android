@@ -400,6 +400,10 @@
     <string name="explore_card_label_equipment">裝備租借</string>
     <string name="explore_card_label_transport">交通接送</string>
     <string name="explore_card_label_cert_preferences">期望證照</string>
+    <string name="explore_card_pref_label_equipment">裝備</string>
+    <string name="explore_card_pref_label_transport">接送</string>
+    <string name="explore_card_pref_label_language">語言</string>
+    <string name="explore_card_pref_label_cert">認證</string>
     <string name="explore_card_equipment_all">需全部租借（雪具＋雪服）</string>
     <string name="explore_card_equipment_partial">部分租借</string>
     <string name="explore_card_equipment_none">自備裝備</string>
@@ -842,6 +846,18 @@
     <string name="skill_level_2">初中級（Lv 2）</string>
     <string name="skill_level_3">中級（Lv 3）</string>
     <string name="skill_level_4">進階（Lv 4）</string>
+
+    <!-- Skill level long descriptions (by discipline). Both → fallback to ski. -->
+    <string name="skill_level_ski_0_desc">完全初學，從未滑過雪</string>
+    <string name="skill_level_ski_1_desc">能做基本犁式煞車（Pizza Stop）</string>
+    <string name="skill_level_ski_2_desc">能平行轉彎，可滑中級雪道</string>
+    <string name="skill_level_ski_3_desc">能應對多數雪道與鬆雪</string>
+    <string name="skill_level_ski_4_desc">專家級，饅頭、樹林、陡坡皆可</string>
+    <string name="skill_level_snowboard_0_desc">完全初學，從未滑過雪</string>
+    <string name="skill_level_snowboard_1_desc">能做落葉飄，基本煞車</string>
+    <string name="skill_level_snowboard_2_desc">能連續轉彎，可滑中級雪道</string>
+    <string name="skill_level_snowboard_3_desc">能應對多數雪道、跳台與鬆雪</string>
+    <string name="skill_level_snowboard_4_desc">專家級，公園、粉雪、陡坡皆可</string>
 
     <!-- Phase 5: Languages -->
     <string name="lang_zh">中文</string>
