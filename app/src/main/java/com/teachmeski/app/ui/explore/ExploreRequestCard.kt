@@ -638,6 +638,7 @@ private fun FooterBlock(
     onUnlockClick: () -> Unit,
     onViewChatClick: (String) -> Unit,
 ) {
+    val showSlotsPill = quotaLimit > 0 || remaining > 0
     Column(modifier = Modifier.fillMaxWidth()) {
         when {
             isUnlockedByMe && myChatRoomId != null -> {
@@ -756,14 +757,18 @@ private fun FooterBlock(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SlotsPill(remaining = remaining, quotaLimit = quotaLimit)
+        if (showSlotsPill) {
+            Spacer(modifier = Modifier.height(10.dp))
+            SlotsPill(remaining = remaining, quotaLimit = quotaLimit)
+        } else {
+            Spacer(modifier = Modifier.height(4.dp))
+        }
     }
 }
 
 @Composable
 private fun SlotsPill(remaining: Int, quotaLimit: Int) {
+    if (quotaLimit <= 0 && remaining <= 0) return
     val isEmpty = remaining <= 0 && quotaLimit > 0
     val dotColor = when {
         isEmpty -> TmsColor.Error
@@ -881,7 +886,7 @@ internal fun ExploreRequestCard(
                     onViewChatClick = onViewChatClick,
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
             }
         }
     }
