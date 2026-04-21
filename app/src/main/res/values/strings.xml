@@ -397,6 +397,14 @@
     <string name="explore_card_label_dates">Dates</string>
     <string name="explore_card_label_locations">Locations</string>
     <string name="explore_card_label_group_duration">Group &amp; Duration</string>
+    <string name="explore_card_label_equipment">裝備租借</string>
+    <string name="explore_card_label_transport">交通接送</string>
+    <string name="explore_card_label_cert_preferences">期望證照</string>
+    <string name="explore_card_equipment_all">需全部租借（雪具＋雪服）</string>
+    <string name="explore_card_equipment_partial">部分租借</string>
+    <string name="explore_card_equipment_none">自備裝備</string>
+    <string name="explore_card_transport_needed">需要接送</string>
+    <string name="explore_card_transport_note_prefix">備註：%1$s</string>
     <string name="explore_card_group_has_children">含兒童</string>
     <string name="explore_card_dates_flexible">日期彈性</string>
     <string name="explore_card_date_range">%1$s – %2$s</string>

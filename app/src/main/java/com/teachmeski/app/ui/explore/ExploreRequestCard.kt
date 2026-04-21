@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.Discipline
+import com.teachmeski.app.domain.model.EquipmentRental
 import com.teachmeski.app.domain.model.ExploreLessonRequest
 import com.teachmeski.app.domain.model.LessonRequestStatus
 import com.teachmeski.app.ui.component.UserAvatar
@@ -145,6 +146,99 @@ private fun ExploreCardSectionLabel(text: String) {
         ),
         color = TmsColor.OnSurfaceVariant,
     )
+}
+
+@Composable
+private fun equipmentRentalLabel(rental: EquipmentRental): String =
+    when (rental) {
+        EquipmentRental.All -> stringResource(R.string.explore_card_equipment_all)
+        EquipmentRental.Partial -> stringResource(R.string.explore_card_equipment_partial)
+        EquipmentRental.None -> stringResource(R.string.explore_card_equipment_none)
+    }
+
+@Composable
+private fun ExploreCardPreferencesSection(
+    equipmentRental: EquipmentRental?,
+    needsTransport: Boolean,
+    transportNote: String?,
+    certPreferences: List<String>,
+) {
+    if (equipmentRental == null && !needsTransport && certPreferences.isEmpty()) return
+
+    Column(
+        modifier = Modifier.padding(bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        if (equipmentRental != null) {
+            Column {
+                ExploreCardSectionLabel(stringResource(R.string.explore_card_label_equipment))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = equipmentRentalLabel(equipmentRental),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TmsColor.OnSurface,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(TmsColor.SurfaceLow)
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+            }
+        }
+
+        if (needsTransport) {
+            Column {
+                ExploreCardSectionLabel(stringResource(R.string.explore_card_label_transport))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.explore_card_transport_needed),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TmsColor.Primary,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(TmsColor.Primary.copy(alpha = 0.1f))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+                if (!transportNote.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.explore_card_transport_note_prefix,
+                            transportNote,
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontStyle = FontStyle.Italic,
+                        color = TmsColor.OnSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        if (certPreferences.isNotEmpty()) {
+            Column {
+                ExploreCardSectionLabel(stringResource(R.string.explore_card_label_cert_preferences))
+                Spacer(modifier = Modifier.height(8.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    certPreferences.forEach { code ->
+                        Text(
+                            text = code,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = TmsColor.Secondary,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(TmsColor.Secondary.copy(alpha = 0.1f))
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -662,6 +756,13 @@ internal fun ExploreRequestCard(
                         }
                     }
                 }
+
+                ExploreCardPreferencesSection(
+                    equipmentRental = request.equipmentRental,
+                    needsTransport = request.needsTransport,
+                    transportNote = request.transportNote,
+                    certPreferences = request.certPreferences,
+                )
 
                 request.additionalNotes?.let { ExploreCardNotesSection(it) }
             }

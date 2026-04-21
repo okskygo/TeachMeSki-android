@@ -1,6 +1,7 @@
 package com.teachmeski.app.data.model
 
 import com.teachmeski.app.domain.model.Discipline
+import com.teachmeski.app.domain.model.EquipmentRental
 import com.teachmeski.app.domain.model.ExploreLessonRequest
 import com.teachmeski.app.domain.model.LessonRequestStatus
 import kotlinx.serialization.SerialName
@@ -21,6 +22,9 @@ data class ExploreRawRequestDto(
     @SerialName("dates_flexible") val datesFlexible: Boolean = false,
     val languages: List<String> = emptyList(),
     @SerialName("additional_notes") val additionalNotes: String? = null,
+    @SerialName("equipment_rental") val equipmentRental: String? = null,
+    @SerialName("needs_transport") val needsTransport: Boolean = false,
+    @SerialName("transport_note") val transportNote: String? = null,
     @SerialName("quota_limit") val quotaLimit: Int = 5,
     @SerialName("all_regions_selected") val allRegionsSelected: Boolean = false,
     @SerialName("resort_ids") val resortIds: List<String> = emptyList(),
@@ -35,6 +39,7 @@ fun ExploreRawRequestDto.toExploreLessonRequest(
     userAvatarUrl: String?,
     resortNames: List<String>,
     baseTokenCost: Int,
+    certPreferences: List<String>,
 ): ExploreLessonRequest {
     return ExploreLessonRequest(
         id = id,
@@ -50,6 +55,10 @@ fun ExploreRawRequestDto.toExploreLessonRequest(
         datesFlexible = datesFlexible,
         preferredLanguages = languages,
         additionalNotes = additionalNotes,
+        equipmentRental = EquipmentRental.fromNullableString(equipmentRental),
+        needsTransport = needsTransport,
+        transportNote = transportNote?.takeIf { it.isNotBlank() },
+        certPreferences = certPreferences,
         quotaLimit = quotaLimit,
         unlockCount = unlockCount,
         baseTokenCost = baseTokenCost,

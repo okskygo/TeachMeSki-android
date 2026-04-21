@@ -49,6 +49,11 @@ class ExploreRepositoryImpl @Inject constructor(
             } else emptyList()
             val userRows = exploreDataSource.getUserRows(creatorIds)
             val resortNameRows = exploreDataSource.getResortNames(allResortIds)
+            val certPrefRows = exploreDataSource.getCertPrefs(requestIds)
+
+            val certPrefsByRequestId = certPrefRows
+                .groupBy { it.lessonRequestId }
+                .mapValues { (_, rows) -> rows.map { it.certificationCode } }
 
             val unlockCountByRequest = mutableMapOf<String, Int>()
             val unlockedRequestIds = mutableSetOf<String>()
@@ -77,6 +82,7 @@ class ExploreRepositoryImpl @Inject constructor(
                     userAvatarUrl = u?.avatarUrl,
                     resortNames = resortNames,
                     baseTokenCost = baseTokenCost,
+                    certPreferences = certPrefsByRequestId[raw.id].orEmpty(),
                 )
             }
 

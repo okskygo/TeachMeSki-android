@@ -57,6 +57,12 @@ class ExploreDataSource @Inject constructor(
     )
 
     @Serializable
+    data class CertPrefRow(
+        @SerialName("lesson_request_id") val lessonRequestId: String,
+        @SerialName("certification_code") val certificationCode: String,
+    )
+
+    @Serializable
     data class InstructorIdRow(
         val id: String,
     )
@@ -130,7 +136,7 @@ class ExploreDataSource @Inject constructor(
         val query = supabaseClient.postgrest.from("lesson_requests")
             .select(
                 columns = Columns.raw(
-                    "id, status, created_at, discipline, skill_level, group_size, has_children, duration_days, date_start, date_end, dates_flexible, languages, additional_notes, quota_limit, all_regions_selected, resort_ids, user_id",
+                    "id, status, created_at, discipline, skill_level, group_size, has_children, duration_days, date_start, date_end, dates_flexible, languages, additional_notes, equipment_rental, needs_transport, transport_note, quota_limit, all_regions_selected, resort_ids, user_id",
                 ),
                 request = {
                     filter {
@@ -189,6 +195,15 @@ class ExploreDataSource @Inject constructor(
                 filter { isIn("id", userIds) }
             }
             .decodeList<UserRow>()
+    }
+
+    suspend fun getCertPrefs(requestIds: List<String>): List<CertPrefRow> {
+        if (requestIds.isEmpty()) return emptyList()
+        return supabaseClient.postgrest.from("lesson_request_cert_prefs")
+            .select(columns = Columns.raw("lesson_request_id, certification_code")) {
+                filter { isIn("lesson_request_id", requestIds) }
+            }
+            .decodeList<CertPrefRow>()
     }
 
     suspend fun getResortNames(resortIds: List<String>): List<ResortNameRow> {

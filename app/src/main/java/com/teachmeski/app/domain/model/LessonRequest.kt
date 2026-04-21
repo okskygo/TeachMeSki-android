@@ -27,6 +27,14 @@ enum class EquipmentRental(val value: String) {
                 "partial" -> Partial
                 else -> None
             }
+
+        fun fromNullableString(value: String?): EquipmentRental? =
+            when (value) {
+                "all" -> All
+                "partial" -> Partial
+                "none" -> None
+                else -> null
+            }
     }
 }
 

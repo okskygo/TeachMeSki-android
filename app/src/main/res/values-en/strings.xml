@@ -391,6 +391,14 @@
     <string name="explore_card_label_dates">Dates</string>
     <string name="explore_card_label_locations">Locations</string>
     <string name="explore_card_label_group_duration">Group &amp; Duration</string>
+    <string name="explore_card_label_equipment">Equipment Rental</string>
+    <string name="explore_card_label_transport">Transport</string>
+    <string name="explore_card_label_cert_preferences">Preferred Certifications</string>
+    <string name="explore_card_equipment_all">Rent everything (gear + apparel)</string>
+    <string name="explore_card_equipment_partial">Partial rental</string>
+    <string name="explore_card_equipment_none">Own gear</string>
+    <string name="explore_card_transport_needed">Transport needed</string>
+    <string name="explore_card_transport_note_prefix">Note: %1$s</string>
     <string name="explore_card_group_has_children">includes children</string>
     <string name="explore_card_dates_flexible">Flexible dates</string>
     <string name="explore_card_date_range">%1$s – %2$s</string>
