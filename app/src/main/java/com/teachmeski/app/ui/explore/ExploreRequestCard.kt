@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -226,7 +227,7 @@ private fun HeroBlock(
     Column(modifier = Modifier.padding(top = 14.dp, bottom = 4.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -242,22 +243,34 @@ private fun HeroBlock(
                 )
             }
             if (request.skillLevel != null) {
-                Text(
-                    text = stringResource(
-                        R.string.explore_card_skill_level_fmt,
-                        request.skillLevel.toString(),
-                    ),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.4.sp,
-                    ),
-                    color = TmsColor.OnPrimary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(TmsColor.Secondary)
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = stringResource(
+                            R.string.explore_card_skill_level_fmt,
+                            request.skillLevel.toString(),
+                        ),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.4.sp,
+                        ),
+                        color = TmsColor.OnPrimary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(TmsColor.Secondary)
+                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                    )
+                    val descRes = skillLevelDescriptionRes(request.discipline, request.skillLevel)
+                    if (descRes != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(descRes),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = TmsColor.OnSurfaceVariant,
+                            textAlign = TextAlign.End,
+                        )
+                    }
+                }
             }
         }
 
@@ -422,17 +435,6 @@ private fun RequesterBlock(request: ExploreLessonRequest) {
                     style = MaterialTheme.typography.labelSmall,
                     color = TmsColor.Outline,
                 )
-            }
-            if (request.skillLevel != null) {
-                val descRes = skillLevelDescriptionRes(request.discipline, request.skillLevel)
-                if (descRes != null) {
-                    Spacer(modifier = Modifier.height(3.dp))
-                    Text(
-                        text = stringResource(descRes),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
-                }
             }
         }
     }
