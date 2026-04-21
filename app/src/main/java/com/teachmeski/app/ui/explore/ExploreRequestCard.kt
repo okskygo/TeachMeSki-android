@@ -278,7 +278,7 @@ private fun HeroBlock(
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-        InlineMetaRow(request = request, isoHalf = isoHalf)
+        InlineMetaRow(request = request, isoHalf = isoHalf, hasDates = hasDates)
     }
 }
 
@@ -315,7 +315,7 @@ private fun DisciplineIcon(discipline: Discipline, tint: Color, size: androidx.c
 }
 
 @Composable
-private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean) {
+private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean, hasDates: Boolean) {
     val parts = mutableListOf<@Composable () -> Unit>()
 
     if (request.durationDays != null) {
@@ -349,7 +349,12 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean) {
         )
     }
 
-    if (request.datesFlexible) {
+    if (request.datesFlexible || !hasDates) {
+        val labelRes = if (!hasDates) {
+            R.string.explore_card_dates_any
+        } else {
+            R.string.explore_card_dates_flexible
+        }
         parts.add {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 Icon(
@@ -359,7 +364,7 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean) {
                     modifier = Modifier.size(12.dp),
                 )
                 Text(
-                    text = stringResource(R.string.explore_card_dates_flexible),
+                    text = stringResource(labelRes),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = TmsColor.Secondary,

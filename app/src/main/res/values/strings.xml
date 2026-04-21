@@ -411,6 +411,7 @@
     <string name="explore_card_transport_note_prefix">備註：%1$s</string>
     <string name="explore_card_group_has_children">含兒童</string>
     <string name="explore_card_dates_flexible">日期彈性</string>
+    <string name="explore_card_dates_any">不限日期</string>
     <string name="explore_card_date_range">%1$s – %2$s</string>
     <string name="explore_card_language_zh">中文</string>
     <string name="explore_card_language_en">英文</string>
