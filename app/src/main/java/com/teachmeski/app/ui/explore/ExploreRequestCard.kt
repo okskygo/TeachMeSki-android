@@ -208,10 +208,7 @@ private fun HeroBlock(
         Discipline.Snowboard -> stringResource(R.string.explore_card_discipline_badge_snowboard)
         Discipline.Both -> stringResource(R.string.explore_card_discipline_badge_both)
     }
-    val disciplineTextColor = when (request.discipline) {
-        Discipline.Snowboard -> TmsColor.Secondary
-        else -> TmsColor.Primary
-    }
+    val disciplineTextColor = TmsColor.OnSurface
 
     val hasDates = !request.startDate.isNullOrBlank() || !request.endDate.isNullOrBlank()
     val dateHero = run {
@@ -284,7 +281,7 @@ private fun HeroBlock(
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = (-0.5).sp,
                 ),
-                color = TmsColor.Secondary,
+                color = TmsColor.OnSurface,
             )
         }
 
@@ -552,7 +549,6 @@ private fun PreferencesInset(
                 icon = Icons.Filled.DirectionsCar,
                 label = stringResource(R.string.explore_card_pref_label_transport),
                 value = stringResource(R.string.explore_card_transport_needed),
-                valueColor = TmsColor.Primary,
             )
             if (!request.transportNote.isNullOrBlank()) {
                 Text(
