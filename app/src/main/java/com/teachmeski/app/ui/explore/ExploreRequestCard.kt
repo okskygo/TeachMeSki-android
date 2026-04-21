@@ -404,14 +404,14 @@ private fun InlineMetaRow(request: ExploreLessonRequest, isoHalf: Boolean, hasDa
 }
 
 /**
- * Requester row: avatar 36dp + display name + Lv pill, with long level
- * description below the pill (if skillLevel is present).
+ * Requester block: avatar 36dp on the left; right column has name · posted-time
+ * on the first line and (optional) note on the second line.
  */
 @Composable
-private fun RequesterBlock(request: ExploreLessonRequest) {
+private fun RequesterBlock(request: ExploreLessonRequest, note: String?) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
     ) {
         UserAvatar(
             displayName = request.userDisplayName,
@@ -419,7 +419,8 @@ private fun RequesterBlock(request: ExploreLessonRequest) {
             size = 36.dp,
         )
         Spacer(modifier = Modifier.width(12.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = request.userDisplayName,
                     style = MaterialTheme.typography.titleSmall,
@@ -434,6 +435,11 @@ private fun RequesterBlock(request: ExploreLessonRequest) {
                     style = MaterialTheme.typography.labelSmall,
                     color = TmsColor.Outline,
                 )
+            }
+            if (!note.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                NotesBody(note = note)
+            }
         }
     }
 }
@@ -604,11 +610,11 @@ private fun PrefRow(
 }
 
 @Composable
-private fun NotesBlock(notes: String) {
-    val trimmed = notes.trim()
+private fun NotesBody(note: String) {
+    val trimmed = note.trim()
     if (trimmed.isEmpty()) return
-    var expanded by remember(notes) { mutableStateOf(false) }
-    var isOverflowing by remember(notes) { mutableStateOf(false) }
+    var expanded by remember(note) { mutableStateOf(false) }
+    var isOverflowing by remember(note) { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = trimmed,
@@ -851,10 +857,6 @@ internal fun ExploreRequestCard(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                RequesterBlock(request = request)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 val hasResorts = request.allRegionsSelected || request.resortNames.isNotEmpty()
                 if (hasResorts) {
                     ResortsBlock(
@@ -876,11 +878,12 @@ internal fun ExploreRequestCard(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                val notes = request.additionalNotes?.takeIf { it.isNotBlank() }
-                if (notes != null) {
-                    NotesBlock(notes)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                RequesterBlock(
+                    request = request,
+                    note = request.additionalNotes?.takeIf { it.isNotBlank() },
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 FooterBlock(
                     remaining = remaining,
