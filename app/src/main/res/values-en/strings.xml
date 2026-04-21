@@ -911,4 +911,8 @@
         <item quantity="one">%d new message</item>
         <item quantity="other">%d new messages</item>
     </plurals>
+
+    <!-- Phase 6 Polish: offline banner + date format -->
+    <string name="offline_banner_title">You\'re offline. Some features are unavailable.</string>
+    <string name="date_format_year_month">MMM yyyy</string>
 </resources>

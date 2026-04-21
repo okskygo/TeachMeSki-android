@@ -908,4 +908,8 @@
     <plurals name="notif_chat_new_messages_count">
         <item quantity="other">%d 則新訊息</item>
     </plurals>
+
+    <!-- Phase 6 Polish: offline banner + date format -->
+    <string name="offline_banner_title">目前離線，部分功能暫無法使用</string>
+    <string name="date_format_year_month">yyyy年M月</string>
 </resources>

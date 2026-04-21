@@ -752,10 +752,11 @@ private fun datesSummary(detail: LessonRequest): String {
     val locale = LocalConfiguration.current.locales[0]
 
     if (detail.datesFlexible && detail.dateStart.isNullOrBlank()) return undecided
+    val yearMonthPattern = stringResource(R.string.date_format_year_month)
     if (detail.datesFlexible && !detail.dateStart.isNullOrBlank()) {
         val formatted = try {
             val dt = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(detail.dateStart!!)!!
-            SimpleDateFormat("yyyy年M月", locale).format(dt)
+            SimpleDateFormat(yearMonthPattern, locale).format(dt)
         } catch (_: Exception) {
             detail.dateStart
         }

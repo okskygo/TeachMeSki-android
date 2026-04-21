@@ -421,7 +421,8 @@ private fun formatLessonDates(request: LessonRequestListItem): String {
         request.datesFlexible && start != null -> {
             val dt = parseDate(start)
             if (dt != null) {
-                val fmt = SimpleDateFormat("yyyy年M月", locale)
+                val pattern = stringResource(R.string.date_format_year_month)
+                val fmt = SimpleDateFormat(pattern, locale)
                 "${fmt.format(dt)} $flexSuffix"
             } else {
                 "$start $flexSuffix"

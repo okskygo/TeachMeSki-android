@@ -41,8 +41,10 @@ import com.teachmeski.app.notifications.NotificationIntentExtras
 import com.teachmeski.app.ui.MainUiState
 import com.teachmeski.app.ui.MainViewModel
 import com.teachmeski.app.ui.component.ActiveRole
+import com.teachmeski.app.ui.component.OfflineBanner
 import com.teachmeski.app.ui.component.TmsBottomBar
 import com.teachmeski.app.ui.theme.TeachMeSkiTheme
+import com.teachmeski.app.util.NetworkMonitor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.teachmeski.app.notifications.NotificationDeepLinkBus
@@ -53,13 +55,16 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var notificationDeepLinkBus: NotificationDeepLinkBus
 
+    @Inject
+    lateinit var networkMonitor: NetworkMonitor
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         handleNotificationIntent(intent)
         setContent {
             TeachMeSkiTheme {
-                TeachMeSkiRoot()
+                TeachMeSkiRoot(networkMonitor = networkMonitor)
             }
         }
     }
@@ -86,8 +91,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
+private fun TeachMeSkiRoot(
+    networkMonitor: NetworkMonitor,
+    mainViewModel: MainViewModel = hiltViewModel(),
+) {
     val mainState by mainViewModel.uiState.collectAsStateWithLifecycle()
+    val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle()
 
     var lastResolved by remember { mutableStateOf<MainUiState?>(null) }
     LaunchedEffect(mainState) {
@@ -112,6 +121,7 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
                 activeRole = ActiveRole.Student,
                 userRole = UserRole.Student,
                 unreadCount = 0,
+                isOffline = !isOnline,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
                 onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
                 onRefreshUnreadCount = { mainViewModel.refreshUnreadCount() },
@@ -124,6 +134,7 @@ private fun TeachMeSkiRoot(mainViewModel: MainViewModel = hiltViewModel()) {
                 activeRole = resolved.activeRole,
                 userRole = resolved.userRole,
                 unreadCount = resolved.unreadCount,
+                isOffline = !isOnline,
                 onSwitchToStudent = { mainViewModel.switchRole(ActiveRole.Student) },
                 onSwitchToInstructor = { mainViewModel.switchRole(ActiveRole.Instructor) },
                 onRefreshUnreadCount = { mainViewModel.refreshUnreadCount() },
@@ -139,6 +150,7 @@ private fun AuthenticatedApp(
     activeRole: ActiveRole,
     userRole: UserRole,
     unreadCount: Int,
+    isOffline: Boolean,
     onSwitchToStudent: () -> Unit,
     onSwitchToInstructor: () -> Unit,
     onRefreshUnreadCount: () -> Unit,
@@ -230,6 +242,9 @@ private fun AuthenticatedApp(
 
     Scaffold(
         contentWindowInsets = if (isFullscreenRoute) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
+        topBar = {
+            OfflineBanner(isOffline = isOffline)
+        },
         bottomBar = {
             if (showBottomBar) {
                 TmsBottomBar(
