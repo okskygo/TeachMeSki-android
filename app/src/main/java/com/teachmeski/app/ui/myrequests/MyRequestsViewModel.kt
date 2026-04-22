@@ -37,6 +37,15 @@ class MyRequestsViewModel @Inject constructor(
         load(isInitial = false, isRefresh = true)
     }
 
+    /**
+     * Silently reload on lifecycle resume (e.g. returning from the wizard or
+     * switching back to this tab) so newly-created requests appear without
+     * requiring a manual pull-to-refresh. Does not toggle the refresh spinner.
+     */
+    fun refreshOnResume() {
+        load(isInitial = false, isRefresh = false)
+    }
+
     fun consumeError() {
         _uiState.update { it.copy(error = null) }
     }
