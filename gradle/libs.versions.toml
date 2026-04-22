@@ -33,6 +33,10 @@ kotlinxSerializationJson = "1.8.1"
 # Material (View-based, keep for compat)
 material = "1.12.0"
 
+# IAP (Phase 7)
+playBilling = "8.3.0"
+androidxBrowser = "1.10.0"
+
 # Firebase
 googleServices = "4.4.4"
 firebaseCrashlyticsPlugin = "3.0.6"
@@ -89,6 +93,10 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 
 # Material (View)
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# IAP (Phase 7)
+play-billing = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "playBilling" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
 
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }

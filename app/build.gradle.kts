@@ -86,6 +86,9 @@ dependencies {
 
     implementation(libs.material)
 
+    implementation(libs.play.billing)
+    implementation(libs.androidx.browser)
+
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
