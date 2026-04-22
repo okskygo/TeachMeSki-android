@@ -488,6 +488,22 @@
     <string name="wallet_package_price_fmt">¥%1$s</string>
     <string name="wallet_credit_history_empty_description">完成解鎖後，交易紀錄會顯示在此</string>
 
+    <!-- Phase 7: IAP (consumable token packages via Google Play Billing) -->
+    <string name="wallet_purchase_terms_link">購買條款</string>
+    <string name="wallet_iap_products_loading">載入方案中…</string>
+    <string name="wallet_iap_products_error">無法載入方案，請稍後再試</string>
+    <string name="wallet_iap_cancelled">已取消付款</string>
+    <string name="wallet_iap_pending">付款處理中，入帳後通知你</string>
+    <string name="wallet_iap_network_error">連線失敗，請檢查網路後重試</string>
+    <string name="wallet_iap_verify_failed">付款驗證失敗，請聯絡客服</string>
+    <string name="wallet_iap_webhook_delayed">付款已收到，點數將於數秒內入帳</string>
+    <string name="wallet_iap_success_title">儲值成功</string>
+    <string name="wallet_iap_success_delta_fmt">已入帳 +%1$d 點</string>
+    <string name="wallet_iap_new_balance_fmt">目前餘額 %1$d 點</string>
+    <string name="wallet_iap_buy_cta_fmt">購買 %1$s</string>
+    <string name="wallet_iap_already_owned">你已擁有這筆購買，正在重新入帳…</string>
+    <string name="wallet_iap_service_unavailable">暫時無法連接到 Google Play，請稍後再試</string>
+
     <!-- Phase 4: Instructor account (strings from teachmeski-web/content/zh-TW/base.json) -->
     <string name="instructor_account_title">我的帳號</string>
     <string name="instructor_account_wallet_entry">我的點數</string>
