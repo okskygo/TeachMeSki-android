@@ -40,9 +40,10 @@ captures/
 *.iml
 .idea/
 
-# Keystore files (unless you have a specific reason to commit)
+# Keystore files — never commit. See SIGNING.md for how to set up signing.
 *.jks
 *.keystore
+keystore.properties
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild/

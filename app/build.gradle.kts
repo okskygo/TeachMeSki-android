@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -7,6 +9,16 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
 }
+
+// Upload keystore config — loaded from keystore.properties at the repo root of the
+// Android submodule. That file is gitignored (see .gitignore: *.jks / keystore.properties).
+// If the file is missing (fresh clone, CI without secrets), release builds fall back
+// to the debug signing config so `assembleRelease` still produces an unsigned-for-Play
+// AAB you can inspect locally. For real Play uploads you MUST have keystore.properties.
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps: Properties? = if (keystorePropsFile.exists()) {
+    Properties().apply { keystorePropsFile.inputStream().use { load(it) } }
+} else null
 
 android {
     namespace = "com.teachmeski.app"
@@ -25,6 +37,24 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmenFlenFudm10aGV4YnlibGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MTQ3NTgsImV4cCI6MjA5MTQ5MDc1OH0.nw0bDRSH-DF5Y3BK0gc3xXmeEeXOJakhIdpzBhisYu4\"")
     }
 
+    signingConfigs {
+        if (keystoreProps != null) {
+            create("release") {
+                val storeFilePath = keystoreProps.getProperty("storeFile")
+                    ?: error("keystore.properties: missing storeFile")
+                storeFile = rootProject.file(storeFilePath).let { f ->
+                    if (f.exists()) f else file(storeFilePath)
+                }
+                storePassword = keystoreProps.getProperty("storePassword")
+                    ?: error("keystore.properties: missing storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                    ?: error("keystore.properties: missing keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+                    ?: error("keystore.properties: missing keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -32,6 +62,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = if (keystoreProps != null) {
+                signingConfigs.getByName("release")
+            } else {
+                // Dev fallback: unsigned-for-Play. For a real Play upload you need
+                // keystore.properties. See SIGNING.md.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
