@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -299,6 +300,20 @@ private fun BalanceHero(balance: Int, onViewHistory: () -> Unit) {
 
 @Composable
 private fun TermsBox(onClick: () -> Unit) {
+    val title = stringResource(R.string.wallet_terms_title)
+    val body = stringResource(R.string.wallet_terms_body)
+    val annotated = androidx.compose.ui.text.buildAnnotatedString {
+        withStyle(
+            androidx.compose.ui.text.SpanStyle(
+                color = TmsColor.OnSurface,
+                fontWeight = FontWeight.Bold,
+            ),
+        ) { append(title) }
+        withStyle(
+            androidx.compose.ui.text.SpanStyle(color = TmsColor.OnSurfaceVariant),
+        ) { append(" · ") }
+        append(body)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -313,28 +328,14 @@ private fun TermsBox(onClick: () -> Unit) {
             imageVector = Icons.Outlined.Info,
             contentDescription = null,
             tint = TmsColor.Primary,
-            modifier = Modifier.size(16.dp).padding(top = 2.dp),
+            modifier = Modifier.size(18.dp),
         )
-        Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(R.string.wallet_terms_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = TmsColor.OnSurface,
-                )
-                Text(
-                    text = " · ",
-                    color = TmsColor.OnSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Text(
-                    text = stringResource(R.string.wallet_terms_body),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TmsColor.OnSurfaceVariant,
-                )
-            }
-        }
+        Text(
+            text = annotated,
+            style = MaterialTheme.typography.bodySmall,
+            color = TmsColor.OnSurfaceVariant,
+            lineHeight = 18.sp,
+        )
     }
 }
 
