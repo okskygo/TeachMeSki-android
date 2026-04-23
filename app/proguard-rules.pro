@@ -73,6 +73,26 @@
 -keep class com.teachmeski.app.data.** { *; }
 -keep class com.teachmeski.app.iap.** { *; }
 
+# --- Jetpack Navigation type-safe routes ---
+# Compose Navigation uses the fully-qualified class name of @Serializable Route
+# subclasses as the destination key. If R8 renames/removes them, navigation
+# inside nested graphs silently breaks (e.g. Chat screen shows no TopBar /
+# BottomBar because the nested NavHost cannot resolve its route). Keep the
+# entire Route hierarchy and every class used in navigation, including their
+# kotlinx.serialization generated $serializer members.
+-keep class com.teachmeski.app.navigation.** { *; }
+-keep class com.teachmeski.app.navigation.Route { *; }
+-keep class com.teachmeski.app.navigation.Route$* { *; }
+-keepclassmembers class com.teachmeski.app.navigation.** {
+    public static ** INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
+    *** Companion;
+}
+
+# AndroidX Navigation internals that use reflection over Kotlin metadata.
+-keep class androidx.navigation.** { *; }
+-dontwarn androidx.navigation.**
+
 # --- Suppress warnings for optional deps ---
 -dontwarn org.slf4j.**
 -dontwarn org.conscrypt.**
