@@ -115,7 +115,6 @@ fun LessonRequestWizardScreen(
         topBar = {
             if (state.phase == WizardPhase.Steps) {
                 CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
                     colors =
                         TopAppBarDefaults.centerAlignedTopAppBarColors(
                             containerColor = TmsColor.SurfaceLowest,

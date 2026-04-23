@@ -153,7 +153,6 @@ private fun InstructorWizardStepsScaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(0, 0, 0, 0),
                 colors =
                     TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = TmsColor.SurfaceLowest,
