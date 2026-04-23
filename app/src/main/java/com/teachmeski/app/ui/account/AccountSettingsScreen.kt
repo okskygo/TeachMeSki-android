@@ -240,7 +240,7 @@ fun AccountSettingsScreen(
                             text = stringResource(R.string.account_save_button),
                             onClick = { viewModel.updateDisplayName(uiState.displayName) },
                             isLoading = uiState.isSaving,
-                            enabled = !uiState.isLoading && !isNameTooLong,
+                            enabled = !uiState.isLoading && !isNameTooLong && uiState.displayName.isNotBlank(),
                         )
                     }
                 }

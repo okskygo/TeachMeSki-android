@@ -107,6 +107,12 @@ class AccountViewModel @Inject constructor(
     fun updateDisplayName(name: String) {
         val userId = authRepository.currentUserId() ?: return
         val trimmed = name.trim()
+        if (trimmed.isBlank()) {
+            _uiState.update {
+                it.copy(error = UiText.StringResource(R.string.auth_error_display_name_required))
+            }
+            return
+        }
         if (trimmed.length > MAX_DISPLAY_NAME_LENGTH) {
             _uiState.update {
                 it.copy(error = UiText.StringResource(R.string.account_display_name_max_error))
