@@ -2,10 +2,11 @@ package com.teachmeski.app.iap
 
 /**
  * UI-ready product projection sourced from Play `ProductDetails` joined with the
- * local [IapTierCatalog] (for token amounts, which are UI-only; the server has its own map).
+ * `iap_products` catalog (token amounts are UI-only; the verify-purchase Edge Function
+ * credits from its own authoritative mapping).
  *
- * `tokens` and `bonusTokens` are NEVER used to credit the wallet — the Edge Function
- * PRODUCT_TOKEN_MAP is the single source of truth. They exist here solely for card labels.
+ * `tokens` and `bonusTokens` are NEVER used to credit the wallet. They exist here solely
+ * for card labels.
  */
 data class IapProduct(
     /** Google Play productId, e.g. "tokens_starter". */

@@ -492,6 +492,7 @@
     <string name="wallet_purchase_terms_link">購買條款</string>
     <string name="wallet_iap_products_loading">載入方案中…</string>
     <string name="wallet_iap_products_error">無法載入方案，請稍後再試</string>
+    <string name="wallet_iap_no_products">目前沒有可用的商品，請稍後再試。</string>
     <string name="wallet_iap_cancelled">已取消付款</string>
     <string name="wallet_iap_pending">付款處理中，入帳後通知你</string>
     <string name="wallet_iap_network_error">連線失敗，請檢查網路後重試</string>

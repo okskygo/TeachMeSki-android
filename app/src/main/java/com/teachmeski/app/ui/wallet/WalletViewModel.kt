@@ -80,8 +80,18 @@ class WalletViewModel @Inject constructor(
             _uiState.update { it.copy(productsLoading = true, productsError = null) }
             iapManager.loadProducts()
                 .onSuccess { list ->
-                    _uiState.update {
-                        it.copy(products = list, productsLoading = false, productsError = null)
+                    if (list.isEmpty()) {
+                        _uiState.update {
+                            it.copy(
+                                products = emptyList(),
+                                productsLoading = false,
+                                productsError = UiText.StringResource(R.string.wallet_iap_no_products),
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(products = list, productsLoading = false, productsError = null)
+                        }
                     }
                 }
                 .onFailure { e ->

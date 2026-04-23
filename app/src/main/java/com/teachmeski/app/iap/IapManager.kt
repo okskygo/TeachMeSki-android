@@ -1,6 +1,9 @@
 package com.teachmeski.app.iap
 
 import android.app.Activity
+import android.util.Log
+import com.teachmeski.app.data.model.IapProductDto
+import com.teachmeski.app.data.remote.IapProductsDataSource
 import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
@@ -22,7 +25,7 @@ import kotlinx.coroutines.flow.map
  * High-level IAP surface exposed to the ViewModel.
  *
  * Responsibilities:
- *  - Product catalog (Play ProductDetails + local [IapTierCatalog] → [IapProduct])
+ *  - Product catalog (Play ProductDetails + `iap_products` rows → [IapProduct])
  *  - Launching the purchase flow for an Activity
  *  - Querying purchases still owned (recovery after crash / delayed credit)
  *  - Consuming a purchase (ONLY after verify-purchase credited us)
@@ -50,18 +53,27 @@ interface IapManager {
 @Singleton
 class IapManagerImpl @Inject constructor(
     private val provider: BillingClientProvider,
+    private val iapProductsDataSource: IapProductsDataSource,
 ) : IapManager {
 
     /** Cache of ProductDetails keyed by productId. Needed by [launchPurchase]. */
     private val productDetailsCache = mutableMapOf<String, ProductDetails>()
 
     override suspend fun loadProducts(): Result<List<IapProduct>> = runCatching {
+        val dtos: List<IapProductDto> = runCatching { iapProductsDataSource.listActive() }
+            .getOrElse { e ->
+                Log.e(TAG, "listActive iap_products failed", e)
+                emptyList()
+            }
+        if (dtos.isEmpty()) return@runCatching emptyList()
+
+        val dtoByProductId = dtos.associateBy { it.productId }
         val client = provider.ensureConnected()
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
-                IapTierCatalog.productIds.map { id ->
+                dtos.map { dto ->
                     QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(id)
+                        .setProductId(dto.productId)
                         .setProductType(ProductType.INAPP)
                         .build()
                 },
@@ -75,18 +87,19 @@ class IapManagerImpl @Inject constructor(
         val details = result.productDetailsList.orEmpty()
         details.forEach { productDetailsCache[it.productId] = it }
         details.mapNotNull { pd ->
-            val tier = IapTierCatalog.byProductId(pd.productId) ?: return@mapNotNull null
+            val dto = dtoByProductId[pd.productId] ?: return@mapNotNull null
             val offer = pd.oneTimePurchaseOfferDetails ?: return@mapNotNull null
             IapProduct(
                 productId = pd.productId,
-                tierKey = tier.tierKey,
+                tierKey = dto.tierKey,
                 formattedPrice = offer.formattedPrice,
                 priceMicros = offer.priceAmountMicros,
                 currency = offer.priceCurrencyCode,
-                tokens = tier.tokens,
-                bonusTokens = tier.bonusTokens,
+                tokens = dto.tokens,
+                bonusTokens = dto.bonusTokens,
             )
         }
+            .sortedBy { dtoByProductId[it.productId]?.sortOrder ?: Int.MAX_VALUE }
     }
 
     override suspend fun launchPurchase(
@@ -192,5 +205,9 @@ class IapManagerImpl @Inject constructor(
 
     /** Internal carrier so we can propagate [IapError] through Result. */
     class IapException(val iapError: IapError) : RuntimeException(iapError.toString())
+
+    private companion object {
+        private const val TAG = "IapManager"
+    }
 }
 

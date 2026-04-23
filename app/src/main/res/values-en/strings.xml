@@ -486,6 +486,7 @@
     <string name="wallet_purchase_terms_link">Purchase Terms</string>
     <string name="wallet_iap_products_loading">Loading packages…</string>
     <string name="wallet_iap_products_error">Can\'t load packages right now</string>
+    <string name="wallet_iap_no_products">No products are currently available. Please try again later.</string>
     <string name="wallet_iap_cancelled">Purchase cancelled</string>
     <string name="wallet_iap_pending">Payment pending — we\'ll notify you when it clears</string>
     <string name="wallet_iap_network_error">Network error, please try again</string>
