@@ -28,10 +28,14 @@ android {
         applicationId = "com.teachmeski.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            debugSymbolLevel = "FULL"
+        }
 
         buildConfigField("String", "SUPABASE_URL", "\"https://ifzqezqnvmthexbybldh.supabase.co\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmenFlenFudm10aGV4YnlibGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MTQ3NTgsImV4cCI6MjA5MTQ5MDc1OH0.nw0bDRSH-DF5Y3BK0gc3xXmeEeXOJakhIdpzBhisYu4\"")
@@ -57,7 +61,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

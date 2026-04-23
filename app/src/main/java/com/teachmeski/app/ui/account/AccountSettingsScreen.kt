@@ -1,8 +1,6 @@
 package com.teachmeski.app.ui.account
 
-import android.Manifest
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -68,35 +66,10 @@ fun AccountSettingsScreen(
         }
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        if (granted) {
-            imagePicker.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-            )
-        }
-    }
-
     val onPickAvatar: () -> Unit = {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // Android 14+: Photo Picker works without permissions
-            null
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_IMAGES
-        } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        }
-
-        if (permission == null ||
-            context.checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            imagePicker.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-            )
-        } else {
-            permissionLauncher.launch(permission)
-        }
+        imagePicker.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+        )
     }
 
     LaunchedEffect(uiState.saveSuccess) {
