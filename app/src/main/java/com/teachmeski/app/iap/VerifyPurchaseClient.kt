@@ -9,7 +9,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
@@ -34,10 +33,13 @@ class VerifyPurchaseClient @Inject constructor(
         productId: String,
         purchaseToken: String,
     ): Result<VerifyPurchaseResponse> = runCatching {
-        val body = json.encodeToString(VerifyPurchaseBody(productId, purchaseToken))
+        // Pass the typed data class directly. The Supabase Kotlin SDK handles
+        // JSON encoding. Do NOT encodeToString first — the SDK will re-encode
+        // a raw String body, producing a double-encoded JSON string that the
+        // Edge Function cannot parse without a defensive double-parse.
         val response = supabase.functions.invoke(
             function = "verify-purchase",
-            body = body,
+            body = VerifyPurchaseBody(productId, purchaseToken),
         )
         val text = response.bodyAsText()
         val status: HttpStatusCode = response.status
