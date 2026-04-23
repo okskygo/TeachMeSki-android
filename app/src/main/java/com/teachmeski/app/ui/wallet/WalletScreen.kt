@@ -18,16 +18,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CardGiftcard
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,13 +43,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -61,6 +64,8 @@ import com.teachmeski.app.iap.IapProduct
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.util.UiText
+import java.text.NumberFormat
+import java.util.Locale
 
 private const val PURCHASE_TERMS_URL = "https://teachmeski.com/terms#purchase-terms"
 
@@ -75,7 +80,6 @@ fun WalletScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Recover pending purchases whenever the screen comes back to the foreground.
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
@@ -86,9 +90,6 @@ fun WalletScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Pipe one-shot snackbar signals from the VM. We resolve UiText -> String in a
-    // composable scope by keeping the latest message in a Compose state and reading
-    // it via @Composable asString() just before showing.
     val latestSnackbar = remember { mutableStateOf<UiText?>(null) }
     LaunchedEffect(Unit) {
         viewModel.snackbarMessages.collect { msg -> latestSnackbar.value = msg }
@@ -104,6 +105,7 @@ fun WalletScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        containerColor = TmsColor.Background,
         topBar = {
             TmsTopBar(
                 title = stringResource(R.string.wallet_title),
@@ -160,20 +162,21 @@ fun WalletScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(scroll)
-                            .padding(16.dp),
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 8.dp, bottom = 24.dp),
                     ) {
-                        BalanceCard(balance)
-                        Spacer(modifier = Modifier.height(20.dp))
-                        HistoryButton(onClick = onNavigateToCreditHistory)
-                        Spacer(modifier = Modifier.height(32.dp))
-                        Text(
-                            text = stringResource(R.string.wallet_packages_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = TmsColor.OnSurface,
+                        BalanceHero(
+                            balance = balance,
+                            onViewHistory = onNavigateToCreditHistory,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        IapPackagesSection(
+                        TermsBox(
+                            onClick = { openCustomTab(context, PURCHASE_TERMS_URL) },
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        PackagesSectionHeader()
+                        Spacer(modifier = Modifier.height(12.dp))
+                        PackagesList(
                             products = uiState.products,
                             productsLoading = uiState.productsLoading,
                             productsError = uiState.productsError,
@@ -183,11 +186,6 @@ fun WalletScreen(
                             },
                             onRetryProducts = { viewModel.loadProducts() },
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        PurchaseTermsLink(
-                            onClick = { openCustomTab(context, PURCHASE_TERMS_URL) },
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
             }
@@ -204,58 +202,168 @@ fun WalletScreen(
     }
 }
 
+// ---------- Balance Hero ----------
+
 @Composable
-private fun BalanceCard(balance: Int) {
-    Surface(
-        color = TmsColor.PrimaryFixed,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth(),
-        shadowElevation = 2.dp,
+private fun BalanceHero(balance: Int, onViewHistory: () -> Unit) {
+    val heroGradient = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFF003D6B),
+            TmsColor.Primary,
+            Color(0xFF0866A8),
+        ),
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(heroGradient)
+            .padding(horizontal = 20.dp, vertical = 20.dp),
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = stringResource(R.string.wallet_balance_label),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-                color = TmsColor.Primary,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.wallet_tokens_fmt, balance),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = TmsColor.OnSurface,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.wallet_balance_tokens),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TmsColor.OnSurfaceVariant,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(RoundedCornerShape(11.dp))
+                            .background(TmsColor.SecondaryContainer),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "$",
+                            color = Color(0xFF003D6B),
+                            fontWeight = FontWeight.Black,
+                            fontSize = 13.sp,
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.wallet_balance_title),
+                        color = TmsColor.OnPrimary.copy(alpha = 0.82f),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = formatNumber(balance),
+                        color = TmsColor.OnPrimary,
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                    )
+                    Text(
+                        text = stringResource(R.string.wallet_balance_tokens),
+                        color = TmsColor.OnPrimary.copy(alpha = 0.75f),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(TmsColor.OnPrimary.copy(alpha = 0.12f))
+                    .border(
+                        width = 1.dp,
+                        color = TmsColor.OnPrimary.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                    .clickable(onClick = onViewHistory)
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.wallet_view_history),
+                    color = TmsColor.OnPrimary,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
     }
 }
 
+// ---------- Terms Box ----------
+
 @Composable
-private fun HistoryButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = TmsColor.Primary,
-            contentColor = TmsColor.OnPrimary,
-        ),
-        shape = RoundedCornerShape(8.dp),
+private fun TermsBox(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(TmsColor.SurfaceContainer)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text(stringResource(R.string.wallet_view_history))
+        Icon(
+            imageVector = Icons.Outlined.Info,
+            contentDescription = null,
+            tint = TmsColor.Primary,
+            modifier = Modifier.size(16.dp).padding(top = 2.dp),
+        )
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.wallet_terms_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = TmsColor.OnSurface,
+                )
+                Text(
+                    text = " · ",
+                    color = TmsColor.OnSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    text = stringResource(R.string.wallet_terms_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TmsColor.OnSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+// ---------- Packages list ----------
+
+@Composable
+private fun PackagesSectionHeader() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = stringResource(R.string.wallet_packages_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.ExtraBold,
+            color = TmsColor.OnSurface,
+        )
+        Text(
+            text = stringResource(R.string.wallet_packages_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = TmsColor.Outline,
+            fontWeight = FontWeight.Medium,
+        )
     }
 }
 
 @Composable
-private fun IapPackagesSection(
+private fun PackagesList(
     products: List<IapProduct>,
     productsLoading: Boolean,
     productsError: UiText?,
@@ -293,6 +401,7 @@ private fun IapPackagesSection(
                     text = productsError.asString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TmsColor.OnSurfaceVariant,
+                    textAlign = TextAlign.Center,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(onClick = onRetryProducts) {
@@ -302,27 +411,15 @@ private fun IapPackagesSection(
         }
 
         else -> {
-            val rows = products.chunked(2)
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                rows.forEach { rowPkgs ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        rowPkgs.forEach { product ->
-                            IapProductCard(
-                                product = product,
-                                busy = iapPhase is IapPhase.Purchasing && iapPhase.productId == product.productId ||
-                                    iapPhase is IapPhase.Verifying && iapPhase.productId == product.productId,
-                                anyBusy = iapPhase !is IapPhase.Idle && iapPhase !is IapPhase.Success,
-                                onBuy = { onBuy(product.productId) },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                        if (rowPkgs.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
+                products.forEach { product ->
+                    PackageCard(
+                        product = product,
+                        busy = iapPhase is IapPhase.Purchasing && iapPhase.productId == product.productId ||
+                            iapPhase is IapPhase.Verifying && iapPhase.productId == product.productId,
+                        anyBusy = iapPhase !is IapPhase.Idle && iapPhase !is IapPhase.Success,
+                        onBuy = { onBuy(product.productId) },
+                    )
                 }
             }
         }
@@ -330,122 +427,162 @@ private fun IapPackagesSection(
 }
 
 @Composable
-private fun IapProductCard(
+private fun PackageCard(
     product: IapProduct,
     busy: Boolean,
     anyBusy: Boolean,
     onBuy: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    val popular = product.tierKey == "popular"
+    val featured = product.tierKey == "popular"
     val cardShape = RoundedCornerShape(16.dp)
-    Box(modifier = modifier) {
-        ElevatedCard(
-            shape = cardShape,
-            colors = CardDefaults.elevatedCardColors(containerColor = TmsColor.SurfaceLowest),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+    val cardBackground: Brush = if (featured) {
+        Brush.linearGradient(
+            colors = listOf(TmsColor.SurfaceLowest, TmsColor.PrimaryFixed.copy(alpha = 0.55f)),
+        )
+    } else {
+        Brush.linearGradient(colors = listOf(TmsColor.SurfaceLowest, TmsColor.SurfaceLowest))
+    }
+    Box {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(cardShape)
+                .background(cardBackground)
                 .then(
-                    if (popular) {
-                        Modifier.border(2.dp, TmsColor.Primary.copy(alpha = 0.45f), cardShape)
+                    if (featured) {
+                        Modifier.border(2.dp, TmsColor.Primary, cardShape)
                     } else {
-                        Modifier
+                        Modifier.border(1.dp, TmsColor.OutlineVariant.copy(alpha = 0.6f), cardShape)
                     },
-                ),
+                )
+                .padding(horizontal = 18.dp, vertical = 18.dp),
         ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)) {
-                if (popular) Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = tierDisplayName(product.tierKey),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = TmsColor.OnSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = product.totalTokens.toString(),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = TmsColor.OnSurface,
-                )
-                Text(
-                    text = stringResource(R.string.wallet_package_credits_fmt, product.totalTokens),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TmsColor.OnSurfaceVariant,
-                )
-                if (product.bonusTokens > 0) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Surface(
-                        shape = RoundedCornerShape(999.dp),
-                        color = TmsColor.PrimaryFixed,
+            // Top row: name/desc | points/bonus
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = tierDisplayName(product.tierKey),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TmsColor.OnSurface,
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = tierDescription(product.tierKey),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TmsColor.Outline,
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        Text(
+                            text = formatNumber(product.totalTokens),
+                            color = if (featured) Color(0xFF003D6B) else TmsColor.OnSurface,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                        Text(
+                            text = stringResource(R.string.wallet_balance_tokens),
+                            color = TmsColor.Outline,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 4.dp),
+                        )
+                    }
+                    if (product.bonusTokens > 0) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Surface(
+                            shape = RoundedCornerShape(999.dp),
+                            color = TmsColor.SecondaryContainer.copy(alpha = 0.15f),
                         ) {
-                            Icon(
-                                imageVector = Icons.Outlined.CardGiftcard,
-                                contentDescription = null,
-                                tint = TmsColor.Primary,
-                                modifier = Modifier.size(14.dp),
-                            )
                             Text(
-                                text = stringResource(R.string.wallet_package_bonus_fmt, product.bonusTokens),
+                                text = stringResource(
+                                    R.string.wallet_package_bonus_inline_fmt,
+                                    product.bonusTokens,
+                                ),
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Medium,
-                                color = TmsColor.Primary,
+                                fontWeight = FontWeight.Bold,
+                                color = TmsColor.Warning,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
                             )
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(TmsColor.OutlineVariant.copy(alpha = 0.5f)),
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Bottom row: price | buy button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 Text(
                     text = product.formattedPrice,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
                     color = TmsColor.OnSurface,
                 )
-                Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = onBuy,
                     enabled = !anyBusy,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = TmsColor.Primary,
+                        containerColor = if (featured) Color(0xFF003D6B) else TmsColor.Primary,
                         contentColor = TmsColor.OnPrimary,
                         disabledContainerColor = TmsColor.Primary.copy(alpha = 0.38f),
                         disabledContentColor = TmsColor.OnPrimary.copy(alpha = 0.85f),
+                    ),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 28.dp,
+                        vertical = 12.dp,
                     ),
                 ) {
                     if (busy) {
                         CircularProgressIndicator(
                             color = TmsColor.OnPrimary,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(18.dp),
                             strokeWidth = 2.dp,
                         )
                     } else {
-                        Text(text = stringResource(R.string.wallet_iap_buy_cta_fmt, product.formattedPrice))
+                        Text(
+                            text = stringResource(R.string.wallet_buy_cta),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
                     }
                 }
             }
         }
-        if (popular) {
+
+        if (featured) {
             Surface(
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = (-10).dp),
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-18).dp, y = (-10).dp),
                 shape = RoundedCornerShape(999.dp),
-                color = TmsColor.Primary,
-                shadowElevation = 2.dp,
+                color = TmsColor.SecondaryContainer,
+                shadowElevation = 4.dp,
             ) {
                 Text(
-                    text = stringResource(R.string.wallet_package_popular),
+                    text = stringResource(R.string.wallet_package_featured),
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TmsColor.OnPrimary,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = TmsColor.OnSurface,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                 )
             }
@@ -463,18 +600,16 @@ private fun tierDisplayName(tierKey: String): String = when (tierKey) {
 }
 
 @Composable
-private fun PurchaseTermsLink(onClick: () -> Unit) {
-    Text(
-        text = stringResource(R.string.wallet_purchase_terms_link),
-        style = MaterialTheme.typography.bodyMedium,
-        color = TmsColor.Primary,
-        textDecoration = TextDecoration.Underline,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-    )
+private fun tierDescription(tierKey: String): String = when (tierKey) {
+    "starter" -> stringResource(R.string.wallet_package_desc_starter)
+    "popular" -> stringResource(R.string.wallet_package_desc_popular)
+    "pro" -> stringResource(R.string.wallet_package_desc_pro)
+    "premium" -> stringResource(R.string.wallet_package_desc_premium)
+    else -> ""
 }
+
+private fun formatNumber(value: Int): String =
+    NumberFormat.getNumberInstance(Locale.US).format(value)
 
 private fun openCustomTab(context: android.content.Context, url: String) {
     val primary = TmsColor.Primary.toArgb()
