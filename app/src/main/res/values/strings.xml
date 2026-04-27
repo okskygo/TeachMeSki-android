@@ -921,9 +921,9 @@
     <string name="instructor_detail_cert_other_prefix">其他：</string>
     <string name="instructor_detail_languages_label">授課語言</string>
     <string name="instructor_detail_language_zh">中文</string>
-    <string name="instructor_detail_language_en">English</string>
-    <string name="instructor_detail_language_ja">日本語</string>
-    <string name="instructor_detail_language_separator">"、"</string>
+    <string name="instructor_detail_language_en">英文</string>
+    <string name="instructor_detail_language_ja">日文</string>
+    <string name="instructor_detail_language_separator">、</string>
     <string name="instructor_detail_pricing_label">收費</string>
     <string name="instructor_detail_price_half_day_fmt">半日：NT$%1$s</string>
     <string name="instructor_detail_price_full_day_fmt">全日：NT$%1$s</string>
