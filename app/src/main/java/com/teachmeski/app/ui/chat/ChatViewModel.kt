@@ -51,6 +51,13 @@ data class ChatUiState(
     val showUnlockDialog: Boolean = false,
     val isUnlocking: Boolean = false,
     val unlockMessageDraft: String = "",
+    /// After a successful older-message page prepends, this holds the
+    /// id of the message that was the first visible row immediately
+    /// before the prepend. The view anchors the scroll position to
+    /// this id (with offset 0, anchor top) so the user keeps reading
+    /// from the same row instead of being yanked to either end of the
+    /// list. The view consumes the value via `consumePrependAnchor`.
+    val prependAnchorMessageId: String? = null,
 )
 
 @HiltViewModel
@@ -222,6 +229,7 @@ class ChatViewModel @Inject constructor(
         val s = _uiState.value
         if (!s.hasMoreOlder || s.isLoadingOlder || s.messages.isEmpty()) return
         viewModelScope.launch {
+            val anchorId = s.messages.first().id
             _uiState.update { it.copy(isLoadingOlder = true) }
             val beforeSentAt = s.messages.first().sentAt
             when (val res = chatRepository.getOlderMessages(roomId, beforeSentAt)) {
@@ -234,6 +242,7 @@ class ChatViewModel @Inject constructor(
                             messages = newOnes + prev.messages,
                             hasMoreOlder = more,
                             isLoadingOlder = false,
+                            prependAnchorMessageId = if (newOnes.isNotEmpty()) anchorId else null,
                         )
                     }
                 }
@@ -267,6 +276,10 @@ class ChatViewModel @Inject constructor(
 
     fun consumeError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun consumePrependAnchor() {
+        _uiState.update { it.copy(prependAnchorMessageId = null) }
     }
 
     fun consumeToast() {

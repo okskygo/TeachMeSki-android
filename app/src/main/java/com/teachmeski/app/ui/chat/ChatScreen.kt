@@ -85,9 +85,36 @@ fun ChatScreen(
 
     LaunchedEffect(uiState.messages.size) {
         val count = uiState.messages.size
-        if (hasInitialScrolled && count > 0 && isAtBottom) {
+        if (!hasInitialScrolled || count == 0) return@LaunchedEffect
+        // Skip auto-scroll-to-bottom when the size grew because of an
+        // older-message prepend; in that case we let the dedicated
+        // prepend-anchor effect (below) restore the user's reading
+        // position to the row they were on before pagination.
+        if (uiState.prependAnchorMessageId != null) return@LaunchedEffect
+        // Always scroll when the new tail row is sent by the current
+        // user (matches user spec: "發送訊息時，自動 scroll to
+        // bottom"). For incoming messages, only scroll when the user
+        // is parked at the bottom — otherwise keep the viewport pinned
+        // so they can keep reading older messages.
+        val tail = uiState.messages.lastOrNull()
+        val ownTail = tail != null && tail.senderId == uiState.currentUserId
+        if (ownTail || isAtBottom) {
             listState.animateScrollToItem(count - 1)
         }
+    }
+
+    // After an older-message page is prepended, restore the scroll so
+    // the row that used to be first-visible stays in roughly the same
+    // place (anchor at offset 0). Without this, LazyColumn keeps
+    // `firstVisibleItemIndex == 0` and the viewport jumps to the
+    // newly-loaded oldest message at the top of the list.
+    LaunchedEffect(uiState.prependAnchorMessageId) {
+        val anchorId = uiState.prependAnchorMessageId ?: return@LaunchedEffect
+        val index = uiState.messages.indexOfFirst { it.id == anchorId }
+        if (index >= 0) {
+            listState.scrollToItem(index, scrollOffset = 0)
+        }
+        viewModel.consumePrependAnchor()
     }
 
     LaunchedEffect(listState, hasInitialScrolled) {
