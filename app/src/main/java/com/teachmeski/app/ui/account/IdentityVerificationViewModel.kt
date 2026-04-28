@@ -39,7 +39,13 @@ class IdentityVerificationViewModel @Inject constructor(
     init {
         loadProfile()
         viewModelScope.launch {
-            LineBindResultBus.flow.collect { handleResult(it) }
+            LineBindResultBus.flow.collect { result ->
+                handleResult(result)
+                // Drop the replay cache so the next time the user
+                // opens the account-settings screen we do not
+                // re-show the same "Identity verified" toast.
+                LineBindResultBus.consume()
+            }
         }
     }
 
