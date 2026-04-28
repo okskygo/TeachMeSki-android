@@ -959,4 +959,21 @@
     <!-- Phase 6 Polish: offline banner + date format -->
     <string name="offline_banner_title">目前離線，部分功能暫無法使用</string>
     <string name="date_format_year_month">yyyy年M月</string>
+
+    <!-- F-108 Identity Verification (LINE binding) -->
+    <string name="identity_verification_title">身分驗證</string>
+    <string name="identity_verification_description">綁定 LINE 帳號完成身分驗證後，即可解鎖課程需求單。</string>
+    <string name="identity_bind_line_button">使用 LINE 綁定</string>
+    <string name="identity_verified_label">身分已驗證</string>
+    <string name="identity_unverified_label">未驗證</string>
+    <string name="identity_bound_locked_text">已綁定 LINE（聯絡客服可變更）</string>
+    <string name="identity_bind_success_toast">身分驗證完成！500 點已可使用</string>
+    <string name="identity_bind_error_already_used">此 LINE 帳號已被其他 TeachMeSki 帳號綁定。若這是你的帳號，請聯絡客服</string>
+    <string name="identity_bind_error_already_bound">您的帳號已綁定 LINE</string>
+    <string name="identity_bind_error_cancelled">已取消綁定</string>
+    <string name="identity_bind_error_generic">綁定失敗，請稍後再試</string>
+    <string name="identity_bind_required_modal_title">需要先完成身分驗證</string>
+    <string name="identity_bind_required_modal_body">解鎖課程需求單前，請先綁定 LINE 帳號完成身分驗證</string>
+    <string name="identity_bind_required_modal_cta">立即綁定</string>
+    <string name="identity_bind_required_modal_cancel">取消</string>
 </resources>

@@ -962,4 +962,21 @@
     <!-- Phase 6 Polish: offline banner + date format -->
     <string name="offline_banner_title">You\'re offline. Some features are unavailable.</string>
     <string name="date_format_year_month">MMM yyyy</string>
+
+    <!-- F-108 Identity Verification (LINE binding) -->
+    <string name="identity_verification_title">Identity Verification</string>
+    <string name="identity_verification_description">Bind your LINE account to verify your identity and unlock lesson requests.</string>
+    <string name="identity_bind_line_button">Bind with LINE</string>
+    <string name="identity_verified_label">Identity verified</string>
+    <string name="identity_unverified_label">Unverified</string>
+    <string name="identity_bound_locked_text">Bound to LINE — contact support to change.</string>
+    <string name="identity_bind_success_toast">Identity verified! Your 500 tokens are now usable.</string>
+    <string name="identity_bind_error_already_used">This LINE account is already bound to another TeachMeSki account. If it is yours, please contact support.</string>
+    <string name="identity_bind_error_already_bound">Your account is already bound to a LINE account.</string>
+    <string name="identity_bind_error_cancelled">Binding cancelled.</string>
+    <string name="identity_bind_error_generic">Binding failed. Please try again later.</string>
+    <string name="identity_bind_required_modal_title">Identity verification required</string>
+    <string name="identity_bind_required_modal_body">Please bind your LINE account to verify your identity before unlocking lesson requests.</string>
+    <string name="identity_bind_required_modal_cta">Bind now</string>
+    <string name="identity_bind_required_modal_cancel">Cancel</string>
 </resources>
