@@ -36,6 +36,7 @@ material = "1.12.0"
 # IAP (Phase 7)
 playBilling = "8.3.0"
 androidxBrowser = "1.10.0"
+androidxSecurityCrypto = "1.1.0-alpha06"
 
 # Firebase
 googleServices = "4.4.4"
@@ -97,6 +98,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 # IAP (Phase 7)
 play-billing = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "playBilling" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidxSecurityCrypto" }
 
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }

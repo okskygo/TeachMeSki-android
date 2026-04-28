@@ -130,6 +130,7 @@ dependencies {
 
     implementation(libs.play.billing)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.security.crypto)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
