@@ -159,7 +159,7 @@ class ChatRepositoryImpl @Inject constructor(
                     instructorRatingAvg = instructor.ratingAvg,
                     instructorRatingCount = instructor.ratingCount,
                     instructorBio = instructor.bio,
-                    instructorPhoneVerifiedAt = instructor.phoneVerifiedAt,
+                    instructorLineUserId = instructor.lineUserId,
                     instructorId = room.instructorId,
                     instructorUserId = instructor.userId,
                     isReviewed = isReviewed,

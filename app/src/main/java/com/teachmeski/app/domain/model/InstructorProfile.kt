@@ -22,8 +22,12 @@ data class InstructorProfile(
     val ratingAvg: Double?,
     val ratingCount: Int,
     val viewCount: Int,
-    val phone: String?,
-    val phoneVerifiedAt: String?,
+    /**
+     * F-108 LINE identity binding. Non-null means the instructor has
+     * completed LINE identity verification and may unlock lesson
+     * requests; null means unverified.
+     */
+    val lineUserId: String?,
     val resortIds: List<String>,
     val resortNames: List<String>,
 )

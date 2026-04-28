@@ -12,7 +12,8 @@ data class InstructorPreview(
     val isReviewed: Boolean = false,
     val ratingAvg: Double? = null,
     val ratingCount: Int = 0,
-    val phoneVerifiedAt: String? = null,
+    /** F-108: non-null = LINE identity verified. */
+    val lineUserId: String? = null,
     val shortId: String? = null,
     val section: InstructorSection = InstructorSection.UserInitiated,
     val lastMessageContent: String? = null,

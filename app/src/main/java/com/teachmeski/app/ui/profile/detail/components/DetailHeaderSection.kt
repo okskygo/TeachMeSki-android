@@ -37,7 +37,7 @@ fun DetailHeaderSection(profile: InstructorProfile) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 IdentityVerifiedBadge(
-                    verified = profile.phoneVerifiedAt != null,
+                    verified = profile.lineUserId != null,
                     verifiedLabel = stringResource(R.string.identity_verified_label),
                     unverifiedLabel = stringResource(R.string.identity_unverified_label),
                 )

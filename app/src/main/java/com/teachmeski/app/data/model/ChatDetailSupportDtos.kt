@@ -38,7 +38,7 @@ data class InstructorProfileDetailDto(
     @SerialName("rating_avg") val ratingAvg: Double? = null,
     @SerialName("rating_count") val ratingCount: Int = 0,
     val bio: String? = null,
-    @SerialName("phone_verified_at") val phoneVerifiedAt: String? = null,
+    @SerialName("line_user_id") val lineUserId: String? = null,
 )
 
 @Serializable

@@ -22,7 +22,7 @@ fun ChatRoomPreviewDto.toInstructorPreview(
         roomId = id,
         ratingAvg = profile?.ratingAvg,
         ratingCount = profile?.ratingCount ?: 0,
-        phoneVerifiedAt = profile?.phoneVerifiedAt,
+        lineUserId = profile?.lineUserId,
         shortId = profile?.shortId,
         section = section,
         lastMessageContent = lastMessageContent,

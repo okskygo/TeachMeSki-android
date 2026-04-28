@@ -38,5 +38,5 @@ data class InstructorProfilePreviewDto(
     @SerialName("short_id") val shortId: String? = null,
     @SerialName("rating_avg") val ratingAvg: Double? = null,
     @SerialName("rating_count") val ratingCount: Int = 0,
-    @SerialName("phone_verified_at") val phoneVerifiedAt: String? = null,
+    @SerialName("line_user_id") val lineUserId: String? = null,
 )

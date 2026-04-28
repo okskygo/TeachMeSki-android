@@ -862,7 +862,7 @@ private fun UnlockedInstructorCard(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     IdentityVerifiedBadge(
-                        verified = preview.phoneVerifiedAt != null,
+                        verified = preview.lineUserId != null,
                         verifiedLabel = stringResource(R.string.identity_verified_label),
                         unverifiedLabel = stringResource(R.string.identity_unverified_label),
                     )
@@ -937,7 +937,7 @@ private fun RecommendedInstructorCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 IdentityVerifiedBadge(
-                    verified = preview.phoneVerifiedAt != null,
+                    verified = preview.lineUserId != null,
                     verifiedLabel = stringResource(R.string.identity_verified_label),
                     unverifiedLabel = stringResource(R.string.identity_unverified_label),
                 )

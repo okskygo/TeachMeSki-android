@@ -27,8 +27,8 @@ data class InstructorProfileDto(
     @SerialName("rating_avg") val ratingAvg: Double? = null,
     @SerialName("rating_count") val ratingCount: Int = 0,
     @SerialName("view_count") val viewCount: Int = 0,
-    val phone: String? = null,
-    @SerialName("phone_verified_at") val phoneVerifiedAt: String? = null,
+    @SerialName("line_user_id") val lineUserId: String? = null,
+    @SerialName("line_verified_at") val lineVerifiedAt: String? = null,
     @SerialName("resort_ids") val resortIds: List<String> = emptyList(),
 )
 
@@ -57,8 +57,7 @@ fun InstructorProfileDto.toDomain(
     ratingAvg = ratingAvg,
     ratingCount = ratingCount,
     viewCount = viewCount,
-    phone = phone,
-    phoneVerifiedAt = phoneVerifiedAt,
+    lineUserId = lineUserId,
     resortIds = resortIds,
     resortNames = resortNames,
 )

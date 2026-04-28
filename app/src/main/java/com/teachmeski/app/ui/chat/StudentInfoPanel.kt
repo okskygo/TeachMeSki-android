@@ -93,7 +93,7 @@ private fun InstructorHeaderCard(
                     fontWeight = FontWeight.SemiBold,
                 )
                 IdentityVerifiedBadge(
-                    verified = data.instructorPhoneVerifiedAt != null,
+                    verified = data.instructorLineUserId != null,
                     verifiedLabel = stringResource(R.string.identity_verified_label),
                     unverifiedLabel = stringResource(R.string.identity_unverified_label),
                 )

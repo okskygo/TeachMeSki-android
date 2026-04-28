@@ -590,7 +590,7 @@ private fun HeaderCard(
     onVerifyPhone: () -> Unit,
 ) {
     var showVerifyPhoneDialog by remember { mutableStateOf(false) }
-    val phoneVerified = profile.phoneVerifiedAt != null
+    val identityVerified = profile.lineUserId != null
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -643,11 +643,11 @@ private fun HeaderCard(
                 }
             }
             IdentityVerifiedBadge(
-                verified = phoneVerified,
+                verified = identityVerified,
                 verifiedLabel = stringResource(R.string.identity_verified_label),
                 unverifiedLabel = stringResource(R.string.identity_unverified_label),
                 modifier =
-                    if (!phoneVerified) {
+                    if (!identityVerified) {
                         Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,

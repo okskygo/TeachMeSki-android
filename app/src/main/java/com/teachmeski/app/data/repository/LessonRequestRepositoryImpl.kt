@@ -172,7 +172,7 @@ class LessonRequestRepositoryImpl @Inject constructor(
                 roomId = null,
                 ratingAvg = dto.ratingAvg,
                 ratingCount = dto.ratingCount,
-                phoneVerifiedAt = dto.phoneVerifiedAt,
+                lineUserId = dto.lineUserId,
                 shortId = dto.shortId,
             )
         }

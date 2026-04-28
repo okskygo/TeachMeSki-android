@@ -89,7 +89,7 @@ class LessonRequestDataSource @Inject constructor(
             .from("lesson_requests")
             .select(
                 columns = Columns.raw(
-                    "id, discipline, skill_level, group_size, date_start, date_end, dates_flexible, duration_days, status, created_at, chat_rooms(id, instructor_id, last_message_content, last_message_at, last_message_sender_id, last_read_at, instructor_profiles(id, user_id, display_name, avatar_url, short_id, rating_avg, rating_count, phone_verified_at))"
+                    "id, discipline, skill_level, group_size, date_start, date_end, dates_flexible, duration_days, status, created_at, chat_rooms(id, instructor_id, last_message_content, last_message_at, last_message_sender_id, last_read_at, instructor_profiles(id, user_id, display_name, avatar_url, short_id, rating_avg, rating_count, line_user_id))"
                 )
             ) {
                 filter { eq("user_id", userId) }
@@ -155,7 +155,7 @@ class LessonRequestDataSource @Inject constructor(
             .from("instructor_profiles")
             .select(
                 columns = Columns.raw(
-                    "id, user_id, display_name, avatar_url, short_id, rating_avg, rating_count, phone_verified_at"
+                    "id, user_id, display_name, avatar_url, short_id, rating_avg, rating_count, line_user_id"
                 )
             ) {
                 filter {
@@ -204,7 +204,7 @@ class LessonRequestDataSource @Inject constructor(
             .from("chat_rooms")
             .select(
                 columns = Columns.raw(
-                    "id, instructor_id, last_message_content, last_message_at, last_message_sender_id, last_read_at, instructor_profiles(id, user_id, display_name, avatar_url, short_id, rating_avg, rating_count, phone_verified_at)"
+                    "id, instructor_id, last_message_content, last_message_at, last_message_sender_id, last_read_at, instructor_profiles(id, user_id, display_name, avatar_url, short_id, rating_avg, rating_count, line_user_id)"
                 )
             ) {
                 filter {

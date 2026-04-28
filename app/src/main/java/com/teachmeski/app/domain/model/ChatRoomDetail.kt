@@ -55,7 +55,7 @@ sealed class InfoPanelData {
         val instructorRatingAvg: Double?,
         val instructorRatingCount: Int,
         val instructorBio: String?,
-        val instructorPhoneVerifiedAt: String?,
+        val instructorLineUserId: String?,
         val instructorId: String,
         val instructorUserId: String,
         val isReviewed: Boolean,

@@ -43,13 +43,9 @@ class InstructorAccountSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = instructorRepository.getMyProfile()) {
                 is Resource.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            initialPhone = result.data.phone,
-                            initialPhoneVerifiedAt = result.data.phoneVerifiedAt,
-                            isLoading = false,
-                        )
-                    }
+                    // F-108: phone fields are gone — initialPhone* remain as
+                    // null placeholders until Task 3.7 swaps the section.
+                    _uiState.update { it.copy(isLoading = false) }
                 }
                 is Resource.Error -> _uiState.update { it.copy(isLoading = false) }
                 is Resource.Loading -> Unit

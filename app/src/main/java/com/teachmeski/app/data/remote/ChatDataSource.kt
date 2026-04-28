@@ -244,7 +244,7 @@ class ChatDataSource @Inject constructor(
         supabaseClient.postgrest.from("instructor_profiles")
             .select(
                 columns = Columns.raw(
-                    "id, user_id, short_id, display_name, avatar_url, rating_avg, rating_count, bio, phone_verified_at",
+                    "id, user_id, short_id, display_name, avatar_url, rating_avg, rating_count, bio, line_user_id",
                 ),
             ) { filter { eq("id", instructorProfileId) } }
             .decodeSingle<InstructorProfileDetailDto>()
