@@ -41,6 +41,30 @@
             </intent-filter>
         </activity>
 
+        <!--
+          F-108 Identity verification: receives LINE Login OAuth callback
+          via App Link at https://teachmeski.com/auth/line/callback.
+          App Link verification (autoVerify=true) requires
+          /.well-known/assetlinks.json on teachmeski.com matching the
+          release signing certificate. Debug builds fall back to the
+          system disambiguation chooser, which is acceptable for dev.
+        -->
+        <activity
+            android:name=".auth.LineCallbackActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="teachmeski.com"
+                    android:pathPrefix="/auth/line/callback" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".notifications.TmsFirebaseMessagingService"
             android:exported="false">

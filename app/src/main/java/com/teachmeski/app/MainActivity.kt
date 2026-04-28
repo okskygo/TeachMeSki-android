@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,9 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.teachmeski.app.auth.LineBindResultBus
+import com.teachmeski.app.auth.LineBindResultUi
+import com.teachmeski.app.auth.LineCallbackActivity
 import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.navigation.AppNavGraph
 import com.teachmeski.app.navigation.Route
@@ -47,6 +51,7 @@ import com.teachmeski.app.ui.theme.TeachMeSkiTheme
 import com.teachmeski.app.util.NetworkMonitor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import com.teachmeski.app.notifications.NotificationDeepLinkBus
 
 @AndroidEntryPoint
@@ -62,6 +67,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         handleNotificationIntent(intent)
+        handleLineBindIntent(intent)
         setContent {
             TeachMeSkiTheme {
                 TeachMeSkiRoot(networkMonitor = networkMonitor)
@@ -73,6 +79,17 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleNotificationIntent(intent)
+        handleLineBindIntent(intent)
+    }
+
+    private fun handleLineBindIntent(intent: Intent?) {
+        val kind = intent?.getStringExtra(LineCallbackActivity.EXTRA_LINE_RESULT) ?: return
+        val errorCode = intent.getStringExtra(LineCallbackActivity.EXTRA_LINE_ERROR_CODE)
+        lifecycleScope.launch {
+            LineBindResultBus.emit(LineBindResultUi(kind = kind, errorCode = errorCode))
+        }
+        intent.removeExtra(LineCallbackActivity.EXTRA_LINE_RESULT)
+        intent.removeExtra(LineCallbackActivity.EXTRA_LINE_ERROR_CODE)
     }
 
     private fun handleNotificationIntent(intent: Intent?) {
