@@ -1,7 +1,7 @@
 package com.teachmeski.app.ui.account
 
-import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.net.toUri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -61,7 +61,7 @@ fun IdentityVerificationSection(
 
     LaunchedEffect(state.authorizeUrl) {
         val url = state.authorizeUrl ?: return@LaunchedEffect
-        CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(url))
+        CustomTabsIntent.Builder().build().launchUrl(context, url.toUri())
         viewModel.authorizeUrlConsumed()
     }
 

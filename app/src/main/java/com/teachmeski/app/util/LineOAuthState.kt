@@ -1,6 +1,7 @@
 package com.teachmeski.app.util
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -49,12 +50,12 @@ class LineOAuthState @Inject constructor(@ApplicationContext private val context
         val challenge = b64url(
             MessageDigest.getInstance("SHA-256").digest(verifier.toByteArray()),
         )
-        prefs.edit()
-            .putString(KEY_STATE, state)
-            .putString(KEY_NONCE, nonce)
-            .putString(KEY_VERIFIER, verifier)
-            .putLong(KEY_CREATED_AT, System.currentTimeMillis())
-            .apply()
+        prefs.edit {
+            putString(KEY_STATE, state)
+            putString(KEY_NONCE, nonce)
+            putString(KEY_VERIFIER, verifier)
+            putLong(KEY_CREATED_AT, System.currentTimeMillis())
+        }
         return LineOAuthInit(state, nonce, verifier, challenge)
     }
 
@@ -69,7 +70,7 @@ class LineOAuthState @Inject constructor(@ApplicationContext private val context
         val nonce = prefs.getString(KEY_NONCE, null) ?: return null
         val verifier = prefs.getString(KEY_VERIFIER, null) ?: return null
         val createdAt = prefs.getLong(KEY_CREATED_AT, 0L)
-        prefs.edit().clear().apply()
+        prefs.edit { clear() }
         if (state != expectedState) return null
         if (System.currentTimeMillis() - createdAt > TTL_MS) return null
         return Persisted(state, nonce, verifier)
