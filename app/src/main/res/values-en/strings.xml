@@ -318,8 +318,6 @@
     <string name="request_detail_no_user_initiated_yet">You haven\'t contacted any instructors yet</string>
     <string name="request_detail_last_message_empty">No messages yet</string>
     <string name="request_detail_go_to_chat">Go to chat</string>
-    <string name="request_detail_phone_verified">Phone Verified</string>
-    <string name="request_detail_phone_unverified">Phone Not Verified</string>
     <string name="request_detail_recommended_title">Recommended Instructors</string>
     <string name="request_detail_recommended_none">No recommended instructors at the moment</string>
     <string name="request_detail_recommended_contact">Contact Now</string>
@@ -521,28 +519,6 @@
     <string name="instructor_account_switch_to_student">Switch to Student</string>
     <string name="instructor_account_become_instructor">Become an Instructor</string>
 
-    <!-- Phone verification -->
-    <string name="phone_section_title">Phone Verification</string>
-    <string name="phone_section_desc">Verify your phone number to earn a verified badge and build student trust.</string>
-    <string name="phone_input_label">Phone Number</string>
-    <string name="phone_input_placeholder">09xx-xxx-xxx or +81 80-xxxx-xxxx</string>
-    <string name="phone_input_hint">Supports Taiwan (09 prefix) and Japan (080/090 prefix)</string>
-    <string name="phone_send_button">Send Code</string>
-    <string name="phone_sending">Sending…</string>
-    <string name="phone_verified_label">Phone Verified</string>
-    <string name="phone_unverified_label">Phone Not Verified</string>
-    <string name="phone_verified_locked">Locked. Contact support to change.</string>
-    <string name="phone_otp_title">Enter Verification Code</string>
-    <string name="phone_otp_subtitle_fmt">Code sent to %1$s. Valid for 10 minutes.</string>
-    <string name="phone_resend">Resend Code</string>
-    <string name="phone_resend_cooldown_fmt">Resend in %1$ds</string>
-    <string name="phone_success">Phone number verified!</string>
-    <string name="phone_error_invalid_format">Invalid phone number format. Please try again.</string>
-    <string name="phone_error_unsupported_country">Only Taiwan (+886) and Japan (+81) numbers are supported.</string>
-    <string name="phone_error_phone_taken">This phone number is already linked to another account.</string>
-    <string name="phone_error_otp">Invalid or expired code. Please request a new one.</string>
-    <string name="phone_error_cooldown_fmt">Please wait %1$ds before retrying.</string>
-    <string name="phone_error_unknown">Something went wrong. Please try again.</string>
     <string name="instructor_account_short_id_fmt">\@%1$s</string>
     <string name="instructor_account_legal_entry">Legal</string>
 
@@ -566,11 +542,6 @@
     <string name="instructor_profile_bio_empty">Not yet filled in</string>
     <string name="instructor_profile_certs_upload">Upload Photo</string>
     <string name="instructor_profile_cert_limit">Up to 8 photos</string>
-    <string name="instructor_profile_phone_verified">Phone Verified</string>
-    <string name="instructor_profile_phone_not_verified">Phone Not Verified</string>
-    <string name="instructor_profile_phone_verify_dialog_title">Verify Your Phone</string>
-    <string name="instructor_profile_phone_verify_dialog_message">Go to Account Settings to verify your phone number.</string>
-    <string name="instructor_profile_phone_verify_dialog_confirm">Go to Account Settings</string>
     <string name="instructor_profile_edit_dialog_save">Save changes</string>
     <string name="instructor_profile_edit_dialog_cancel">Cancel</string>
     <string name="instructor_profile_cert_delete_cd">Remove this certificate photo</string>

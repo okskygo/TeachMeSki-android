@@ -11,7 +11,6 @@ import com.teachmeski.app.data.repository.LessonRequestRepositoryImpl
 import com.teachmeski.app.data.repository.LineBindingRepositoryImpl
 import com.teachmeski.app.data.repository.ResortRepositoryImpl
 import com.teachmeski.app.data.repository.UserRepositoryImpl
-import com.teachmeski.app.data.repository.PhoneVerificationRepositoryImpl
 import com.teachmeski.app.data.repository.ReportRepositoryImpl
 import com.teachmeski.app.data.repository.ReviewRepositoryImpl
 import com.teachmeski.app.data.repository.WalletRepositoryImpl
@@ -26,7 +25,6 @@ import com.teachmeski.app.domain.repository.LessonRequestRepository
 import com.teachmeski.app.domain.repository.LineBindingRepository
 import com.teachmeski.app.domain.repository.ResortRepository
 import com.teachmeski.app.domain.repository.UserRepository
-import com.teachmeski.app.domain.repository.PhoneVerificationRepository
 import com.teachmeski.app.domain.repository.ReportRepository
 import com.teachmeski.app.domain.repository.ReviewRepository
 import com.teachmeski.app.domain.repository.WalletRepository
@@ -70,12 +68,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWalletRepository(impl: WalletRepositoryImpl): WalletRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindPhoneVerificationRepository(
-        impl: PhoneVerificationRepositoryImpl,
-    ): PhoneVerificationRepository
 
     @Binds
     @Singleton

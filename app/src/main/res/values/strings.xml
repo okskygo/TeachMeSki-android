@@ -324,8 +324,6 @@
     <string name="request_detail_no_user_initiated_yet">您尚未主動聯繫任何教練</string>
     <string name="request_detail_last_message_empty">尚無訊息</string>
     <string name="request_detail_go_to_chat">前往對話</string>
-    <string name="request_detail_phone_verified">已驗證手機號碼</string>
-    <string name="request_detail_phone_unverified">未驗證手機號碼</string>
     <string name="request_detail_recommended_title">為您推薦的教練</string>
     <string name="request_detail_recommended_none">目前無推薦教練</string>
     <string name="request_detail_recommended_contact">立即聯繫</string>
@@ -527,28 +525,6 @@
     <string name="instructor_account_switch_to_student">切換為學員</string>
     <string name="instructor_account_become_instructor">成為教練</string>
 
-    <!-- Phone verification -->
-    <string name="phone_section_title">手機號碼驗證</string>
-    <string name="phone_section_desc">驗證手機後可獲得「已驗證手機號碼」標章，提升學員信任度。</string>
-    <string name="phone_input_label">手機號碼</string>
-    <string name="phone_input_placeholder">09xx-xxx-xxx 或 +81 80-xxxx-xxxx</string>
-    <string name="phone_input_hint">支援台灣（09 開頭）與日本（080/090 開頭）號碼</string>
-    <string name="phone_send_button">發送驗證碼</string>
-    <string name="phone_sending">發送中…</string>
-    <string name="phone_verified_label">已驗證手機號碼</string>
-    <string name="phone_unverified_label">未驗證手機號碼</string>
-    <string name="phone_verified_locked">已鎖定，如需變更請聯繫客服</string>
-    <string name="phone_otp_title">輸入驗證碼</string>
-    <string name="phone_otp_subtitle_fmt">驗證碼已發送至 %1$s，請於 10 分鐘內輸入。</string>
-    <string name="phone_resend">重新發送</string>
-    <string name="phone_resend_cooldown_fmt">%1$d 秒後可重新發送</string>
-    <string name="phone_success">手機號碼驗證成功！</string>
-    <string name="phone_error_invalid_format">手機號碼格式不符，請重新輸入</string>
-    <string name="phone_error_unsupported_country">目前只支援台灣（+886）與日本（+81）手機號碼</string>
-    <string name="phone_error_phone_taken">此手機號碼已與另一個帳號綁定</string>
-    <string name="phone_error_otp">驗證碼錯誤或已過期，請重新發送</string>
-    <string name="phone_error_cooldown_fmt">請等待 %1$d 秒後再重試</string>
-    <string name="phone_error_unknown">發生錯誤，請稍後再試</string>
     <string name="instructor_account_short_id_fmt">\@%1$s</string>
     <string name="instructor_account_legal_entry">法律資訊</string>
 
@@ -572,11 +548,6 @@
     <string name="instructor_profile_bio_empty">尚未填寫</string>
     <string name="instructor_profile_certs_upload">上傳照片</string>
     <string name="instructor_profile_cert_limit">最多 8 張</string>
-    <string name="instructor_profile_phone_verified">已驗證手機號碼</string>
-    <string name="instructor_profile_phone_not_verified">未驗證手機號碼</string>
-    <string name="instructor_profile_phone_verify_dialog_title">驗證手機號碼</string>
-    <string name="instructor_profile_phone_verify_dialog_message">前往帳號設定以驗證您的手機號碼。</string>
-    <string name="instructor_profile_phone_verify_dialog_confirm">前往帳號設定</string>
     <string name="instructor_profile_edit_dialog_save">儲存變更</string>
     <string name="instructor_profile_edit_dialog_cancel">取消</string>
     <string name="instructor_profile_cert_delete_cd">移除這張證照照片</string>

@@ -86,6 +86,7 @@ import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.model.Region
 import com.teachmeski.app.domain.model.SkiResort
 import com.teachmeski.app.ui.account.MAX_DISPLAY_NAME_LENGTH
+import com.teachmeski.app.ui.component.IdentityRequiredDialog
 import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.component.UserAvatar
@@ -686,24 +687,11 @@ private fun HeaderCard(
     }
 
     if (showVerifyPhoneDialog) {
-        AlertDialog(
-            onDismissRequest = { showVerifyPhoneDialog = false },
-            title = { Text(stringResource(R.string.instructor_profile_phone_verify_dialog_title)) },
-            text = { Text(stringResource(R.string.instructor_profile_phone_verify_dialog_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showVerifyPhoneDialog = false
-                        onVerifyPhone()
-                    },
-                ) {
-                    Text(stringResource(R.string.instructor_profile_phone_verify_dialog_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showVerifyPhoneDialog = false }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
+        IdentityRequiredDialog(
+            onDismiss = { showVerifyPhoneDialog = false },
+            onBindNow = {
+                showVerifyPhoneDialog = false
+                onVerifyPhone()
             },
         )
     }
