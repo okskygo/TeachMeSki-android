@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.component.EmptyState
+import com.teachmeski.app.ui.component.IdentityRequiredDialog
 import com.teachmeski.app.ui.theme.TmsColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -56,6 +57,7 @@ fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
     onNavigateToChat: (String) -> Unit,
     onNavigateToWallet: () -> Unit,
+    onNavigateToAccountSettings: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -272,6 +274,16 @@ fun ExploreScreen(
                     error = uiState.unlockError,
                     onConfirm = { viewModel.confirmUnlock() },
                     onDismiss = { viewModel.closeUnlockDialog() },
+                )
+            }
+
+            if (uiState.showIdentityRequired) {
+                IdentityRequiredDialog(
+                    onDismiss = { viewModel.dismissIdentityRequired() },
+                    onBindNow = {
+                        viewModel.dismissIdentityRequired()
+                        onNavigateToAccountSettings()
+                    },
                 )
             }
         }

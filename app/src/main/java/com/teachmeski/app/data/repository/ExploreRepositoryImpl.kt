@@ -118,6 +118,11 @@ class ExploreRepositoryImpl @Inject constructor(
                     "already_unlocked" -> R.string.explore_error_already_unlocked
                     "quota_full" -> R.string.explore_error_quota_full
                     "lesson_request_not_active" -> R.string.explore_error_request_not_active
+                    // F-108: signal to the ViewModel that the unlock was
+                    // refused for missing LINE identity verification so it
+                    // can pop the IdentityRequiredDialog instead of showing
+                    // an inline error.
+                    "identity_not_verified" -> R.string.error_identity_not_verified
                     else -> R.string.error_generic
                 }
                 return Resource.Error(UiText.StringResource(errorResId))

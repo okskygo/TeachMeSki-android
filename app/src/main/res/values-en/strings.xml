@@ -979,4 +979,5 @@
     <string name="identity_bind_required_modal_body">Please bind your LINE account to verify your identity before unlocking lesson requests.</string>
     <string name="identity_bind_required_modal_cta">Bind now</string>
     <string name="identity_bind_required_modal_cancel">Cancel</string>
+    <string name="error_identity_not_verified">Identity verification required</string>
 </resources>

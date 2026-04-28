@@ -9,6 +9,7 @@ import com.teachmeski.app.R
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.BlockRepository
 import com.teachmeski.app.domain.repository.ChatRepository
+import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.ReportRepository
 import com.teachmeski.app.domain.repository.ReviewRepository
 import com.teachmeski.app.notifications.ActiveRoomTracker
@@ -51,6 +52,8 @@ data class ChatUiState(
     val showUnlockDialog: Boolean = false,
     val isUnlocking: Boolean = false,
     val unlockMessageDraft: String = "",
+    /** F-108: Path-B identity gate. */
+    val showIdentityRequired: Boolean = false,
     /// After a successful older-message page prepends, this holds the
     /// id of the message that was the first visible row immediately
     /// before the prepend. The view anchors the scroll position to
@@ -67,6 +70,7 @@ class ChatViewModel @Inject constructor(
     private val blockRepository: BlockRepository,
     private val reportRepository: ReportRepository,
     private val reviewRepository: ReviewRepository,
+    private val instructorRepository: InstructorRepository,
     private val activeRoomTracker: ActiveRoomTracker,
     @ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
@@ -366,7 +370,25 @@ class ChatViewModel @Inject constructor(
     }
 
     fun showUnlockDialog() {
-        _uiState.update { it.copy(showUnlockDialog = true, unlockMessageDraft = "") }
+        viewModelScope.launch {
+            // F-108 pre-check: AC-LINE-UNLOCK-003. Refuse to open the
+            // Path-B unlock dialog if the instructor hasn't completed
+            // LINE binding. The execute_unlock RPC also enforces this
+            // at the backend (AC-LINE-UNLOCK-004).
+            val verified = when (val r = instructorRepository.getMyProfile()) {
+                is Resource.Success -> r.data.lineUserId != null
+                else -> false
+            }
+            if (!verified) {
+                _uiState.update { it.copy(showIdentityRequired = true) }
+                return@launch
+            }
+            _uiState.update { it.copy(showUnlockDialog = true, unlockMessageDraft = "") }
+        }
+    }
+
+    fun dismissIdentityRequired() {
+        _uiState.update { it.copy(showIdentityRequired = false) }
     }
 
     fun dismissUnlockDialog() {
@@ -396,11 +418,24 @@ class ChatViewModel @Inject constructor(
                     refresh()
                 }
                 is Resource.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isUnlocking = false,
-                            error = res.message,
-                        )
+                    if (res.message is UiText.StringResource &&
+                        res.message.resId == R.string.error_identity_not_verified
+                    ) {
+                        _uiState.update {
+                            it.copy(
+                                isUnlocking = false,
+                                showUnlockDialog = false,
+                                unlockMessageDraft = "",
+                                showIdentityRequired = true,
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isUnlocking = false,
+                                error = res.message,
+                            )
+                        }
                     }
                 }
                 Resource.Loading -> {

@@ -976,4 +976,8 @@
     <string name="identity_bind_required_modal_body">解鎖課程需求單前，請先綁定 LINE 帳號完成身分驗證</string>
     <string name="identity_bind_required_modal_cta">立即綁定</string>
     <string name="identity_bind_required_modal_cancel">取消</string>
+    <!-- Sentinel surfaced by repos when execute_unlock returns
+         identity_not_verified; the ViewModel intercepts this and
+         shows IdentityRequiredDialog instead of rendering the text. -->
+    <string name="error_identity_not_verified">需要先完成身分驗證</string>
 </resources>

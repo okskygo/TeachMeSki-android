@@ -103,6 +103,9 @@ fun AppNavGraph(
                 onNavigateToInstructor = { shortId ->
                     navController.navigate(Route.InstructorDetail(shortId))
                 },
+                onNavigateToAccountSettings = {
+                    navController.navigate(Route.InstructorAccountSettings)
+                },
             )
         }
     }

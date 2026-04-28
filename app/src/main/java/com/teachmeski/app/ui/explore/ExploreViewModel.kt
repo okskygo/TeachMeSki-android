@@ -2,8 +2,10 @@ package com.teachmeski.app.ui.explore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.ExploreLessonRequest
 import com.teachmeski.app.domain.repository.ExploreRepository
+import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.WalletRepository
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
@@ -33,12 +35,15 @@ data class ExploreUiState(
     val isUnlocking: Boolean = false,
     val unlockError: UiText? = null,
     val unlockSuccessChatRoomId: String? = null,
+    /** F-108: when true, render IdentityRequiredDialog instead of unlock dialog. */
+    val showIdentityRequired: Boolean = false,
 )
 
 @HiltViewModel
 class ExploreViewModel @Inject constructor(
     private val exploreRepository: ExploreRepository,
     private val walletRepository: WalletRepository,
+    private val instructorRepository: InstructorRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ExploreUiState())
@@ -130,14 +135,32 @@ class ExploreViewModel @Inject constructor(
     }
 
     fun openUnlockDialog(request: ExploreLessonRequest) {
-        _uiState.update {
-            it.copy(
-                unlockDialogRequest = request,
-                unlockMessage = "",
-                unlockError = null,
-                isUnlocking = false,
-            )
+        viewModelScope.launch {
+            // F-108 pre-check: refuse to even open the unlock dialog if
+            // the instructor hasn't completed LINE identity binding. This
+            // is the AC-LINE-UNLOCK-001 user-visible block; the backend
+            // execute_unlock RPC also enforces it (AC-LINE-UNLOCK-002).
+            val verified = when (val r = instructorRepository.getMyProfile()) {
+                is Resource.Success -> r.data.lineUserId != null
+                else -> false
+            }
+            if (!verified) {
+                _uiState.update { it.copy(showIdentityRequired = true) }
+                return@launch
+            }
+            _uiState.update {
+                it.copy(
+                    unlockDialogRequest = request,
+                    unlockMessage = "",
+                    unlockError = null,
+                    isUnlocking = false,
+                )
+            }
         }
+    }
+
+    fun dismissIdentityRequired() {
+        _uiState.update { it.copy(showIdentityRequired = false) }
     }
 
     fun closeUnlockDialog() {
@@ -176,8 +199,26 @@ class ExploreViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    _uiState.update {
-                        it.copy(isUnlocking = false, unlockError = result.message)
+                    // Backend may reject with identity_not_verified if the
+                    // frontend pre-check was bypassed (e.g. profile state
+                    // changed mid-flight). Surface the modal instead of an
+                    // inline error in that case.
+                    if (result.message is UiText.StringResource &&
+                        result.message.resId == R.string.error_identity_not_verified
+                    ) {
+                        _uiState.update {
+                            it.copy(
+                                isUnlocking = false,
+                                unlockDialogRequest = null,
+                                unlockMessage = "",
+                                unlockError = null,
+                                showIdentityRequired = true,
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(isUnlocking = false, unlockError = result.message)
+                        }
                     }
                 }
 

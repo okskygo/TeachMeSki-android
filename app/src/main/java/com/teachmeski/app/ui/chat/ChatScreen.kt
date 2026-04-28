@@ -58,6 +58,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun ChatScreen(
     onNavigateBack: () -> Unit,
     onNavigateToInstructor: (String) -> Unit,
+    onNavigateToAccountSettings: () -> Unit,
     viewModel: ChatViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -346,6 +347,16 @@ fun ChatScreen(
             onDraftChange = viewModel::updateUnlockMessage,
             onDismiss = viewModel::dismissUnlockDialog,
             onConfirm = viewModel::confirmUnlock,
+        )
+    }
+
+    if (uiState.showIdentityRequired) {
+        com.teachmeski.app.ui.component.IdentityRequiredDialog(
+            onDismiss = viewModel::dismissIdentityRequired,
+            onBindNow = {
+                viewModel.dismissIdentityRequired()
+                onNavigateToAccountSettings()
+            },
         )
     }
 }

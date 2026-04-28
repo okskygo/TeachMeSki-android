@@ -333,6 +333,7 @@ class ChatRepositoryImpl @Inject constructor(
                 val resId = when (error) {
                     "insufficient_balance" -> R.string.explore_error_insufficient_balance
                     "already_unlocked" -> R.string.explore_error_already_unlocked
+                    "identity_not_verified" -> R.string.error_identity_not_verified
                     else -> R.string.error_generic
                 }
                 return Resource.Error(UiText.StringResource(resId))
