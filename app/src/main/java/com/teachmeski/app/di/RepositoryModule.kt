@@ -8,6 +8,7 @@ import com.teachmeski.app.data.repository.DeviceTokenRepositoryImpl
 import com.teachmeski.app.data.repository.ExploreRepositoryImpl
 import com.teachmeski.app.data.repository.InstructorRepositoryImpl
 import com.teachmeski.app.data.repository.LessonRequestRepositoryImpl
+import com.teachmeski.app.data.repository.LineBindingRepositoryImpl
 import com.teachmeski.app.data.repository.ResortRepositoryImpl
 import com.teachmeski.app.data.repository.UserRepositoryImpl
 import com.teachmeski.app.data.repository.PhoneVerificationRepositoryImpl
@@ -22,6 +23,7 @@ import com.teachmeski.app.domain.repository.DeviceTokenRepository
 import com.teachmeski.app.domain.repository.ExploreRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.LessonRequestRepository
+import com.teachmeski.app.domain.repository.LineBindingRepository
 import com.teachmeski.app.domain.repository.ResortRepository
 import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.domain.repository.PhoneVerificationRepository
@@ -74,6 +76,12 @@ abstract class RepositoryModule {
     abstract fun bindPhoneVerificationRepository(
         impl: PhoneVerificationRepositoryImpl,
     ): PhoneVerificationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLineBindingRepository(
+        impl: LineBindingRepositoryImpl,
+    ): LineBindingRepository
 
     @Binds
     @Singleton

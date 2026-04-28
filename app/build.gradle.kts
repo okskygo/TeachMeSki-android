@@ -20,6 +20,16 @@ val keystoreProps: Properties? = if (keystorePropsFile.exists()) {
     Properties().apply { keystorePropsFile.inputStream().use { load(it) } }
 } else null
 
+// LINE Login channel ID for the OAuth identity-verification flow (F-108).
+// Read from `local.properties` (gitignored) so the channel ID is not
+// committed. Falls back to empty string in CI / fresh clones — the
+// authorize URL will be invalid but the build still succeeds.
+val localPropsFile = rootProject.file("local.properties")
+val lineChannelId: String = if (localPropsFile.exists()) {
+    Properties().apply { localPropsFile.inputStream().use { load(it) } }
+        .getProperty("LINE_CHANNEL_ID", "")
+} else ""
+
 android {
     namespace = "com.teachmeski.app"
     compileSdk = 36
@@ -39,6 +49,7 @@ android {
 
         buildConfigField("String", "SUPABASE_URL", "\"https://ifzqezqnvmthexbybldh.supabase.co\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmenFlenFudm10aGV4YnlibGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MTQ3NTgsImV4cCI6MjA5MTQ5MDc1OH0.nw0bDRSH-DF5Y3BK0gc3xXmeEeXOJakhIdpzBhisYu4\"")
+        buildConfigField("String", "LINE_CHANNEL_ID", "\"$lineChannelId\"")
     }
 
     signingConfigs {
