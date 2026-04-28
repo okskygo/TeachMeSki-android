@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InstructorProfile
-import com.teachmeski.app.ui.component.PhoneVerificationBadge
+import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.UserAvatar
 import java.util.Locale
 
@@ -36,7 +36,11 @@ fun DetailHeaderSection(profile: InstructorProfile) {
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                PhoneVerificationBadge(verified = profile.phoneVerifiedAt != null)
+                IdentityVerifiedBadge(
+                    verified = profile.phoneVerifiedAt != null,
+                    verifiedLabel = stringResource(R.string.identity_verified_label),
+                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                )
                 RatingRow(profile)
             }
         }

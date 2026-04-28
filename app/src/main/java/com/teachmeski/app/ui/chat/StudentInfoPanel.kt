@@ -29,7 +29,7 @@ import androidx.compose.foundation.BorderStroke
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InfoPanelData
 import com.teachmeski.app.ui.component.ExpandableText
-import com.teachmeski.app.ui.component.PhoneVerificationBadge
+import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
 
@@ -92,10 +92,10 @@ private fun InstructorHeaderCard(
                     color = TmsColor.OnSurface,
                     fontWeight = FontWeight.SemiBold,
                 )
-                PhoneVerificationBadge(
+                IdentityVerifiedBadge(
                     verified = data.instructorPhoneVerifiedAt != null,
-                    verifiedLabel = stringResource(R.string.phone_verified_label),
-                    unverifiedLabel = stringResource(R.string.phone_unverified_label),
+                    verifiedLabel = stringResource(R.string.identity_verified_label),
+                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
                 )
             }
         }

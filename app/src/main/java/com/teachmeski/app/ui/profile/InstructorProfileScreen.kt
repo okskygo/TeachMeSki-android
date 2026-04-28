@@ -86,7 +86,7 @@ import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.model.Region
 import com.teachmeski.app.domain.model.SkiResort
 import com.teachmeski.app.ui.account.MAX_DISPLAY_NAME_LENGTH
-import com.teachmeski.app.ui.component.PhoneVerificationBadge
+import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
@@ -642,10 +642,10 @@ private fun HeaderCard(
                     }
                 }
             }
-            PhoneVerificationBadge(
+            IdentityVerifiedBadge(
                 verified = phoneVerified,
-                verifiedLabel = stringResource(R.string.instructor_profile_phone_verified),
-                unverifiedLabel = stringResource(R.string.instructor_profile_phone_not_verified),
+                verifiedLabel = stringResource(R.string.identity_verified_label),
+                unverifiedLabel = stringResource(R.string.identity_unverified_label),
                 modifier =
                     if (!phoneVerified) {
                         Modifier.clickable(

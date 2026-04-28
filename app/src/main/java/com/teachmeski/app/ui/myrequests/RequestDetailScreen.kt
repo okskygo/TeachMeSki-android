@@ -82,7 +82,7 @@ import com.teachmeski.app.domain.model.InstructorPreview
 import com.teachmeski.app.domain.model.LessonRequest
 import com.teachmeski.app.domain.model.LessonRequestStatus
 import com.teachmeski.app.ui.component.EmptyState
-import com.teachmeski.app.ui.component.PhoneVerificationBadge
+import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
@@ -861,7 +861,11 @@ private fun UnlockedInstructorCard(
                         color = TmsColor.OnSurface,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    PhoneVerificationBadge(verified = preview.phoneVerifiedAt != null)
+                    IdentityVerifiedBadge(
+                        verified = preview.phoneVerifiedAt != null,
+                        verifiedLabel = stringResource(R.string.identity_verified_label),
+                        unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                    )
                     Spacer(modifier = Modifier.height(2.dp))
                     StarRatingRow(
                         avg = preview.ratingAvg ?: 0.0,
@@ -932,7 +936,11 @@ private fun RecommendedInstructorCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                PhoneVerificationBadge(verified = preview.phoneVerifiedAt != null)
+                IdentityVerifiedBadge(
+                    verified = preview.phoneVerifiedAt != null,
+                    verifiedLabel = stringResource(R.string.identity_verified_label),
+                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                )
                 Spacer(modifier = Modifier.height(2.dp))
                 StarRatingRow(
                     avg = preview.ratingAvg ?: 0.0,
