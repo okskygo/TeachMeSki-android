@@ -13,10 +13,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,16 +33,10 @@ import com.teachmeski.app.ui.theme.TmsColor
 fun InstructorAccountSettingsScreen(
     onBack: () -> Unit,
     viewModel: InstructorAccountSettingsViewModel = hiltViewModel(),
-    phoneViewModel: PhoneVerificationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scroll = rememberScrollState()
-
-    LaunchedEffect(uiState.initialPhone, uiState.initialPhoneVerifiedAt) {
-        if (!uiState.isLoading) {
-            phoneViewModel.initialize(uiState.initialPhone, uiState.initialPhoneVerifiedAt)
-        }
-    }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -51,6 +47,7 @@ fun InstructorAccountSettingsScreen(
                 onBack = onBack,
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -79,7 +76,9 @@ fun InstructorAccountSettingsScreen(
             }
 
             if (!uiState.isLoading) {
-                PhoneVerificationSection(viewModel = phoneViewModel)
+                IdentityVerificationSection(
+                    snackbarHostState = snackbarHostState,
+                )
             }
         }
     }

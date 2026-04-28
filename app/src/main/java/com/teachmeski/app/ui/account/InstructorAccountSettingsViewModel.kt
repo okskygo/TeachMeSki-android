@@ -16,8 +16,6 @@ import javax.inject.Inject
 data class InstructorAccountSettingsUiState(
     val email: String = "",
     val userId: String = "",
-    val initialPhone: String? = null,
-    val initialPhoneVerifiedAt: String? = null,
     val isLoading: Boolean = true,
 )
 
@@ -42,11 +40,7 @@ class InstructorAccountSettingsViewModel @Inject constructor(
     private fun loadProfile() {
         viewModelScope.launch {
             when (val result = instructorRepository.getMyProfile()) {
-                is Resource.Success -> {
-                    // F-108: phone fields are gone — initialPhone* remain as
-                    // null placeholders until Task 3.7 swaps the section.
-                    _uiState.update { it.copy(isLoading = false) }
-                }
+                is Resource.Success -> _uiState.update { it.copy(isLoading = false) }
                 is Resource.Error -> _uiState.update { it.copy(isLoading = false) }
                 is Resource.Loading -> Unit
             }
