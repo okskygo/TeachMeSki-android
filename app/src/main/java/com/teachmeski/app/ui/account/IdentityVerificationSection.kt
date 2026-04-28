@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -136,14 +135,12 @@ private fun UnverifiedBody(onBindClick: () -> Unit) {
         style = MaterialTheme.typography.bodyMedium,
         color = TmsColor.OnSurfaceVariant,
     )
-    // LINE brand green. Replaced with TmsColor.LineGreen in Task 3.10.
-    val lineGreen = remember { Color(0xFF06C755) }
     Button(
         onClick = onBindClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = lineGreen,
+            containerColor = TmsColor.LineGreen,
             contentColor = Color.White,
         ),
     ) {

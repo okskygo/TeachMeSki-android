@@ -36,4 +36,9 @@ object TmsColor {
 
     val InverseSurface = Color(0xFF2E3132)
     val InverseOnSurface = Color(0xFFEFF1F2)
+
+    /** LINE brand green. Used by the F-108 LINE binding CTA on the
+     *  IdentityVerificationSection so the button matches LINE's brand
+     *  guidelines and the web `bg-[#06C755]` token. */
+    val LineGreen = Color(0xFF06C755)
 }
