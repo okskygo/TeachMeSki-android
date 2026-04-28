@@ -938,7 +938,7 @@
     <string name="identity_verified_label">身分已驗證</string>
     <string name="identity_unverified_label">未驗證</string>
     <string name="identity_bound_locked_text">已綁定 LINE（聯絡客服可變更）</string>
-    <string name="identity_bind_success_toast">身分驗證完成！500 點已可使用</string>
+    <string name="identity_bind_success_toast">身分驗證完成</string>
     <string name="identity_bind_error_already_used">此 LINE 帳號已被其他 TeachMeSki 帳號綁定。若這是你的帳號，請聯絡客服</string>
     <string name="identity_bind_error_already_bound">您的帳號已綁定 LINE</string>
     <string name="identity_bind_error_cancelled">已取消綁定</string>
