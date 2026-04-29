@@ -50,7 +50,7 @@ class RequestDetailViewModelExpandQuotaTest {
     private fun sampleDetail(
         id: String = "req-1",
         quotaLimit: Int = 5,
-        unlockedCount: Int = 5,
+        unlockCount: Int = 5,
     ) = LessonRequest(
         id = id,
         userId = "user-1",
@@ -75,7 +75,7 @@ class RequestDetailViewModelExpandQuotaTest {
         expiresAt = null,
         resortNames = emptyList(),
         certPreferences = emptyList(),
-        unlockedCount = unlockedCount,
+        unlockCount = unlockCount,
     )
 
     private class FakeLessonRequestRepository(
@@ -157,7 +157,7 @@ class RequestDetailViewModelExpandQuotaTest {
     @Test
     fun `expandQuota success updates quotaLimit and emits success toast`() = runTest(testDispatcher) {
         val repo = FakeLessonRequestRepository(
-            detail = sampleDetail(quotaLimit = 5, unlockedCount = 5),
+            detail = sampleDetail(quotaLimit = 5, unlockCount = 5),
             expandResult = Resource.Success(10),
         )
         val vm = makeVm(repo)
@@ -182,7 +182,7 @@ class RequestDetailViewModelExpandQuotaTest {
     @Test
     fun `expandQuota failure emits error toast and keeps quotaLimit unchanged`() = runTest(testDispatcher) {
         val repo = FakeLessonRequestRepository(
-            detail = sampleDetail(quotaLimit = 5, unlockedCount = 5),
+            detail = sampleDetail(quotaLimit = 5, unlockCount = 5),
             expandResult = Resource.Error(UiText.DynamicString("quota_not_full")),
         )
         val vm = makeVm(repo)

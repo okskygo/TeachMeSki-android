@@ -112,14 +112,16 @@ class LessonRequestRepositoryImpl @Inject constructor(
                 emptyList()
             }
             val certPrefs = lessonRequestDataSource.getCertPreferences(id)
-            val unlockedCount = runCatching {
-                lessonRequestDataSource.getUnlockedCount(id)
-            }.getOrDefault(0)
+            // F-110: `unlock_count` is now read directly off the DTO (the
+            // `lesson_requests` row carries it as a trigger-maintained column).
+            // Previously we issued a separate count(*) query against
+            // `request_unlocks` here; that hits the gotcha noted in
+            // TEACHMESKI.md Section 8 (RLS hides rows in some viewer roles)
+            // and is redundant now that the column is always in sync.
             Resource.Success(
                 dto.toDomain(
                     resortNames = resortNames,
                     certPreferences = certPrefs,
-                    unlockedCount = unlockedCount,
                 ),
             )
         } catch (e: Exception) {

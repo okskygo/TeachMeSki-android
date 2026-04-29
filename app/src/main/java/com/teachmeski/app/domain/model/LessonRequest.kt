@@ -81,5 +81,7 @@ data class LessonRequest(
     val expiresAt: String?,
     val resortNames: List<String> = emptyList(),
     val certPreferences: List<String> = emptyList(),
-    val unlockedCount: Int = 0,
+    /** F-110: maintained by `request_unlocks_sync_state` trigger on
+     *  `lesson_requests.unlock_count`. Field name matches the DB column. */
+    val unlockCount: Int = 0,
 )

@@ -278,13 +278,18 @@ private fun RequestDetailContent(
         // F-109 v1.1: quota expansion guidance card — placed at the very top
         // so the student sees it immediately when entering the detail page.
         // Renders nothing unless conditions are met (no disabled state).
+        // F-109 §7.4: card visible only when unlock_count has caught up to
+        // quota_limit. Note that students never see status='locked' — the
+        // Android `LessonRequestStatus.fromString` decoder folds unknown
+        // values to .Active (F-110 §1.1 dual-semantics rule), so a single
+        // `== Active` check here is correct.
         if (
             detail.status == LessonRequestStatus.Active &&
-            detail.unlockedCount >= detail.quotaLimit
+            detail.unlockCount >= detail.quotaLimit
         ) {
             item {
                 FindMoreInstructorsCard(
-                    unlockedCount = detail.unlockedCount,
+                    unlockCount = detail.unlockCount,
                     isLoading = isExpandingQuota,
                     onClick = onFindMoreClick,
                 )
@@ -406,13 +411,13 @@ private fun RequestDetailContent(
  * Layout: rounded surface with a Search icon container on the left,
  * followed by title + dynamic subtitle, then a full-width primary CTA button
  * underneath. Rendered at the top of [RequestDetailScreen] only when
- * `unlocked_count >= quota_limit && status='active'`. Per F-109 §1.1, no
+ * `unlock_count >= quota_limit && status='active'`. Per F-109 §1.1, no
  * "quota / 名額" wording leaks to the student — the subtitle phrases the
  * count as "已收到 N 位教練的回覆".
  */
 @Composable
 private fun FindMoreInstructorsCard(
-    unlockedCount: Int,
+    unlockCount: Int,
     isLoading: Boolean,
     onClick: () -> Unit,
 ) {
@@ -457,7 +462,7 @@ private fun FindMoreInstructorsCard(
                     Text(
                         text = stringResource(
                             R.string.my_requests_find_more_card_subtitle,
-                            unlockedCount,
+                            unlockCount,
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TmsColor.OnSurfaceVariant,

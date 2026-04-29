@@ -28,6 +28,10 @@ data class LessonRequestDto(
     @SerialName("resort_ids") val resortIds: List<String> = emptyList(),
     val status: String = "active",
     @SerialName("quota_limit") val quotaLimit: Int = 5,
+    // F-110: trigger-maintained source of truth for "current unlock count".
+    // Defaults to 0 so legacy snapshots / tests that do not select this column
+    // continue to deserialize cleanly.
+    @SerialName("unlock_count") val unlockCount: Int = 0,
     @SerialName("created_at") val createdAt: String = "",
     @SerialName("expires_at") val expiresAt: String? = null,
 )
@@ -35,7 +39,6 @@ data class LessonRequestDto(
 fun LessonRequestDto.toDomain(
     resortNames: List<String> = emptyList(),
     certPreferences: List<String> = emptyList(),
-    unlockedCount: Int = 0,
 ) =
     LessonRequest(
         id = id,
@@ -61,5 +64,5 @@ fun LessonRequestDto.toDomain(
         expiresAt = expiresAt,
         resortNames = resortNames,
         certPreferences = certPreferences,
-        unlockedCount = unlockedCount,
+        unlockCount = unlockCount,
     )
