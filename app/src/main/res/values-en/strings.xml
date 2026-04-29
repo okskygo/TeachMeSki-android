@@ -337,6 +337,8 @@
     <string name="request_detail_load_more">Load more</string>
 
     <!-- F-109: quota expansion CTA -->
+    <string name="my_requests_find_more_card_title">Haven\'t found the right instructor?</string>
+    <string name="my_requests_find_more_card_subtitle">%1$d instructors have responded so far</string>
     <string name="my_requests_find_more_cta">Find more instructors</string>
     <string name="my_requests_find_more_confirm_title">Find more instructors?</string>
     <string name="my_requests_find_more_confirm_body">We\'ll notify more instructors to review your request</string>

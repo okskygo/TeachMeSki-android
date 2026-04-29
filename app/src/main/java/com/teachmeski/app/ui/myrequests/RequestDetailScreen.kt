@@ -40,6 +40,7 @@ import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.TrendingUp
 import androidx.compose.material3.AlertDialog
@@ -274,6 +275,22 @@ private fun RequestDetailContent(
     ) {
         item { Spacer(modifier = Modifier.height(4.dp)) }
 
+        // F-109 v1.1: quota expansion guidance card — placed at the very top
+        // so the student sees it immediately when entering the detail page.
+        // Renders nothing unless conditions are met (no disabled state).
+        if (
+            detail.status == LessonRequestStatus.Active &&
+            detail.unlockedCount >= detail.quotaLimit
+        ) {
+            item {
+                FindMoreInstructorsCard(
+                    unlockedCount = detail.unlockedCount,
+                    isLoading = isExpandingQuota,
+                    onClick = onFindMoreClick,
+                )
+            }
+        }
+
         item {
             OrderInfoCard(
                 detail = detail,
@@ -379,55 +396,100 @@ private fun RequestDetailContent(
             }
         }
 
-        // F-109: quota expansion CTA — visible only when conditions met (no disabled state).
-        if (
-            detail.status == LessonRequestStatus.Active &&
-            detail.unlockedCount >= detail.quotaLimit
-        ) {
-            item {
-                FindMoreInstructorsCta(
-                    isLoading = isExpandingQuota,
-                    onClick = onFindMoreClick,
-                )
-            }
-        }
-
         item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
+/**
+ * F-109 v1.1 quota expansion guidance card.
+ *
+ * Layout: rounded surface with a Search icon container on the left,
+ * followed by title + dynamic subtitle, then a full-width primary CTA button
+ * underneath. Rendered at the top of [RequestDetailScreen] only when
+ * `unlocked_count >= quota_limit && status='active'`. Per F-109 §1.1, no
+ * "quota / 名額" wording leaks to the student — the subtitle phrases the
+ * count as "已收到 N 位教練的回覆".
+ */
 @Composable
-private fun FindMoreInstructorsCta(
+private fun FindMoreInstructorsCard(
+    unlockedCount: Int,
     isLoading: Boolean,
     onClick: () -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        contentAlignment = Alignment.Center,
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = TmsColor.PrimaryFixed.copy(alpha = 0.30f),
+        tonalElevation = 0.dp,
     ) {
-        Button(
-            onClick = onClick,
-            enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = TmsColor.Primary,
-                contentColor = TmsColor.OnPrimary,
-            ),
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    color = TmsColor.OnPrimary,
-                    strokeWidth = 2.dp,
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.my_requests_find_more_cta),
-                    fontWeight = FontWeight.SemiBold,
-                )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(TmsColor.PrimaryFixed),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = null,
+                        tint = TmsColor.Primary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.my_requests_find_more_card_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TmsColor.OnSurface,
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.my_requests_find_more_card_subtitle,
+                            unlockedCount,
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TmsColor.OnSurfaceVariant,
+                    )
+                }
+            }
+
+            Button(
+                onClick = onClick,
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = TmsColor.Primary,
+                    contentColor = TmsColor.OnPrimary,
+                ),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = TmsColor.OnPrimary,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.my_requests_find_more_cta),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
     }

@@ -343,6 +343,8 @@
     <string name="request_detail_load_more">載入更多</string>
 
     <!-- F-109: quota expansion CTA (student-facing — never expose "名額/quota" in copy) -->
+    <string name="my_requests_find_more_card_title">沒找到適合的教練嗎？</string>
+    <string name="my_requests_find_more_card_subtitle">目前已收到 %1$d 位教練的回覆</string>
     <string name="my_requests_find_more_cta">再幫我找更多教練</string>
     <string name="my_requests_find_more_confirm_title">確認要找更多教練？</string>
     <string name="my_requests_find_more_confirm_body">我們會通知更多教練查看你的需求</string>
