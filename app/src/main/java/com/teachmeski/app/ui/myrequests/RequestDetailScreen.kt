@@ -76,6 +76,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
@@ -104,6 +105,7 @@ fun RequestDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     var showCloseDialog by remember { mutableStateOf(false) }
+    var showExpandConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.closeSuccess) {
         if (state.closeSuccess) {
@@ -117,6 +119,21 @@ fun RequestDetailScreen(
         if (roomId != null) {
             onChatClick(roomId)
             viewModel.consumeFirstMessageRoomId()
+        }
+    }
+
+    val expandToast = state.expandQuotaToast
+    LaunchedEffect(expandToast) {
+        if (expandToast != null) {
+            val message = when (expandToast) {
+                is UiText.StringResource -> context.getString(
+                    expandToast.resId,
+                    *expandToast.args.toTypedArray(),
+                )
+                is UiText.DynamicString -> expandToast.value
+            }
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.consumeExpandQuotaToast()
         }
     }
 
@@ -156,10 +173,12 @@ fun RequestDetailScreen(
                         recommended = state.recommendedInstructors,
                         isClosing = state.isClosing,
                         loadError = state.error,
+                        isExpandingQuota = state.isExpandingQuota,
                         onChatClick = onChatClick,
                         onInstructorClick = onInstructorClick,
                         onCloseClick = { showCloseDialog = true },
                         onContactInstructor = viewModel::openFirstMessageDialog,
+                        onFindMoreClick = { showExpandConfirm = true },
                     )
                 }
             }
@@ -202,6 +221,30 @@ fun RequestDetailScreen(
             },
         )
     }
+
+    if (showExpandConfirm) {
+        AlertDialog(
+            onDismissRequest = { showExpandConfirm = false },
+            title = { Text(stringResource(R.string.my_requests_find_more_confirm_title)) },
+            text = { Text(stringResource(R.string.my_requests_find_more_confirm_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExpandConfirm = false
+                        viewModel.expandQuota()
+                    },
+                    enabled = !state.isExpandingQuota,
+                ) {
+                    Text(stringResource(R.string.my_requests_find_more_confirm_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExpandConfirm = false }) {
+                    Text(stringResource(R.string.my_requests_find_more_confirm_no))
+                }
+            },
+        )
+    }
 }
 
 private const val RECOMMENDED_PAGE_SIZE = 6
@@ -214,10 +257,12 @@ private fun RequestDetailContent(
     recommended: List<InstructorPreview>,
     isClosing: Boolean,
     loadError: UiText?,
+    isExpandingQuota: Boolean,
     onChatClick: (String) -> Unit,
     onInstructorClick: (String) -> Unit,
     onCloseClick: () -> Unit,
     onContactInstructor: (InstructorPreview) -> Unit,
+    onFindMoreClick: () -> Unit,
 ) {
     var visibleRecommendedCount by remember { mutableStateOf(RECOMMENDED_PAGE_SIZE) }
 
@@ -334,7 +379,57 @@ private fun RequestDetailContent(
             }
         }
 
+        // F-109: quota expansion CTA — visible only when conditions met (no disabled state).
+        if (
+            detail.status == LessonRequestStatus.Active &&
+            detail.unlockedCount >= detail.quotaLimit
+        ) {
+            item {
+                FindMoreInstructorsCta(
+                    isLoading = isExpandingQuota,
+                    onClick = onFindMoreClick,
+                )
+            }
+        }
+
         item { Spacer(modifier = Modifier.height(24.dp)) }
+    }
+}
+
+@Composable
+private fun FindMoreInstructorsCta(
+    isLoading: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Button(
+            onClick = onClick,
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = TmsColor.Primary,
+                contentColor = TmsColor.OnPrimary,
+            ),
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    color = TmsColor.OnPrimary,
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.my_requests_find_more_cta),
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
     }
 }
 
