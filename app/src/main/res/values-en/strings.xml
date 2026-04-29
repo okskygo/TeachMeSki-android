@@ -336,6 +336,15 @@
     <string name="request_detail_resort_collapse">Show less</string>
     <string name="request_detail_load_more">Load more</string>
 
+    <!-- F-109: quota expansion CTA -->
+    <string name="my_requests_find_more_cta">Find more instructors</string>
+    <string name="my_requests_find_more_confirm_title">Find more instructors?</string>
+    <string name="my_requests_find_more_confirm_body">We\'ll notify more instructors to review your request</string>
+    <string name="my_requests_find_more_confirm_yes">Confirm</string>
+    <string name="my_requests_find_more_confirm_no">Cancel</string>
+    <string name="my_requests_find_more_success_toast">More instructors have been notified</string>
+    <string name="my_requests_find_more_error_toast">Action failed, please try again later</string>
+
     <!-- Account -->
     <string name="account_title">Account Settings</string>
     <string name="account_avatar_label">Avatar</string>

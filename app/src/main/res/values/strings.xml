@@ -342,6 +342,15 @@
     <string name="request_detail_resort_collapse">收起</string>
     <string name="request_detail_load_more">載入更多</string>
 
+    <!-- F-109: quota expansion CTA (student-facing — never expose "名額/quota" in copy) -->
+    <string name="my_requests_find_more_cta">再幫我找更多教練</string>
+    <string name="my_requests_find_more_confirm_title">確認要找更多教練？</string>
+    <string name="my_requests_find_more_confirm_body">我們會通知更多教練查看你的需求</string>
+    <string name="my_requests_find_more_confirm_yes">確認</string>
+    <string name="my_requests_find_more_confirm_no">取消</string>
+    <string name="my_requests_find_more_success_toast">已通知更多教練</string>
+    <string name="my_requests_find_more_error_toast">操作失敗，請稍後再試</string>
+
     <!-- Account -->
     <string name="account_title">帳號設定</string>
     <string name="account_avatar_label">頭像</string>
