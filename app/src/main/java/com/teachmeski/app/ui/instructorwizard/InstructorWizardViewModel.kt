@@ -10,6 +10,7 @@ import com.teachmeski.app.domain.model.Region
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.ResortRepository
+import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.ui.component.PasswordRules
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
@@ -105,6 +106,7 @@ class InstructorWizardViewModel @Inject constructor(
     private val resortRepository: ResortRepository,
     private val instructorRepository: InstructorRepository,
     private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
     private val pendingProfile: PendingInstructorProfile,
 ) : ViewModel() {
 
@@ -146,7 +148,32 @@ class InstructorWizardViewModel @Inject constructor(
                 is Resource.Loading -> Unit
             }
             _uiState.update { it.copy(isCheckingProfile = false) }
+            prefillDisplayNameFromUser()
             loadRegions()
+        }
+    }
+
+    /**
+     * Non-guest mode hides the display-name field on Step 5 because the
+     * user already has a `users.display_name`. Pre-fill it into the
+     * wizard state so `canAdvanceFromCurrentStep` passes the Step 5
+     * `displayName.isNotEmpty` check — otherwise the Next button stays
+     * disabled forever even after the user fills the bio.
+     */
+    private suspend fun prefillDisplayNameFromUser() {
+        if (_uiState.value.isGuestMode) return
+        if (_uiState.value.displayName.isNotEmpty()) return
+        val userId = authRepository.currentUserId() ?: return
+        when (val result = userRepository.getUserById(userId)) {
+            is Resource.Success -> {
+                val name = result.data.displayName?.trim().orEmpty()
+                if (name.isNotEmpty()) {
+                    _uiState.update { it.copy(displayName = name) }
+                }
+            }
+            is Resource.Error,
+            is Resource.Loading,
+            -> Unit
         }
     }
 
