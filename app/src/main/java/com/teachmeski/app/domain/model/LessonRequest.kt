@@ -81,4 +81,5 @@ data class LessonRequest(
     val expiresAt: String?,
     val resortNames: List<String> = emptyList(),
     val certPreferences: List<String> = emptyList(),
+    val unlockedCount: Int = 0,
 )

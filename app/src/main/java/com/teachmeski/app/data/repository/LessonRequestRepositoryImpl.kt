@@ -112,7 +112,16 @@ class LessonRequestRepositoryImpl @Inject constructor(
                 emptyList()
             }
             val certPrefs = lessonRequestDataSource.getCertPreferences(id)
-            Resource.Success(dto.toDomain(resortNames = resortNames, certPreferences = certPrefs))
+            val unlockedCount = runCatching {
+                lessonRequestDataSource.getUnlockedCount(id)
+            }.getOrDefault(0)
+            Resource.Success(
+                dto.toDomain(
+                    resortNames = resortNames,
+                    certPreferences = certPrefs,
+                    unlockedCount = unlockedCount,
+                ),
+            )
         } catch (e: Exception) {
             Log.e(TAG, "getLessonRequestDetail FAILED: id=$id", e)
             Resource.Error(UiText.StringResource(R.string.error_load_request_detail))

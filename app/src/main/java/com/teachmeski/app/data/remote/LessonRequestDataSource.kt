@@ -8,6 +8,7 @@ import com.teachmeski.app.data.model.SkiResortDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -181,6 +182,20 @@ class LessonRequestDataSource @Inject constructor(
                 limit(limit.toLong())
             }
             .decodeList<InstructorProfilePreviewDto>()
+
+    /**
+     * F-109: count of request_unlocks for the given lesson request. Used to decide
+     * whether to show the "Find more instructors" CTA (unlockedCount >= quotaLimit).
+     */
+    suspend fun getUnlockedCount(lessonRequestId: String): Int {
+        val query = supabaseClient.postgrest
+            .from("request_unlocks")
+            .select(columns = Columns.list("id")) {
+                filter { eq("lesson_request_id", lessonRequestId) }
+                count(Count.EXACT)
+            }
+        return query.countOrNull()?.toInt() ?: 0
+    }
 
     suspend fun getUnlockedInstructorIds(lessonRequestId: String): List<String> {
         @Serializable

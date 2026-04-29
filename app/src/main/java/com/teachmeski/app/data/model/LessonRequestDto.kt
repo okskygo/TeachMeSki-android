@@ -35,6 +35,7 @@ data class LessonRequestDto(
 fun LessonRequestDto.toDomain(
     resortNames: List<String> = emptyList(),
     certPreferences: List<String> = emptyList(),
+    unlockedCount: Int = 0,
 ) =
     LessonRequest(
         id = id,
@@ -60,4 +61,5 @@ fun LessonRequestDto.toDomain(
         expiresAt = expiresAt,
         resortNames = resortNames,
         certPreferences = certPreferences,
+        unlockedCount = unlockedCount,
     )
