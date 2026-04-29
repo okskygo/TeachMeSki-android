@@ -34,6 +34,8 @@ data class RequestDetailUiState(
     val firstMessageDraft: String = "",
     val isSendingFirstMessage: Boolean = false,
     val firstMessageRoomId: String? = null,
+    val isExpandingQuota: Boolean = false,
+    val expandQuotaToast: UiText? = null,
 ) {
     val userInitiatedInstructors: List<InstructorPreview>
         get() = unlockedInstructors.filter { it.section == InstructorSection.UserInitiated }
@@ -227,5 +229,48 @@ class RequestDetailViewModel @Inject constructor(
 
     fun consumeFirstMessageRoomId() {
         _uiState.update { it.copy(firstMessageRoomId = null) }
+    }
+
+    /**
+     * F-109: trigger student-initiated quota expansion. On success, optimistically bumps
+     * the in-memory quotaLimit so the CTA disappears. On failure, surfaces an error toast.
+     */
+    fun expandQuota() {
+        val current = _uiState.value
+        val detail = current.detail ?: return
+        if (current.isExpandingQuota) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isExpandingQuota = true) }
+            when (val result = lessonRequestRepository.expandQuota(detail.id)) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isExpandingQuota = false,
+                            detail = it.detail?.copy(quotaLimit = result.data),
+                            expandQuotaToast = UiText.StringResource(
+                                R.string.my_requests_find_more_success_toast,
+                            ),
+                        )
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isExpandingQuota = false,
+                            expandQuotaToast = UiText.StringResource(
+                                R.string.my_requests_find_more_error_toast,
+                            ),
+                        )
+                    }
+                }
+                is Resource.Loading -> {
+                    _uiState.update { it.copy(isExpandingQuota = false) }
+                }
+            }
+        }
+    }
+
+    fun consumeExpandQuotaToast() {
+        _uiState.update { it.copy(expandQuotaToast = null) }
     }
 }

@@ -30,4 +30,10 @@ interface LessonRequestRepository {
     suspend fun closeLessonRequest(id: String): Resource<Unit>
     suspend fun getUnlockedInstructors(lessonRequestId: String): Resource<List<InstructorPreview>>
     suspend fun getRecommendedInstructors(lessonRequestId: String): Resource<List<InstructorPreview>>
+
+    /**
+     * F-109: increment lesson_requests.quota_limit by 5 via the
+     * expand_lesson_request_quota RPC. Returns the new quota_limit on success.
+     */
+    suspend fun expandQuota(lessonRequestId: String): Resource<Int>
 }

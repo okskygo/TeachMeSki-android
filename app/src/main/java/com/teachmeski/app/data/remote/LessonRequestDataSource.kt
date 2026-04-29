@@ -10,10 +10,15 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import javax.inject.Inject
@@ -195,6 +200,22 @@ class LessonRequestDataSource @Inject constructor(
                 count(Count.EXACT)
             }
         return query.countOrNull()?.toInt() ?: 0
+    }
+
+    /**
+     * F-109: invoke expand_lesson_request_quota RPC. Returns the new quota_limit on
+     * success, or throws an exception with the server-side error code as message.
+     */
+    suspend fun expandLessonRequestQuota(lessonRequestId: String): Int {
+        val params = buildJsonObject {
+            put("p_lesson_request_id", lessonRequestId)
+        }
+        val response = supabaseClient.postgrest.rpc("expand_lesson_request_quota", params)
+        val payload = response.decodeAs<JsonObject>()
+        val errorCode = payload["error"]?.jsonPrimitive?.contentOrNull
+        if (errorCode != null) error(errorCode)
+        return payload["new_quota_limit"]?.jsonPrimitive?.intOrNull
+            ?: error("invalid_response")
     }
 
     suspend fun getUnlockedInstructorIds(lessonRequestId: String): List<String> {

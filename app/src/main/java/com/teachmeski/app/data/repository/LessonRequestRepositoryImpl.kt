@@ -158,6 +158,14 @@ class LessonRequestRepositoryImpl @Inject constructor(
         Resource.Error(UiText.StringResource(R.string.error_load_instructors))
     }
 
+    override suspend fun expandQuota(lessonRequestId: String): Resource<Int> = try {
+        val newQuota = lessonRequestDataSource.expandLessonRequestQuota(lessonRequestId)
+        Resource.Success(newQuota)
+    } catch (e: Exception) {
+        Log.e(TAG, "expandQuota FAILED: $lessonRequestId", e)
+        Resource.Error(UiText.StringResource(R.string.my_requests_find_more_error_toast))
+    }
+
     override suspend fun getRecommendedInstructors(lessonRequestId: String): Resource<List<InstructorPreview>> = try {
         val userId = authRepository.currentUserId()
             ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
