@@ -33,7 +33,10 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.DirectionsCar
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.Schedule
@@ -501,6 +504,23 @@ private fun OrderInfoCard(
                 label = stringResource(R.string.request_detail_language_label),
                 value = languagesSummary(detail.languages),
             )
+            InfoRow(
+                icon = Icons.Outlined.Inventory2,
+                label = stringResource(R.string.request_detail_equipment_label),
+                value = equipmentSummary(detail.equipmentRental),
+            )
+            InfoRow(
+                icon = Icons.Outlined.DirectionsCar,
+                label = stringResource(R.string.request_detail_transport_label),
+                value = transportSummary(detail.needsTransport, detail.transportNote),
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = TmsColor.SurfaceVariant.copy(alpha = 0.4f),
+            )
+
+            CertPrefsRow(certPreferences = detail.certPreferences)
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -514,6 +534,94 @@ private fun OrderInfoCard(
                     ?: stringResource(R.string.common_empty_value),
             )
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CertPrefsRow(certPreferences: List<String>) {
+    Row(
+        modifier = Modifier.padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.EmojiEvents,
+            contentDescription = null,
+            modifier = Modifier
+                .size(14.dp)
+                .padding(top = 2.dp),
+            tint = TmsColor.Primary,
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.request_detail_cert_label).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = TmsColor.Outline,
+                letterSpacing = 1.sp,
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            if (certPreferences.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.request_detail_cert_none_value),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TmsColor.OnSurface,
+                )
+            } else {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    certPreferences.forEach { code ->
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = TmsColor.PrimaryFixed.copy(alpha = 0.4f),
+                        ) {
+                            Text(
+                                text = certLabel(code),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = TmsColor.Primary,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun certLabel(code: String): String = when (code) {
+    "CSIA" -> stringResource(R.string.wizard_cert_csia)
+    "CASI" -> stringResource(R.string.wizard_cert_casi)
+    "NZSIA" -> stringResource(R.string.wizard_cert_nzsia)
+    "PSIA" -> stringResource(R.string.wizard_cert_psia)
+    "SIA_Japan", "SIA-Japan" -> stringResource(R.string.wizard_cert_sia_japan)
+    "other" -> stringResource(R.string.wizard_cert_other)
+    else -> code
+}
+
+@Composable
+private fun equipmentSummary(rental: EquipmentRental): String = stringResource(
+    when (rental) {
+        EquipmentRental.All -> R.string.wizard_equipment_all
+        EquipmentRental.Partial -> R.string.wizard_equipment_partial
+        EquipmentRental.None -> R.string.wizard_equipment_none
+    },
+)
+
+@Composable
+private fun transportSummary(needs: Boolean, note: String?): String {
+    val trimmed = note?.trim().orEmpty()
+    return if (needs) {
+        if (trimmed.isNotEmpty()) {
+            "${stringResource(R.string.wizard_transport_yes)}（$trimmed）"
+        } else {
+            stringResource(R.string.wizard_transport_yes)
+        }
+    } else {
+        stringResource(R.string.wizard_transport_no)
     }
 }
 

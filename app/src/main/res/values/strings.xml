@@ -253,6 +253,12 @@
     <string name="wizard_transport_not_selected">尚未選擇</string>
     <string name="wizard_transport_note_placeholder">請填寫出發地點或飯店名稱</string>
     <string name="wizard_cert_label">教練證照偏好</string>
+    <string name="wizard_cert_csia">CSIA</string>
+    <string name="wizard_cert_casi">CASI</string>
+    <string name="wizard_cert_nzsia">NZSIA</string>
+    <string name="wizard_cert_psia">PSIA</string>
+    <string name="wizard_cert_sia_japan">SIA Japan</string>
+    <string name="wizard_cert_other">其他</string>
 
     <!-- Wizard — Step 8: Notes -->
     <string name="wizard_notes_heading">補充說明</string>
@@ -313,6 +319,10 @@
     <string name="request_detail_duration_label">課程天數</string>
     <string name="request_detail_language_label">教學語言</string>
     <string name="request_detail_group_size_label">上課人數</string>
+    <string name="request_detail_equipment_label">裝備租借</string>
+    <string name="request_detail_transport_label">交通接送</string>
+    <string name="request_detail_cert_label">教練證照偏好</string>
+    <string name="request_detail_cert_none_value">無特別偏好</string>
     <string name="request_detail_close_button">結束此課程需求</string>
     <string name="request_detail_close_dialog_title">確認結束此課程需求</string>
     <string name="request_detail_close_dialog_desc">結束後，此課程需求將不再對外開放，現有的對話紀錄仍可查閱。確定要結束嗎？</string>
