@@ -136,7 +136,7 @@ class ExploreDataSource @Inject constructor(
         val query = supabaseClient.postgrest.from("lesson_requests")
             .select(
                 columns = Columns.raw(
-                    "id, status, created_at, discipline, skill_level, group_size, has_children, duration_days, date_start, date_end, dates_flexible, languages, additional_notes, equipment_rental, needs_transport, transport_note, quota_limit, all_regions_selected, resort_ids, user_id",
+                    "id, status, created_at, discipline, skill_level, group_size, has_children, duration_days, date_start, date_end, dates_flexible, languages, additional_notes, equipment_rental, needs_transport, transport_note, quota_limit, unlock_count, all_regions_selected, resort_ids, user_id",
                 ),
                 request = {
                     filter {
@@ -167,11 +167,22 @@ class ExploreDataSource @Inject constructor(
         return Pair(result, totalCount)
     }
 
-    suspend fun getUnlockRows(requestIds: List<String>): List<UnlockRow> {
+    /**
+     * Returns the calling instructor's own unlock rows for the given requests.
+     *
+     * Used only to compute "is_unlocked_by_me" on the explore feed. The global
+     * unlock_count comes from lesson_requests.unlock_count (kept in sync by a
+     * DB trigger), because RLS on request_unlocks hides other instructors'
+     * rows so client-side COUNT(*) is wrong by design.
+     */
+    suspend fun getMyUnlockRows(instructorProfileId: String, requestIds: List<String>): List<UnlockRow> {
         if (requestIds.isEmpty()) return emptyList()
         return supabaseClient.postgrest.from("request_unlocks")
             .select(columns = Columns.raw("lesson_request_id, instructor_id")) {
-                filter { isIn("lesson_request_id", requestIds) }
+                filter {
+                    eq("instructor_id", instructorProfileId)
+                    isIn("lesson_request_id", requestIds)
+                }
             }
             .decodeList<UnlockRow>()
     }

@@ -26,13 +26,13 @@ data class ExploreRawRequestDto(
     @SerialName("needs_transport") val needsTransport: Boolean = false,
     @SerialName("transport_note") val transportNote: String? = null,
     @SerialName("quota_limit") val quotaLimit: Int = 5,
+    @SerialName("unlock_count") val unlockCount: Int = 0,
     @SerialName("all_regions_selected") val allRegionsSelected: Boolean = false,
     @SerialName("resort_ids") val resortIds: List<String> = emptyList(),
     @SerialName("user_id") val userId: String = "",
 )
 
 fun ExploreRawRequestDto.toExploreLessonRequest(
-    unlockCount: Int,
     isUnlockedByMe: Boolean,
     myChatRoomId: String?,
     userDisplayName: String,

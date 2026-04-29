@@ -43,7 +43,14 @@ class ExploreRepositoryImpl @Inject constructor(
             val creatorIds = rawRequests.map { it.userId }.distinct()
             val allResortIds = rawRequests.flatMap { it.resortIds }.distinct()
 
-            val unlockRows = exploreDataSource.getUnlockRows(requestIds)
+            // Global unlock_count is sourced from lesson_requests.unlock_count
+            // (kept in sync by a DB trigger). Client cannot COUNT(*) request_unlocks
+            // because RLS hides other instructors' rows. We only query
+            // request_unlocks here to know which requests the *current* instructor
+            // has unlocked (is_unlocked_by_me).
+            val myUnlockRows = if (instructorProfileId != null) {
+                exploreDataSource.getMyUnlockRows(instructorProfileId, requestIds)
+            } else emptyList()
             val chatRoomRows = if (instructorProfileId != null) {
                 exploreDataSource.getChatRoomsForInstructor(instructorProfileId, requestIds)
             } else emptyList()
@@ -55,14 +62,7 @@ class ExploreRepositoryImpl @Inject constructor(
                 .groupBy { it.lessonRequestId }
                 .mapValues { (_, rows) -> rows.map { it.certificationCode } }
 
-            val unlockCountByRequest = mutableMapOf<String, Int>()
-            val unlockedRequestIds = mutableSetOf<String>()
-            for (row in unlockRows) {
-                unlockCountByRequest[row.lessonRequestId] = (unlockCountByRequest[row.lessonRequestId] ?: 0) + 1
-                if (instructorProfileId != null && row.instructorId == instructorProfileId) {
-                    unlockedRequestIds.add(row.lessonRequestId)
-                }
-            }
+            val unlockedRequestIds = myUnlockRows.map { it.lessonRequestId }.toSet()
 
             val userMap = userRows.associateBy { it.id }
             val resortNameMap = resortNameRows.associateBy { it.id }
@@ -75,7 +75,6 @@ class ExploreRepositoryImpl @Inject constructor(
                 }
                 val baseTokenCost = PricingCalculator.calculateUnlockCost(raw.durationDays, raw.groupSize)
                 raw.toExploreLessonRequest(
-                    unlockCount = unlockCountByRequest[raw.id] ?: 0,
                     isUnlockedByMe = raw.id in unlockedRequestIds,
                     myChatRoomId = chatRoomMap[raw.id]?.id,
                     userDisplayName = u?.displayName ?: "",
