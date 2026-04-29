@@ -5,6 +5,7 @@ import com.teachmeski.app.R
 import com.teachmeski.app.data.model.toDomain
 import com.teachmeski.app.data.model.toInstructorPreview
 import com.teachmeski.app.data.remote.LessonRequestDataSource
+import com.teachmeski.app.data.remote.PushNotificationDispatcher
 import com.teachmeski.app.domain.model.Discipline
 import com.teachmeski.app.domain.model.InstructorPreview
 import com.teachmeski.app.domain.model.LessonRequest
@@ -23,6 +24,7 @@ private const val TAG = "LessonRequestRepo"
 class LessonRequestRepositoryImpl @Inject constructor(
     private val lessonRequestDataSource: LessonRequestDataSource,
     private val authRepository: AuthRepository,
+    private val pushNotificationDispatcher: PushNotificationDispatcher,
 ) : LessonRequestRepository {
 
     override suspend fun submitLessonRequest(
@@ -162,6 +164,15 @@ class LessonRequestRepositoryImpl @Inject constructor(
 
     override suspend fun expandQuota(lessonRequestId: String): Resource<Int> = try {
         val newQuota = lessonRequestDataSource.expandLessonRequestQuota(lessonRequestId)
+        // F-109-N007 (FR-N007-005, AC-N007-001/-007): fire-and-forget N-007 fan-out.
+        // The dispatcher swallows its own exceptions, but we still wrap the call
+        // in try/catch defensively so any unexpected error path cannot turn a
+        // successful expansion into a Resource.Error.
+        try {
+            pushNotificationDispatcher.fireN007QuotaExpanded(lessonRequestId)
+        } catch (pushErr: Exception) {
+            Log.e(TAG, "expandQuota: N-007 dispatch failed (non-fatal)", pushErr)
+        }
         Resource.Success(newQuota)
     } catch (e: Exception) {
         Log.e(TAG, "expandQuota FAILED: $lessonRequestId", e)
