@@ -160,7 +160,11 @@ class MainViewModel @Inject constructor(
 
     fun signOut() {
         viewModelScope.launch {
+            val userId = authRepository.currentUserId()
             pushTokenManager.unregisterCurrentDeviceToken()
+            if (userId != null) {
+                rolePreferences.clearLastActiveRole(userId)
+            }
             authRepository.signOut()
         }
     }

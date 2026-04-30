@@ -33,4 +33,11 @@ class RolePreferences @Inject constructor(
             }
         }
     }
+
+    suspend fun clearLastActiveRole(userId: String) {
+        val key = stringPreferencesKey("last_active_role_$userId")
+        dataStore.edit { prefs ->
+            prefs.remove(key)
+        }
+    }
 }

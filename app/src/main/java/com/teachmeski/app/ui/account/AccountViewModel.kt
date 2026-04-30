@@ -11,6 +11,7 @@ import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.notifications.PushTokenManager
 import com.teachmeski.app.util.Resource
+import com.teachmeski.app.util.RolePreferences
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,6 +45,7 @@ class AccountViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
     private val pushTokenManager: PushTokenManager,
+    private val rolePreferences: RolePreferences,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -225,7 +227,11 @@ class AccountViewModel @Inject constructor(
     }
 
     suspend fun signOut(): Resource<Unit> {
+        val userId = authRepository.currentUserId()
         pushTokenManager.unregisterCurrentDeviceToken()
+        if (userId != null) {
+            rolePreferences.clearLastActiveRole(userId)
+        }
         return authRepository.signOut()
     }
 }
