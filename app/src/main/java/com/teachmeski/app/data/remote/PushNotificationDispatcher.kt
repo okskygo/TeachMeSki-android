@@ -5,6 +5,10 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.functions.functions
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,31 +18,39 @@ import kotlinx.serialization.Serializable
  * dedicated method so call-sites cannot accidentally pass a wrong payload
  * shape.
  *
- * All methods are best-effort: they catch and log any exception so callers
- * can keep the success path of the originating action regardless of push
- * delivery (see `activate-pending-requests/index.ts:48-69` for the canonical
- * N-001 example).
+ * All methods are TRUE fire-and-forget: they `launch` on an internal
+ * application-scoped supervisor and return immediately. Transport errors
+ * are caught and logged inside the launched coroutine. Callers MUST NOT
+ * be coupled to push delivery latency — the originating action's success
+ * path must complete in O(RPC) time, not O(fan-out × FCM round-trip).
+ *
+ * F-109 §AC-N007-007: a single quota expansion fan-out can take seconds
+ * because the Edge Function loops every `is_accepting_requests=true`
+ * instructor's device tokens. Awaiting that here previously made the
+ * student's "find more instructors" tap feel hung.
  */
 @Singleton
 class PushNotificationDispatcher @Inject constructor(
     private val supabase: SupabaseClient,
 ) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     /**
-     * F-109-N007 (FR-N007-005): notify every `is_accepting_requests=true`
-     * instructor that a lesson request just had its quota expanded.
-     *
-     * Mirrors the iOS `PushNotificationDispatcher.fireN007QuotaExpanded`
-     * (Task 4 of the F-109 N-007 plan). The Edge Function ignores anything
-     * outside `event` / `reference_id`, so we keep the body minimal.
+     * F-109-N007 (FR-N007-005, FR-N007-006): notify every
+     * `is_accepting_requests=true` instructor that a lesson request just had
+     * its quota expanded. Returns immediately; the actual Edge Function
+     * invocation runs on the application-scoped IO dispatcher.
      */
-    suspend fun fireN007QuotaExpanded(lessonRequestId: String) {
-        try {
-            supabase.functions.invoke(
-                function = "send-push-notification",
-                body = N007Body(event = "N-007", referenceId = lessonRequestId),
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "fireN007QuotaExpanded failed for $lessonRequestId", e)
+    fun fireN007QuotaExpanded(lessonRequestId: String) {
+        scope.launch {
+            try {
+                supabase.functions.invoke(
+                    function = "send-push-notification",
+                    body = N007Body(event = "N-007", referenceId = lessonRequestId),
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "fireN007QuotaExpanded failed for $lessonRequestId", e)
+            }
         }
     }
 
