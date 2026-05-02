@@ -47,9 +47,16 @@ class AuthDataSource @Inject constructor(
     }
 
     suspend fun resetPasswordForEmail(email: String) {
+        // NOTE: `redirectUrl` is ignored by the recovery email — the URL
+        // shown in the email is built by the `send-auth-email` Edge
+        // Function, which hardcodes `https://www.teachmeski.com/reset-password`
+        // with `token_hash` + `type` query params (verifyOtp flow, no PKCE
+        // verifier needed). See gotcha in TEACHMESKI.md §8.
+        // We still pass the canonical www URL so it matches the Supabase
+        // Dashboard "Redirect URLs" allowlist if GoTrue ever falls back.
         supabaseClient.auth.resetPasswordForEmail(
             email = email,
-            redirectUrl = "https://teachmeski.com/reset-password",
+            redirectUrl = "https://www.teachmeski.com/reset-password",
         )
     }
 
