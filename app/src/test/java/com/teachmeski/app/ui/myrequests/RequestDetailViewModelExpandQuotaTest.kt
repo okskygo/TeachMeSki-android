@@ -139,7 +139,7 @@ class RequestDetailViewModelExpandQuotaTest {
             lessonRequestId: String,
             firstMessage: String,
         ) = Resource.Success("room-1")
-        override suspend fun unlockPathBConversation(roomId: String, message: String) =
+        override suspend fun unlockPathBConversation(roomId: String) =
             Resource.Success("room-1")
         override fun subscribeToRoomFlow(roomId: String): Flow<ChatMessage> = emptyFlow()
         override fun subscribeToInboxFlow(): Flow<InboxRoomUpdate> = emptyFlow()

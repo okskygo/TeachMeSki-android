@@ -49,9 +49,7 @@ data class ChatUiState(
     val isSubmittingReport: Boolean = false,
     val isBlockInFlight: Boolean = false,
     val toast: UiText? = null,
-    val showUnlockDialog: Boolean = false,
     val isUnlocking: Boolean = false,
-    val unlockMessageDraft: String = "",
     /** F-108: Path-B identity gate. */
     val showIdentityRequired: Boolean = false,
     /// After a successful older-message page prepends, this holds the
@@ -369,52 +367,33 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun showUnlockDialog() {
+    fun dismissIdentityRequired() {
+        _uiState.update { it.copy(showIdentityRequired = false) }
+    }
+
+    /**
+     * Path-B unlock entry point. Mirrors web's one-tap unlock — no
+     * forced first message. Performs the F-108 LINE identity gate
+     * (AC-LINE-UNLOCK-003) before calling the RPC; the backend
+     * `execute_unlock` enforces the same gate (AC-LINE-UNLOCK-004).
+     */
+    fun confirmUnlock() {
+        if (_uiState.value.isUnlocking) return
+        _uiState.update { it.copy(isUnlocking = true) }
         viewModelScope.launch {
-            // F-108 pre-check: AC-LINE-UNLOCK-003. Refuse to open the
-            // Path-B unlock dialog if the instructor hasn't completed
-            // LINE binding. The execute_unlock RPC also enforces this
-            // at the backend (AC-LINE-UNLOCK-004).
             val verified = when (val r = instructorRepository.getMyProfile()) {
                 is Resource.Success -> r.data.lineUserId != null
                 else -> false
             }
             if (!verified) {
-                _uiState.update { it.copy(showIdentityRequired = true) }
+                _uiState.update {
+                    it.copy(isUnlocking = false, showIdentityRequired = true)
+                }
                 return@launch
             }
-            _uiState.update { it.copy(showUnlockDialog = true, unlockMessageDraft = "") }
-        }
-    }
-
-    fun dismissIdentityRequired() {
-        _uiState.update { it.copy(showIdentityRequired = false) }
-    }
-
-    fun dismissUnlockDialog() {
-        if (_uiState.value.isUnlocking) return
-        _uiState.update { it.copy(showUnlockDialog = false) }
-    }
-
-    fun updateUnlockMessage(text: String) {
-        if (text.length > 2000) return
-        _uiState.update { it.copy(unlockMessageDraft = text) }
-    }
-
-    fun confirmUnlock() {
-        val draft = _uiState.value.unlockMessageDraft.trim()
-        if (draft.isEmpty()) return
-        _uiState.update { it.copy(isUnlocking = true) }
-        viewModelScope.launch {
-            when (val res = chatRepository.unlockPathBConversation(roomId, draft)) {
+            when (val res = chatRepository.unlockPathBConversation(roomId)) {
                 is Resource.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            isUnlocking = false,
-                            showUnlockDialog = false,
-                            unlockMessageDraft = "",
-                        )
-                    }
+                    _uiState.update { it.copy(isUnlocking = false) }
                     refresh()
                 }
                 is Resource.Error -> {
@@ -424,8 +403,6 @@ class ChatViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isUnlocking = false,
-                                showUnlockDialog = false,
-                                unlockMessageDraft = "",
                                 showIdentityRequired = true,
                             )
                         }

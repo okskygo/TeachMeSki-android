@@ -313,7 +313,7 @@ class ChatRepositoryImpl @Inject constructor(
                 }
             }
 
-    override suspend fun unlockPathBConversation(roomId: String, message: String): Resource<String> {
+    override suspend fun unlockPathBConversation(roomId: String): Resource<String> {
         return try {
             val userId = authRepository.currentUserId()
                 ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
@@ -321,11 +321,15 @@ class ChatRepositoryImpl @Inject constructor(
                 ?: return Resource.Error(UiText.StringResource(R.string.error_no_instructor_profile))
             val room = chatDataSource.getChatRoom(roomId)
 
+            // Path-B branch of `execute_unlock` ignores `p_instructor_message`
+            // (no chat_messages insert, no chat_rooms update). Pass a fixed
+            // placeholder to satisfy the RPC signature, mirroring web's
+            // `unlockPathBConversation` action.
             val result = chatDataSource.executeUnlock(
                 authUserId = userId,
                 instructorProfileId = instructorProfileId,
                 lessonRequestId = room.lessonRequestId,
-                instructorMessage = message,
+                instructorMessage = "(unlocked from conversation)",
             )
 
             val error = result["error"] as? String

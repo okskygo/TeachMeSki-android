@@ -11,15 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +29,7 @@ import com.teachmeski.app.ui.theme.TmsColor
 @Composable
 fun ChatUnlockBar(
     unlockInfo: UnlockInfo,
+    isUnlocking: Boolean,
     onUnlockClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -93,61 +90,11 @@ fun ChatUnlockBar(
             }
             Button(
                 onClick = onUnlockClick,
-                enabled = !insufficient,
+                enabled = !insufficient && !isUnlocking,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.chat_unlock_btn))
             }
         }
     }
-}
-
-@Composable
-fun ChatUnlockDialog(
-    messageDraft: String,
-    isUnlocking: Boolean,
-    onDraftChange: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = { if (!isUnlocking) onDismiss() },
-        title = { Text(stringResource(R.string.chat_unlock_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.chat_unlock_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                OutlinedTextField(
-                    value = messageDraft,
-                    onValueChange = onDraftChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(R.string.chat_input_placeholder)) },
-                    minLines = 3,
-                    maxLines = 6,
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                enabled = !isUnlocking && messageDraft.trim().isNotEmpty(),
-            ) {
-                if (isUnlocking) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                    )
-                } else {
-                    Text(stringResource(R.string.chat_unlock_btn))
-                }
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !isUnlocking) {
-                Text(stringResource(R.string.review_cancel))
-            }
-        },
-    )
 }

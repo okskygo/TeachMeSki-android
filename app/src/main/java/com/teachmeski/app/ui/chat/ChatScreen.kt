@@ -158,7 +158,8 @@ fun ChatScreen(
                 needsUnlockPlaceholder -> {
                     ChatUnlockBar(
                         unlockInfo = detail!!.unlockInfo!!,
-                        onUnlockClick = viewModel::showUnlockDialog,
+                        isUnlocking = uiState.isUnlocking,
+                        onUnlockClick = viewModel::confirmUnlock,
                     )
                 }
                 blocked -> {
@@ -337,16 +338,6 @@ fun ChatScreen(
             isSubmitting = uiState.isSubmittingReport,
             onDismiss = viewModel::dismissReportDialog,
             onSubmit = viewModel::submitReport,
-        )
-    }
-
-    if (uiState.showUnlockDialog) {
-        ChatUnlockDialog(
-            messageDraft = uiState.unlockMessageDraft,
-            isUnlocking = uiState.isUnlocking,
-            onDraftChange = viewModel::updateUnlockMessage,
-            onDismiss = viewModel::dismissUnlockDialog,
-            onConfirm = viewModel::confirmUnlock,
         )
     }
 

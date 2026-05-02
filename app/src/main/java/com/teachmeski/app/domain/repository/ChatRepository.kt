@@ -16,7 +16,7 @@ interface ChatRepository {
     suspend fun markRoomAsRead(roomId: String): Resource<Unit>
     suspend fun getUnreadCount(): Resource<Int>
     suspend fun createPathBChatRoom(instructorProfileId: String, lessonRequestId: String, firstMessage: String): Resource<String>
-    suspend fun unlockPathBConversation(roomId: String, message: String): Resource<String>
+    suspend fun unlockPathBConversation(roomId: String): Resource<String>
 
     /** Broadcast channel `room:{roomId}`, event `new_message`. Collect in a coroutine; cancel to unsubscribe. */
     fun subscribeToRoomFlow(roomId: String): Flow<ChatMessage>
