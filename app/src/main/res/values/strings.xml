@@ -99,6 +99,7 @@
     <string name="auth_error_terms_required">請勾選同意服務條款與隱私權政策</string>
     <string name="auth_error_password_required">請輸入密碼</string>
     <string name="auth_error_invalid_credentials">電子郵件或密碼錯誤</string>
+    <string name="auth_error_email_already_registered">此 Email 已註冊，請改用登入。</string>
     <string name="auth_error_account_unavailable">此帳號無法使用。</string>
     <string name="auth_error_email_not_confirmed">您的帳號尚未完成 Email 驗證，請先驗證再登入。</string>
     <string name="auth_error_otp_invalid">驗證碼不正確</string>

@@ -114,6 +114,21 @@ class SignupViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
+            // Pre-check before signUp: Supabase silently returns HTTP 200
+            // (no email sent) when the address is already registered, so
+            // a duplicate signUp would otherwise leave the user staring
+            // at "check your inbox" with no code in flight. Pre-check
+            // failures fail-open to preserve transient-network tolerance.
+            val precheck = authRepository.checkEmailRegistered(email)
+            if (precheck is Resource.Success && precheck.data == true) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = UiText.StringResource(R.string.auth_error_email_already_registered),
+                    )
+                }
+                return@launch
+            }
             when (val result = authRepository.signUp(email, state.password, displayName)) {
                 is Resource.Success -> {
                     _uiState.update { it.copy(isLoading = false, signupSuccess = true) }

@@ -5,7 +5,11 @@ import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email as EmailProvider
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
@@ -73,5 +77,22 @@ class AuthDataSource @Inject constructor(
             type = OtpType.Email.SIGNUP,
             email = email,
         )
+    }
+
+    /**
+     * Calls the `check_email_registered(p_email text) returns boolean`
+     * SECURITY DEFINER RPC. Returns `true` if the email already exists in
+     * `auth.users` (regardless of `email_confirmed_at`). Used by signUp
+     * call sites to short-circuit the silent HTTP-200-no-email response
+     * Supabase returns for already-registered addresses.
+     */
+    suspend fun checkEmailRegistered(email: String): Boolean {
+        val params = buildJsonObject {
+            put("p_email", email.trim())
+        }
+        val result = supabaseClient.postgrest.rpc("check_email_registered", params)
+        val element = result.decodeAs<JsonPrimitive>()
+        return element.booleanOrNull
+            ?: element.content.equals("true", ignoreCase = true)
     }
 }

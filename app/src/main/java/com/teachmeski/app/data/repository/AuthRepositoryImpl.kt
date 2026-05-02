@@ -41,6 +41,13 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun resendEmailOtp(email: String): Resource<Unit> =
         runAuth { authDataSource.resendEmailOtp(email) }
 
+    override suspend fun checkEmailRegistered(email: String): Resource<Boolean> =
+        try {
+            Resource.Success(authDataSource.checkEmailRegistered(email))
+        } catch (e: Exception) {
+            Resource.Error(UiText.StringResource(R.string.auth_error_generic))
+        }
+
     private suspend fun runAuth(block: suspend () -> Unit): Resource<Unit> =
         try {
             block()

@@ -421,11 +421,30 @@ class InstructorWizardViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSigningUp = true, signupError = null) }
+            // Pre-check before signUp: Supabase silently returns HTTP 200
+            // (no email sent) when the address is already registered, so
+            // a duplicate signUp would otherwise advance the wizard to
+            // step 10 and leave the user staring at an OTP field that
+            // would never receive a code. Pre-check failures fail-open
+            // to preserve transient-network tolerance.
+            val email = s.email.trim()
+            val precheck = authRepository.checkEmailRegistered(email)
+            if (precheck is Resource.Success && precheck.data == true) {
+                _uiState.update {
+                    it.copy(
+                        isSigningUp = false,
+                        signupError = UiText.StringResource(
+                            R.string.auth_error_email_already_registered,
+                        ),
+                    )
+                }
+                return@launch
+            }
             savePendingProfile()
             when (
                 val result =
                     authRepository.signUp(
-                        email = s.email.trim(),
+                        email = email,
                         password = s.password,
                         displayName = s.displayName.trim(),
                     )
