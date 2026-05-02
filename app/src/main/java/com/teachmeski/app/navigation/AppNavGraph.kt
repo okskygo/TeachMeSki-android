@@ -35,6 +35,7 @@ fun AppNavGraph(
     userRole: UserRole = UserRole.Student,
     onSwitchToStudent: () -> Unit,
     onSwitchToInstructor: () -> Unit,
+    onWizardCompleted: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val startDestination: Route = if (!isAuthenticated) {
@@ -89,11 +90,31 @@ fun AppNavGraph(
         }
         composable<Route.InstructorWizard> { entry ->
             val wizardRoute = entry.toRoute<Route.InstructorWizard>()
+            // Both `onSuccess` and `onAlreadyInstructor` must promote the
+            // session to the instructor side: refresh `users.role` so
+            // `MainUiState.userRole` reflects the freshly-flipped `Both`,
+            // then flip `activeRole` to `Instructor`. The
+            // `LaunchedEffect(isAuthenticated, activeRole)` block in
+            // `MainActivity.AuthenticatedApp` observes the role change
+            // and re-roots navigation to `Route.InstructorGraph`,
+            // popping the wizard along with the prior student graph.
+            //
+            // Why not `popBackStack(Route.InstructorGraph, inclusive = false)`
+            // alone? When the wizard was launched from the student graph
+            // the back stack contains `StudentGraph -> InstructorWizard`,
+            // not `InstructorGraph`, so the popBackStack returns false and
+            // does nothing — that's the bug that left the "開始使用" button
+            // appearing unresponsive.
             InstructorWizardScreen(
                 isGuestMode = wizardRoute.isGuestMode,
                 onClose = { navController.popBackStack() },
                 onSuccess = {
-                    navController.popBackStack(Route.InstructorGraph, inclusive = false)
+                    onWizardCompleted()
+                    onSwitchToInstructor()
+                },
+                onAlreadyInstructor = {
+                    onWizardCompleted()
+                    onSwitchToInstructor()
                 },
             )
         }

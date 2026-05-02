@@ -291,6 +291,7 @@ private fun AuthenticatedApp(
             userRole = userRole,
             onSwitchToStudent = onSwitchToStudent,
             onSwitchToInstructor = onSwitchToInstructor,
+            onWizardCompleted = { mainViewModel.refreshRole() },
             modifier = Modifier.padding(innerPadding),
         )
     }

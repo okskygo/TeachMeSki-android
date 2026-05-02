@@ -139,6 +139,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Re-runs `resolveRole()` so a fresh `users.role` value (typically just
+     * flipped to `Both` server-side by `InstructorRepository.createProfile`)
+     * is reflected in `MainUiState.userRole`. Call this from the instructor
+     * wizard's success path so the post-wizard root re-render and the
+     * AccountScreen role-switch row both see the new role immediately
+     * instead of waiting for the next process cold-start.
+     */
+    fun refreshRole() {
+        viewModelScope.launch {
+            resolveRole()
+        }
+    }
+
     fun switchRole(newRole: ActiveRole) {
         val userId = authRepository.currentUserId() ?: return
         val current = _uiState.value as? MainUiState.Authenticated ?: return

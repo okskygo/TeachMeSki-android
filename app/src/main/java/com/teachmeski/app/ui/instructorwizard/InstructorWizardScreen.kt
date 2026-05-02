@@ -65,6 +65,7 @@ fun InstructorWizardScreen(
     isGuestMode: Boolean = false,
     onClose: () -> Unit,
     onSuccess: () -> Unit,
+    onAlreadyInstructor: () -> Unit = onClose,
     viewModel: InstructorWizardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -119,7 +120,7 @@ fun InstructorWizardScreen(
                 profileAlreadyExists = state.profileAlreadyExists,
                 onStartExploring = {
                     if (state.profileAlreadyExists) {
-                        onClose()
+                        onAlreadyInstructor()
                     } else {
                         onSuccess()
                     }
