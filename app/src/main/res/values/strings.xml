@@ -104,7 +104,7 @@
     <string name="auth_error_account_unavailable">此帳號無法使用。</string>
     <string name="auth_error_email_not_confirmed">您的帳號尚未完成 Email 驗證，請先驗證再登入。</string>
     <string name="auth_error_otp_invalid">驗證碼不正確</string>
-    <string name="auth_error_otp_expired">驗證碼已過期，請重新寄送</string>
+    <string name="auth_error_otp_expired">驗證碼錯誤或已過期，請重新輸入或重新寄送</string>
     <string name="auth_error_generic">發生錯誤，請稍後再試</string>
     <string name="auth_error_not_authenticated">尚未登入，請先登入</string>
 

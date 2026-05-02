@@ -104,7 +104,7 @@
     <string name="auth_error_account_unavailable">This account is no longer available.</string>
     <string name="auth_error_email_not_confirmed">Please verify your email before signing in.</string>
     <string name="auth_error_otp_invalid">Invalid verification code</string>
-    <string name="auth_error_otp_expired">Code expired. Please resend.</string>
+    <string name="auth_error_otp_expired">Incorrect or expired code. Please try again or resend.</string>
     <string name="auth_error_generic">Something went wrong. Please try again.</string>
     <string name="auth_error_not_authenticated">Not signed in. Please sign in first.</string>
 
