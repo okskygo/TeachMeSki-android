@@ -9,7 +9,7 @@
 
     <!-- Bottom Nav — Instructor -->
     <string name="nav_explore">探索</string>
-    <string name="nav_unlocked">已解鎖</string>
+    <string name="nav_unlocked">我的案件</string>
     <string name="nav_conversation">訊息</string>
     <string name="nav_instructor_account">我的</string>
 
@@ -463,9 +463,9 @@
     <string name="explore_unlock_success_title">解鎖成功！聊天室已建立。</string>
     <string name="explore_unlock_success_go_to_chat">前往對話</string>
 
-    <!-- Phase 4: Unlocked -->
-    <string name="unlocked_title">已解鎖的課程</string>
-    <string name="unlocked_empty_title">尚未解鎖任何課程</string>
+    <!-- Phase 4: Unlocked (renamed to "我的案件 / My Cases" 2026-05-02 — see PRD §3.6) -->
+    <string name="unlocked_title">我的案件</string>
+    <string name="unlocked_empty_title">尚未有任何案件</string>
     <string name="unlocked_empty_description">前往瀏覽課程需求，找到適合你的教學機會</string>
     <string name="unlocked_card_last_message_none">尚未開始對話</string>
     <string name="unlocked_card_unread">未讀</string>
@@ -475,6 +475,7 @@
     <string name="unlocked_status_active">需求開放中</string>
     <string name="unlocked_status_closed">需求已關閉</string>
     <string name="unlocked_status_refunded">已關閉（自動退款）</string>
+    <string name="unlocked_badge_pending">待解鎖</string>
     <string name="unlocked_go_to_conversation">前往對話</string>
     <string name="unlocked_no_message_yet">尚未開始對話</string>
     <string name="unlocked_empty_cta">瀏覽課程需求</string>

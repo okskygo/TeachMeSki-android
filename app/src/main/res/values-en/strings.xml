@@ -9,7 +9,7 @@
 
     <!-- Bottom Nav — Instructor -->
     <string name="nav_explore">Explore</string>
-    <string name="nav_unlocked">Unlocked</string>
+    <string name="nav_unlocked">My Cases</string>
     <string name="nav_conversation">Messages</string>
     <string name="nav_instructor_account">My</string>
 
@@ -457,9 +457,9 @@
     <string name="explore_unlock_success_title">Unlocked! Chat room created.</string>
     <string name="explore_unlock_success_go_to_chat">Go to Chat</string>
 
-    <!-- Phase 4: Unlocked -->
-    <string name="unlocked_title">Unlocked Lessons</string>
-    <string name="unlocked_empty_title">No unlocked lessons yet</string>
+    <!-- Phase 4: Unlocked (renamed to "我的案件 / My Cases" 2026-05-02 — see PRD §3.6) -->
+    <string name="unlocked_title">My Cases</string>
+    <string name="unlocked_empty_title">No cases yet</string>
     <string name="unlocked_empty_description">Browse lesson requests to find students who need your instruction</string>
     <string name="unlocked_card_last_message_none">No messages yet</string>
     <string name="unlocked_card_unread">Unread</string>
@@ -469,6 +469,7 @@
     <string name="unlocked_status_active">Request Open</string>
     <string name="unlocked_status_closed">Request Closed</string>
     <string name="unlocked_status_refunded">Closed (auto refund)</string>
+    <string name="unlocked_badge_pending">Pending unlock</string>
     <string name="unlocked_go_to_conversation">Go to Conversation</string>
     <string name="unlocked_no_message_yet">No messages yet</string>
     <string name="unlocked_empty_cta">Browse Lesson Requests</string>

@@ -227,6 +227,11 @@ fun UnlockedStoryCard(
     // closed AND greyscaled; lesson_request closed/expired is visually closed
     // but the card itself is NOT dimmed (consistent with web P2).
     val isRefunded = room.unlockStatus == UnlockStatus.Refunded
+    // FR-008-053 (2026-05-02 "我的案件" rename): a chat_room without
+    // any matching `request_unlocks` row is shown as Pending — visuals
+    // stay live (NOT greyed) and a "待解鎖 / Pending unlock" badge
+    // replaces the "unlocked X ago" timestamp.
+    val isPending = room.unlockStatus == UnlockStatus.Pending
     val isRequestActive = room.requestStatus.equals("active", ignoreCase = true)
     val isClosed = isRefunded || !isRequestActive
     val isoHalf = room.durationDays != null && kotlin.math.abs(room.durationDays - 0.5) < 1e-6
@@ -275,6 +280,11 @@ fun UnlockedStoryCard(
     }
     val unlockedLabel = stringResource(R.string.unlocked_unlocked_ago_fmt, unlockedRelative)
 
+    // AC-008-MYCASES-010 (2026-05-02 v2): footer pill reflects ONLY
+    // the lesson_request lifecycle (refunded > closed > active). The
+    // "pending unlock" signal is communicated solely by the top-right
+    // badge — mixing unlock-state and lifecycle-state into one pill
+    // confused users.
     val statusLabel = when {
         isRefunded -> stringResource(R.string.unlocked_status_refunded)
         !isRequestActive -> stringResource(R.string.unlocked_status_closed)
@@ -343,12 +353,31 @@ fun UnlockedStoryCard(
                             color = TmsColor.Primary,
                         )
                     }
-                    Text(
-                        text = unlockedLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = TmsColor.OnSurfaceVariant,
-                    )
+                    if (isPending) {
+                        Text(
+                            text = stringResource(R.string.unlocked_badge_pending)
+                                .uppercase(Locale.getDefault()),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = TmsColor.Warning,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(TmsColor.Warning.copy(alpha = 0.1f))
+                                .border(
+                                    1.dp,
+                                    TmsColor.Warning.copy(alpha = 0.2f),
+                                    RoundedCornerShape(20.dp),
+                                )
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                        )
+                    } else {
+                        Text(
+                            text = unlockedLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Medium,
+                            color = TmsColor.OnSurfaceVariant,
+                        )
+                    }
                 }
 
                 Row(
@@ -583,27 +612,26 @@ fun UnlockedStoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 val statusShape = RoundedCornerShape(50)
+                val statusFg = if (isClosed) TmsColor.OnSurfaceVariant else TmsColor.Success
+                val statusBg = if (isClosed) {
+                    TmsColor.OnSurfaceVariant.copy(alpha = 0.1f)
+                } else {
+                    TmsColor.Success.copy(alpha = 0.1f)
+                }
+                val statusBorder = if (isClosed) {
+                    Modifier
+                } else {
+                    Modifier.border(1.dp, TmsColor.Success.copy(alpha = 0.2f), statusShape)
+                }
                 Text(
                     text = statusLabel,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = if (isClosed) TmsColor.OnSurfaceVariant else TmsColor.Success,
+                    color = statusFg,
                     modifier = Modifier
                         .clip(statusShape)
-                        .background(
-                            if (isClosed) {
-                                TmsColor.OnSurfaceVariant.copy(alpha = 0.1f)
-                            } else {
-                                TmsColor.Success.copy(alpha = 0.1f)
-                            },
-                        )
-                        .then(
-                            if (isRequestActive) {
-                                Modifier.border(1.dp, TmsColor.Success.copy(alpha = 0.2f), statusShape)
-                            } else {
-                                Modifier
-                            },
-                        )
+                        .background(statusBg)
+                        .then(statusBorder)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                 )
                 if (canOpenChat) {

@@ -122,7 +122,12 @@ class ExploreRepositoryImplUnlockStatusTest {
         }
 
     @Test
-    fun `defaults to Active when no request_unlocks row is found`() = runTest {
+    fun `defaults to Pending when no request_unlocks row is found (My Cases rename)`() = runTest {
+        // FR-008-053 (2026-05-02): a chat_room without any unlock row
+        // means the student opened a Path-B conversation but the
+        // instructor hasn't paid yet — surface as Pending so the UI
+        // can render the "待解鎖 / Pending unlock" badge instead of
+        // falsely claiming the room is unlocked.
         val (ds, _, repo) = buildMocks()
         coEvery { ds.getUnlockedRooms("instr-1") } returns listOf(
             roomDto(id = "room-A", lessonRequestId = "lr-A"),
@@ -134,7 +139,7 @@ class ExploreRepositoryImplUnlockStatusTest {
 
         assertTrue(result is Resource.Success)
         assertEquals(
-            UnlockStatus.Active,
+            UnlockStatus.Pending,
             (result as Resource.Success).data.first().unlockStatus,
         )
     }
