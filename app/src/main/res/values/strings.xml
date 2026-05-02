@@ -560,8 +560,8 @@
     <string name="instructor_profile_certs_label">證照資格</string>
     <string name="instructor_profile_languages_label">語言能力</string>
     <string name="instructor_profile_pricing_label">收費</string>
-    <string name="instructor_profile_half_day_fmt">半日 NT$%1$d</string>
-    <string name="instructor_profile_full_day_fmt">全日 NT$%1$d</string>
+    <string name="instructor_profile_half_day_fmt">半天 NT$%1$d</string>
+    <string name="instructor_profile_full_day_fmt">全天 NT$%1$d</string>
     <string name="instructor_profile_services_label">附加服務</string>
     <string name="instructor_profile_offers_transport">交通接送</string>
     <string name="instructor_profile_offers_photography">滑雪攝影</string>
@@ -671,8 +671,8 @@
     <string name="instructor_wizard_step7_heading">教學定價</string>
     <string name="instructor_wizard_step7_subheading">設定您的 1 對 1 教學基本報價</string>
     <string name="instructor_wizard_step7_hint">此價格會顯示在您的教練頁面</string>
-    <string name="instructor_wizard_step7_half_day_label">半天（3 小時）</string>
-    <string name="instructor_wizard_step7_full_day_label">全天（6 小時）</string>
+    <string name="instructor_wizard_step7_half_day_label">半天</string>
+    <string name="instructor_wizard_step7_full_day_label">全天</string>
     <string name="instructor_wizard_step7_currency">NT$</string>
     <string name="instructor_wizard_step7_not_set">未設定</string>
     <string name="instructor_wizard_step7_warning_full_lt_half">全天價格低於半天價格</string>
@@ -922,8 +922,8 @@
     <string name="instructor_detail_language_ja">日文</string>
     <string name="instructor_detail_language_separator">、</string>
     <string name="instructor_detail_pricing_label">收費</string>
-    <string name="instructor_detail_price_half_day_fmt">半日：NT$%1$s</string>
-    <string name="instructor_detail_price_full_day_fmt">全日：NT$%1$s</string>
+    <string name="instructor_detail_price_half_day_fmt">半天：NT$%1$s</string>
+    <string name="instructor_detail_price_full_day_fmt">全天：NT$%1$s</string>
     <string name="instructor_detail_price_not_set">未定</string>
     <string name="instructor_detail_services_label">附加服務</string>
     <string name="instructor_detail_service_transport">接送服務</string>

@@ -394,7 +394,7 @@
     <string name="explore_empty_description">Check back later</string>
     <string name="explore_card_group_size">%1$d people</string>
     <string name="explore_card_days">%1$d days</string>
-    <string name="explore_card_half_day">Half-day</string>
+    <string name="explore_card_half_day">Half day</string>
     <string name="explore_card_cost_tokens">%1$d credits</string>
     <string name="explore_card_quota_remaining">%1$d slots remaining</string>
     <string name="explore_card_skill_level_fmt">Lv %1$s</string>
@@ -554,8 +554,8 @@
     <string name="instructor_profile_certs_label">Certifications</string>
     <string name="instructor_profile_languages_label">Languages</string>
     <string name="instructor_profile_pricing_label">Pricing</string>
-    <string name="instructor_profile_half_day_fmt">Half Day NT$%1$d</string>
-    <string name="instructor_profile_full_day_fmt">Full Day NT$%1$d</string>
+    <string name="instructor_profile_half_day_fmt">Half day NT$%1$d</string>
+    <string name="instructor_profile_full_day_fmt">Full day NT$%1$d</string>
     <string name="instructor_profile_services_label">Additional Services</string>
     <string name="instructor_profile_offers_transport">Transportation</string>
     <string name="instructor_profile_offers_photography">Ski Photography</string>
@@ -666,11 +666,11 @@
     <string name="instructor_wizard_step7_heading">Lesson Pricing</string>
     <string name="instructor_wizard_step7_subheading">Set your 1-on-1 lesson base price</string>
     <string name="instructor_wizard_step7_hint">This price will be displayed on your instructor page</string>
-    <string name="instructor_wizard_step7_half_day_label">Half Day (3 hours)</string>
-    <string name="instructor_wizard_step7_full_day_label">Full Day (6 hours)</string>
+    <string name="instructor_wizard_step7_half_day_label">Half day</string>
+    <string name="instructor_wizard_step7_full_day_label">Full day</string>
     <string name="instructor_wizard_step7_currency">NT$</string>
     <string name="instructor_wizard_step7_not_set">Not Set</string>
-    <string name="instructor_wizard_step7_warning_full_lt_half">Full-day price is lower than half-day price</string>
+    <string name="instructor_wizard_step7_warning_full_lt_half">Full day price is lower than half day price</string>
     <string name="instructor_wizard_step8_heading">Additional Services</string>
     <string name="instructor_wizard_step8_subheading">What extra services do you offer? (optional)</string>
     <string name="instructor_wizard_step8_transport_label">Transportation Pickup</string>
@@ -924,8 +924,8 @@
     <string name="instructor_detail_language_ja">Japanese</string>
     <string name="instructor_detail_language_separator">", "</string>
     <string name="instructor_detail_pricing_label">PRICING</string>
-    <string name="instructor_detail_price_half_day_fmt">Half-day: NT$%1$s</string>
-    <string name="instructor_detail_price_full_day_fmt">Full-day: NT$%1$s</string>
+    <string name="instructor_detail_price_half_day_fmt">Half day: NT$%1$s</string>
+    <string name="instructor_detail_price_full_day_fmt">Full day: NT$%1$s</string>
     <string name="instructor_detail_price_not_set">Not set</string>
     <string name="instructor_detail_services_label">ADDITIONAL SERVICES</string>
     <string name="instructor_detail_service_transport">Transportation</string>
