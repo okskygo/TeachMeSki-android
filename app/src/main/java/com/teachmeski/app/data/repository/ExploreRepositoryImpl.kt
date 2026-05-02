@@ -158,13 +158,12 @@ class ExploreRepositoryImpl @Inject constructor(
 
             val summaryById = summaries.associateBy { it.id }
             val userById = userRows.associateBy { it.id }
-            // F-008 P3: keep only the newest unlock row per lesson_request_id.
-            // `getMyRequestUnlockRows` returns rows ordered by unlocked_at DESC,
-            // so we walk in order and keep the first row seen for each id
-            // (Kotlin's `associateBy` would otherwise overwrite with the last).
-            val latestUnlockByRequestId = buildMap {
-                for (row in unlockRows) putIfAbsent(row.lessonRequestId, row)
-            }
+            // F-008 v2.0 perf: `getMyRequestUnlockRows` reads from
+            // `v_latest_request_unlocks` (DISTINCT ON (lesson_request_id,
+            // instructor_id)), so each lesson_request_id appears at most
+            // once and we no longer need a client-side `buildMap{putIfAbsent}`
+            // dedupe pass.
+            val latestUnlockByRequestId = unlockRows.associateBy { it.lessonRequestId }
 
             val allResortIds = summaries.flatMap { it.resortIds }.distinct()
             val resortNameRows = exploreDataSource.getResortNames(allResortIds)

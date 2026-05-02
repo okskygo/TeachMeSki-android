@@ -14,10 +14,13 @@ import org.junit.Assert.assertTrue
 /**
  * F-008 P3 — `ExploreRepositoryImpl.getUnlockedRooms` must surface
  * `request_unlocks.status` (active / refunded / completed) onto every
- * `UnlockedRoom.unlockStatus`. When a (lesson_request, instructor) pair has
- * multiple `request_unlocks` rows (refunded, then re-unlocked → active), the
- * NEWEST row's status wins because the data source returns rows ordered by
- * `unlocked_at DESC`.
+ * `UnlockedRoom.unlockStatus`.
+ *
+ * After the F-008 v2.0 perf refactor, `getMyRequestUnlockRows` reads from
+ * the Postgres view `v_latest_request_unlocks` (DISTINCT ON
+ * (lesson_request_id, instructor_id) ORDER BY unlocked_at DESC), which
+ * guarantees one row per pair. The repository therefore no longer dedupes
+ * client-side and trusts the view to deliver the newest unlock per pair.
  */
 class ExploreRepositoryImplUnlockStatusTest {
 
@@ -93,17 +96,21 @@ class ExploreRepositoryImplUnlockStatusTest {
     }
 
     @Test
-    fun `picks newest request_unlocks row when an instructor re-unlocked a refunded room`() =
+    fun `passes through view-supplied newest unlock for a re-unlocked room`() =
         runTest {
+            // F-008 v2.0 perf: the data source now reads from
+            // `v_latest_request_unlocks`, so the database has already
+            // collapsed any (instructor, lesson_request) fanout down to
+            // a single newest row before the repository sees it. We
+            // simulate that by feeding the mocked data source exactly
+            // one row per pair and assert the repo trusts it as-is.
             val (ds, _, repo) = buildMocks()
             coEvery { ds.getUnlockedRooms("instr-1") } returns listOf(
                 roomDto(id = "room-A", lessonRequestId = "lr-A"),
             )
             coEvery { ds.getLessonRequestSummaries(any()) } returns listOf(summary("lr-A"))
-            // DESC order: newest (active) first, older (refunded) second.
             coEvery { ds.getMyRequestUnlockRows("instr-1", any()) } returns listOf(
                 unlockRow("lr-A", "active", "2026-05-01T00:00:00Z"),
-                unlockRow("lr-A", "refunded", "2026-04-28T00:00:00Z"),
             )
 
             val result = repo.getUnlockedRooms()

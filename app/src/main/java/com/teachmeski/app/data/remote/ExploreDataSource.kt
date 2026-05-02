@@ -189,18 +189,23 @@ class ExploreDataSource @Inject constructor(
      * rows so client-side COUNT(*) is wrong by design.
      */
     /**
-     * F-008 P3: returns this instructor's `request_unlocks` rows for the given
-     * lesson requests, ordered by `unlocked_at DESC` so callers can take the
-     * first row per `lesson_request_id` to know whether the most recent unlock
-     * is still `'active'`, has been auto-`'refunded'`, or has been
-     * auto-`'completed'`. RLS still scopes rows to this instructor.
+     * F-008 v2.0 perf: returns this instructor's latest `request_unlocks`
+     * row per `lesson_request_id` for the given requests, sourced from the
+     * `v_latest_request_unlocks` Postgres VIEW (DISTINCT ON
+     * (lesson_request_id, instructor_id) ORDER BY unlocked_at DESC,
+     * security_invoker = true). Each (instructor, lesson_request) pair is
+     * guaranteed to appear at most once, so the repository no longer has
+     * to dedupe client-side. The `status` field reflects whether the most
+     * recent unlock is still `'active'`, has been auto-`'refunded'`, or
+     * has been auto-`'completed'`. RLS on the underlying `request_unlocks`
+     * is enforced via the view's `security_invoker = true`.
      */
     suspend fun getMyRequestUnlockRows(
         instructorProfileId: String,
         requestIds: List<String>,
     ): List<UnlockedRequestUnlockRow> {
         if (requestIds.isEmpty()) return emptyList()
-        return supabaseClient.postgrest.from("request_unlocks")
+        return supabaseClient.postgrest.from("v_latest_request_unlocks")
             .select(columns = Columns.raw("lesson_request_id, status, unlocked_at")) {
                 filter {
                     eq("instructor_id", instructorProfileId)
