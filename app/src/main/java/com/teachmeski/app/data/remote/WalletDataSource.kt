@@ -30,7 +30,7 @@ class WalletDataSource @Inject constructor(
 
         val query = supabaseClient.postgrest.from("token_transactions")
             .select(
-                columns = Columns.raw("id, amount, type, balance_after, created_at"),
+                columns = Columns.raw("id, amount, type, reference_type, balance_after, created_at"),
                 request = {
                     filter { eq("instructor_id", instructorId) }
                     order("created_at", Order.DESCENDING)

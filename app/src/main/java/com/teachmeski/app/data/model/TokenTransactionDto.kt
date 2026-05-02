@@ -9,6 +9,7 @@ data class TokenTransactionDto(
     val id: String,
     val amount: Int,
     val type: String,
+    @SerialName("reference_type") val referenceType: String? = null,
     @SerialName("balance_after") val balanceAfter: Int,
     @SerialName("created_at") val createdAt: String,
 )
@@ -17,6 +18,7 @@ fun TokenTransactionDto.toDomain() = TokenTransaction(
     id = id,
     amount = amount,
     type = type,
+    referenceType = referenceType,
     balanceAfter = balanceAfter,
     createdAt = createdAt,
 )

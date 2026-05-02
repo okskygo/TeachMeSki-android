@@ -468,6 +468,7 @@
     <string name="unlocked_unlocked_ago_fmt">Unlocked %1$s</string>
     <string name="unlocked_status_active">Request Open</string>
     <string name="unlocked_status_closed">Request Closed</string>
+    <string name="unlocked_status_refunded">Closed (auto refund)</string>
     <string name="unlocked_go_to_conversation">Go to Conversation</string>
     <string name="unlocked_no_message_yet">No messages yet</string>
     <string name="unlocked_empty_cta">Browse Lesson Requests</string>
@@ -483,6 +484,7 @@
     <string name="wallet_transaction_bonus">Welcome Bonus</string>
     <string name="wallet_transaction_compensation">System Grant</string>
     <string name="wallet_transaction_refund">Refund</string>
+    <string name="wallet_transaction_unlock_auto_refund">Auto refund (no reply from student)</string>
     <string name="wallet_transaction_other">Other</string>
     <string name="wallet_empty_transactions">No Transactions Yet</string>
     <string name="wallet_tokens_fmt">%1$d credits</string>

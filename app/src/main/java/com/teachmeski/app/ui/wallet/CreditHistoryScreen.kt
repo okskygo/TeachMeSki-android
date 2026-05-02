@@ -267,7 +267,9 @@ private fun TransactionRow(
     val context = LocalContext.current
     val locale = context.resources.configuration.locales[0]
     val dateLabel = formatTransactionDate(iso = transaction.createdAt, locale = locale)
-    val typeLabel = transactionTypeLabel(transaction.type)
+    val typeLabel = stringResource(
+        resolveTransactionLabelRes(transaction.type, transaction.referenceType),
+    )
     val amountText = signedAmountText(transaction.amount)
     val amountColor = when {
         transaction.amount > 0 -> TmsColor.Success
@@ -313,18 +315,6 @@ private fun TransactionRow(
             fontWeight = FontWeight.SemiBold,
             color = amountColor,
         )
-    }
-}
-
-@Composable
-private fun transactionTypeLabel(type: String): String {
-    return when (type.lowercase(Locale.US)) {
-        "unlock" -> stringResource(R.string.wallet_transaction_unlock)
-        "purchase" -> stringResource(R.string.wallet_transaction_purchase)
-        "bonus" -> stringResource(R.string.wallet_transaction_bonus)
-        "compensation" -> stringResource(R.string.wallet_transaction_compensation)
-        "refund" -> stringResource(R.string.wallet_transaction_refund)
-        else -> stringResource(R.string.wallet_transaction_other)
     }
 }
 

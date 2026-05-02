@@ -474,6 +474,7 @@
     <string name="unlocked_unlocked_ago_fmt">%1$s解鎖</string>
     <string name="unlocked_status_active">需求開放中</string>
     <string name="unlocked_status_closed">需求已關閉</string>
+    <string name="unlocked_status_refunded">已關閉（自動退款）</string>
     <string name="unlocked_go_to_conversation">前往對話</string>
     <string name="unlocked_no_message_yet">尚未開始對話</string>
     <string name="unlocked_empty_cta">瀏覽課程需求</string>
@@ -489,6 +490,7 @@
     <string name="wallet_transaction_bonus">迎新贈送</string>
     <string name="wallet_transaction_compensation">系統贈送</string>
     <string name="wallet_transaction_refund">退還</string>
+    <string name="wallet_transaction_unlock_auto_refund">自動退款（學員未回覆）</string>
     <string name="wallet_transaction_other">其他</string>
     <string name="wallet_empty_transactions">尚無異動紀錄</string>
     <string name="wallet_tokens_fmt">%1$d 點</string>

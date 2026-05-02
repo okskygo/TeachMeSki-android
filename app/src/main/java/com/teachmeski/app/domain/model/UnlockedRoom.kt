@@ -23,4 +23,5 @@ data class UnlockedRoom(
     val allRegionsSelected: Boolean,
     val unlockedAt: String,
     val requestStatus: String,
+    val unlockStatus: UnlockStatus,
 )

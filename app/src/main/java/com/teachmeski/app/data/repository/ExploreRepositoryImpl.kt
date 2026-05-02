@@ -5,6 +5,7 @@ import com.teachmeski.app.data.model.toExploreLessonRequest
 import com.teachmeski.app.data.remote.ExploreDataSource
 import com.teachmeski.app.domain.model.Discipline
 import com.teachmeski.app.domain.model.ExploreLessonRequest
+import com.teachmeski.app.domain.model.UnlockStatus
 import com.teachmeski.app.domain.model.UnlockedRoom
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ExploreRepository
@@ -152,9 +153,18 @@ class ExploreRepositoryImpl @Inject constructor(
 
             val summaries = exploreDataSource.getLessonRequestSummaries(requestIds)
             val userRows = exploreDataSource.getUserRows(studentUserIds)
+            val unlockRows =
+                exploreDataSource.getMyRequestUnlockRows(instructorProfileId, requestIds)
 
             val summaryById = summaries.associateBy { it.id }
             val userById = userRows.associateBy { it.id }
+            // F-008 P3: keep only the newest unlock row per lesson_request_id.
+            // `getMyRequestUnlockRows` returns rows ordered by unlocked_at DESC,
+            // so we walk in order and keep the first row seen for each id
+            // (Kotlin's `associateBy` would otherwise overwrite with the last).
+            val latestUnlockByRequestId = buildMap {
+                for (row in unlockRows) putIfAbsent(row.lessonRequestId, row)
+            }
 
             val allResortIds = summaries.flatMap { it.resortIds }.distinct()
             val resortNameRows = exploreDataSource.getResortNames(allResortIds)
@@ -195,6 +205,9 @@ class ExploreRepositoryImpl @Inject constructor(
                     allRegionsSelected = summary.allRegionsSelected,
                     unlockedAt = row.createdAt.orEmpty(),
                     requestStatus = summary.status,
+                    unlockStatus = UnlockStatus.fromString(
+                        latestUnlockByRequestId[row.lessonRequestId]?.status,
+                    ),
                 )
             }
 

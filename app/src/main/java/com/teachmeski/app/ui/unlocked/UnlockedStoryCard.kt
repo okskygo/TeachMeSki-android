@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.Discipline
+import androidx.compose.ui.draw.alpha
+import com.teachmeski.app.domain.model.UnlockStatus
 import com.teachmeski.app.domain.model.UnlockedRoom
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
@@ -221,7 +223,12 @@ fun UnlockedStoryCard(
     room: UnlockedRoom,
     onNavigateToChat: () -> Unit,
 ) {
+    // F-008 P3: refunded unlocks (48hr no-reply auto-refund) are visually
+    // closed AND greyscaled; lesson_request closed/expired is visually closed
+    // but the card itself is NOT dimmed (consistent with web P2).
+    val isRefunded = room.unlockStatus == UnlockStatus.Refunded
     val isRequestActive = room.requestStatus.equals("active", ignoreCase = true)
+    val isClosed = isRefunded || !isRequestActive
     val isoHalf = room.durationDays != null && kotlin.math.abs(room.durationDays - 0.5) < 1e-6
     val hasDates = !room.dateStart.isNullOrBlank() || !room.dateEnd.isNullOrBlank()
     val showLangDateRow = room.preferredLanguages.isNotEmpty() || hasDates
@@ -268,10 +275,10 @@ fun UnlockedStoryCard(
     }
     val unlockedLabel = stringResource(R.string.unlocked_unlocked_ago_fmt, unlockedRelative)
 
-    val statusLabel = if (isRequestActive) {
-        stringResource(R.string.unlocked_status_active)
-    } else {
-        stringResource(R.string.unlocked_status_closed)
+    val statusLabel = when {
+        isRefunded -> stringResource(R.string.unlocked_status_refunded)
+        !isRequestActive -> stringResource(R.string.unlocked_status_closed)
+        else -> stringResource(R.string.unlocked_status_active)
     }
 
     val cardShape = RoundedCornerShape(12.dp)
@@ -292,7 +299,9 @@ fun UnlockedStoryCard(
         color = TmsColor.SurfaceLowest,
         shape = cardShape,
         shadowElevation = 2.dp,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (isRefunded) Modifier.alpha(0.6f) else Modifier),
     ) {
         Column(modifier = Modifier.fillMaxWidth().clip(cardShape)) {
             Column(modifier = Modifier.padding(24.dp)) {
@@ -578,14 +587,14 @@ fun UnlockedStoryCard(
                     text = statusLabel,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = if (isRequestActive) TmsColor.Success else TmsColor.OnSurfaceVariant,
+                    color = if (isClosed) TmsColor.OnSurfaceVariant else TmsColor.Success,
                     modifier = Modifier
                         .clip(statusShape)
                         .background(
-                            if (isRequestActive) {
-                                TmsColor.Success.copy(alpha = 0.1f)
-                            } else {
+                            if (isClosed) {
                                 TmsColor.OnSurfaceVariant.copy(alpha = 0.1f)
+                            } else {
+                                TmsColor.Success.copy(alpha = 0.1f)
                             },
                         )
                         .then(

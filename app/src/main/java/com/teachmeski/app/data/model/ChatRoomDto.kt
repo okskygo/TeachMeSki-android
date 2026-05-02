@@ -15,4 +15,5 @@ data class ChatRoomDto(
     @SerialName("last_message_sender_id") val lastMessageSenderId: String? = null,
     @SerialName("last_read_at") val lastReadAt: String? = null,
     @SerialName("instructor_last_read_at") val instructorLastReadAt: String? = null,
+    @SerialName("first_instructor_message_at") val firstInstructorMessageAt: String? = null,
 )

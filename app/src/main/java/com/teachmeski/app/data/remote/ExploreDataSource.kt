@@ -67,6 +67,19 @@ class ExploreDataSource @Inject constructor(
         val id: String,
     )
 
+    /**
+     * F-008 P3: latest `request_unlocks` row per (lesson_request_id, instructor_id) pair,
+     * used by `UnlockedScreen` to grey out refunded cards. A given (instructor,
+     * lesson_request) pair may have multiple historical rows because Path-A
+     * instructors can re-unlock a refunded room.
+     */
+    @Serializable
+    data class UnlockedRequestUnlockRow(
+        @SerialName("lesson_request_id") val lessonRequestId: String,
+        val status: String,
+        @SerialName("unlocked_at") val unlockedAt: String,
+    )
+
     @Serializable
     data class UnlockedRoomDto(
         val id: String,
@@ -175,6 +188,29 @@ class ExploreDataSource @Inject constructor(
      * DB trigger), because RLS on request_unlocks hides other instructors'
      * rows so client-side COUNT(*) is wrong by design.
      */
+    /**
+     * F-008 P3: returns this instructor's `request_unlocks` rows for the given
+     * lesson requests, ordered by `unlocked_at DESC` so callers can take the
+     * first row per `lesson_request_id` to know whether the most recent unlock
+     * is still `'active'`, has been auto-`'refunded'`, or has been
+     * auto-`'completed'`. RLS still scopes rows to this instructor.
+     */
+    suspend fun getMyRequestUnlockRows(
+        instructorProfileId: String,
+        requestIds: List<String>,
+    ): List<UnlockedRequestUnlockRow> {
+        if (requestIds.isEmpty()) return emptyList()
+        return supabaseClient.postgrest.from("request_unlocks")
+            .select(columns = Columns.raw("lesson_request_id, status, unlocked_at")) {
+                filter {
+                    eq("instructor_id", instructorProfileId)
+                    isIn("lesson_request_id", requestIds)
+                }
+                order("unlocked_at", Order.DESCENDING)
+            }
+            .decodeList<UnlockedRequestUnlockRow>()
+    }
+
     suspend fun getMyUnlockRows(instructorProfileId: String, requestIds: List<String>): List<UnlockRow> {
         if (requestIds.isEmpty()) return emptyList()
         return supabaseClient.postgrest.from("request_unlocks")

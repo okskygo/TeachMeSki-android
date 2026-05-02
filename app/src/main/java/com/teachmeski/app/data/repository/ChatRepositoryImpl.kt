@@ -11,6 +11,7 @@ import com.teachmeski.app.domain.model.InboxRoomUpdate
 import com.teachmeski.app.domain.model.InfoPanelData
 import com.teachmeski.app.domain.model.LessonRequestDisplay
 import com.teachmeski.app.domain.model.OtherParty
+import com.teachmeski.app.domain.model.PathType
 import com.teachmeski.app.domain.model.UnlockInfo
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ChatRepository
@@ -174,7 +175,25 @@ class ChatRepositoryImpl @Inject constructor(
                 if (needsUnlock && instructorProfileId != null) {
                     val cost = PricingCalculator.calculateUnlockCost(lr.durationDays, lr.groupSize)
                     val balance = chatDataSource.getWalletBalance(instructorProfileId)
-                    unlockInfo = UnlockInfo(cost = cost, balance = balance, lessonRequestId = room.lessonRequestId)
+                    // F-008 P3: Path-A rooms always carry
+                    // `first_instructor_message_at` (set by `execute_unlock`
+                    // on first instructor unlock). Path-B rooms are created
+                    // by the student and leave the column NULL until/unless
+                    // an instructor unlocks; even then, Path-B unlocks have
+                    // `refund_deadline_at IS NULL` so the cron never refunds
+                    // them — the "credits will not be refunded" warning
+                    // therefore stays Path-B-only.
+                    val pathType = if (room.firstInstructorMessageAt != null) {
+                        PathType.A
+                    } else {
+                        PathType.B
+                    }
+                    unlockInfo = UnlockInfo(
+                        cost = cost,
+                        balance = balance,
+                        lessonRequestId = room.lessonRequestId,
+                        pathType = pathType,
+                    )
                 }
 
                 otherParty = OtherParty(

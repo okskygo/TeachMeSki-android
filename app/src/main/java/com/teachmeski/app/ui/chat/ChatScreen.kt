@@ -50,6 +50,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InfoPanelData
+import com.teachmeski.app.domain.model.PathType
 import com.teachmeski.app.ui.theme.TmsColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -358,11 +359,18 @@ fun ChatScreen(
                             ),
                             style = MaterialTheme.typography.bodyMedium,
                         )
-                        Text(
-                            text = stringResource(R.string.chat_unlock_confirm_no_refund),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TmsColor.Warning,
-                        )
+                        // F-008 P3: only show the "credits will not be
+                        // refunded" warning for Path-B unlocks. Path-A
+                        // unlocks (re-)unlock from a refunded room get the
+                        // 48hr auto-refund safety net so the warning would
+                        // be misleading.
+                        if (info.pathType == PathType.B) {
+                            Text(
+                                text = stringResource(R.string.chat_unlock_confirm_no_refund),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TmsColor.Warning,
+                            )
+                        }
                     }
                 },
                 confirmButton = {

@@ -26,6 +26,12 @@ data class UnlockInfo(
     val cost: Int,
     val balance: Int,
     val lessonRequestId: String,
+    /**
+     * F-008 P3: Path-A unlocks are subject to the 48hr auto-refund (no
+     * "credits will not be refunded" warning needed). Path-B unlocks are
+     * non-refundable and the warning must be shown in the confirm dialog.
+     */
+    val pathType: PathType,
 )
 
 data class LessonRequestDisplay(
