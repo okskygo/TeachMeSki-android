@@ -60,11 +60,17 @@ fun ResortSelector(
 ) {
     val grouped =
         remember(regions) {
-            regions
-                .groupBy { it.prefectureEn ?: "" }
-                .entries
-                .sortedBy { (_, list) -> list.minOfOrNull { it.sortOrder } ?: 0 }
-                .map { it.key to it.value }
+            // Preserve insertion order of `regions` (already sorted by
+            // `sort_order` in the data layer) so prefecture groups appear
+            // in the same order as web. `LinkedHashMap` keeps insertion
+            // order, matching `Array.from(map.values())` in
+            // `teachmeski-web/components/ResortSelector.tsx`.
+            val map = LinkedHashMap<String, MutableList<Region>>()
+            regions.forEach { region ->
+                val key = region.prefectureEn ?: ""
+                map.getOrPut(key) { mutableListOf() }.add(region)
+            }
+            map.entries.map { it.key to it.value.toList() }
         }
 
     var expandedKeys by remember { mutableStateOf(setOf<String>()) }
@@ -201,60 +207,84 @@ fun ResortSelector(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        val sortedResorts =
-                            remember(regionList) {
-                                regionList
-                                    .flatMap { it.resorts }
-                                    .sortedWith(
-                                        compareBy<SkiResort>({ it.sortOrder }, { it.nameEn }, { it.id }),
-                                    )
-                            }
-                        sortedResorts.forEach { resort ->
-                            val selected = resort.id in selectedResortIds
-                            val rowShape = RoundedCornerShape(6.dp)
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(min = 40.dp)
-                                        .shadow(
-                                            elevation = if (selected) 2.dp else 0.dp,
-                                            shape = rowShape,
-                                            spotColor = TmsColor.Primary.copy(alpha = 0.2f),
-                                            ambientColor = TmsColor.Primary.copy(alpha = 0.08f),
-                                        )
-                                        .clip(rowShape)
-                                        .border(
-                                            width = if (selected) 2.dp else 1.dp,
-                                            color =
-                                                if (selected) {
-                                                    TmsColor.Primary
-                                                } else {
-                                                    TmsColor.OutlineVariant.copy(alpha = 0.6f)
-                                                },
-                                            shape = rowShape,
-                                        )
-                                        .background(
-                                            if (selected) {
-                                                TmsColor.Primary.copy(alpha = 0.05f)
-                                            } else {
-                                                TmsColor.SurfaceLowest.copy(alpha = 0.6f)
-                                            },
-                                        )
-                                        .clickable(enabled = !disabled) {
-                                            onResortToggle(resort.id)
-                                        }
-                                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            ) {
-                                ResortRowCheckIndicator(selected = selected)
+                        // Mirror web `ResortSelector.tsx`: when a prefecture
+                        // contains multiple sub-regions (e.g. Niigata →
+                        // Yuzawa Area / Myoko Area), render a sub-region
+                        // header divider before the resort list.
+                        val hasSubRegions = regionList.size > 1
+                        regionList.forEachIndexed { regionIdx, region ->
+                            val subLabel = region.nameZh.ifBlank { region.nameEn }
+                            val showSubHeader =
+                                hasSubRegions &&
+                                    subLabel != prefectureKey &&
+                                    subLabel != regionList.firstOrNull()?.prefectureZh
+                            if (showSubHeader) {
                                 Text(
-                                    text = "${resort.nameZh} · ${resort.nameEn}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = TmsColor.OnSurface,
-                                    modifier = Modifier.weight(1f),
+                                    text = "— $subLabel —",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TmsColor.Outline,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(
+                                                top = if (regionIdx > 0) 8.dp else 4.dp,
+                                                bottom = 4.dp,
+                                                start = 4.dp,
+                                            ),
                                 )
+                            }
+                            val sortedResorts =
+                                region.resorts.sortedWith(
+                                    compareBy<SkiResort>({ it.sortOrder }, { it.nameEn }, { it.id }),
+                                )
+                            sortedResorts.forEach { resort ->
+                                val selected = resort.id in selectedResortIds
+                                val rowShape = RoundedCornerShape(6.dp)
+                                Row(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 40.dp)
+                                            .shadow(
+                                                elevation = if (selected) 2.dp else 0.dp,
+                                                shape = rowShape,
+                                                spotColor = TmsColor.Primary.copy(alpha = 0.2f),
+                                                ambientColor = TmsColor.Primary.copy(alpha = 0.08f),
+                                            )
+                                            .clip(rowShape)
+                                            .border(
+                                                width = if (selected) 2.dp else 1.dp,
+                                                color =
+                                                    if (selected) {
+                                                        TmsColor.Primary
+                                                    } else {
+                                                        TmsColor.OutlineVariant.copy(alpha = 0.6f)
+                                                    },
+                                                shape = rowShape,
+                                            )
+                                            .background(
+                                                if (selected) {
+                                                    TmsColor.Primary.copy(alpha = 0.05f)
+                                                } else {
+                                                    TmsColor.SurfaceLowest.copy(alpha = 0.6f)
+                                                },
+                                            )
+                                            .clickable(enabled = !disabled) {
+                                                onResortToggle(resort.id)
+                                            }
+                                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                ) {
+                                    ResortRowCheckIndicator(selected = selected)
+                                    Text(
+                                        text = "${resort.nameZh} · ${resort.nameEn}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = TmsColor.OnSurface,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                }
                             }
                         }
                     }
