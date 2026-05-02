@@ -100,6 +100,7 @@
     <string name="auth_error_password_required">Please enter your password</string>
     <string name="auth_error_invalid_credentials">Invalid email or password</string>
     <string name="auth_error_email_already_registered">This email is already registered. Please sign in instead.</string>
+    <string name="auth_error_rate_limited">Too many attempts. Please wait about a minute and try again.</string>
     <string name="auth_error_account_unavailable">This account is no longer available.</string>
     <string name="auth_error_email_not_confirmed">Please verify your email before signing in.</string>
     <string name="auth_error_otp_invalid">Invalid verification code</string>

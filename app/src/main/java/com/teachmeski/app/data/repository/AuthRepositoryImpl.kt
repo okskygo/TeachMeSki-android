@@ -63,6 +63,14 @@ class AuthRepositoryImpl @Inject constructor(
         return when {
             "email not confirmed" in msg -> R.string.auth_error_email_not_confirmed
             "invalid login credentials" in msg -> R.string.auth_error_invalid_credentials
+            // Supabase /signup, /resend, /otp endpoints return HTTP 429
+            // when the per-email or per-IP rate limit is exceeded
+            // (default: 1 email per 60s for the same address). Surface a
+            // distinct message instead of the catch-all generic error.
+            "over_email_send_rate_limit" in msg ||
+                "email rate limit" in msg ||
+                "over_request_rate_limit" in msg ->
+                R.string.auth_error_rate_limited
             "otp_expired" in msg || "expired" in msg -> R.string.auth_error_otp_expired
             "invalid" in msg && "otp" in msg -> R.string.auth_error_otp_invalid
             else -> R.string.auth_error_generic
