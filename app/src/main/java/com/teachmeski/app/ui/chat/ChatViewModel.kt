@@ -49,6 +49,9 @@ data class ChatUiState(
     val isSubmittingReport: Boolean = false,
     val isBlockInFlight: Boolean = false,
     val toast: UiText? = null,
+    /** Path-B confirm dialog visibility. Opened by tapping `ChatUnlockBar`'s
+     *  unlock button after the F-108 identity pre-check passes. */
+    val showUnlockConfirm: Boolean = false,
     val isUnlocking: Boolean = false,
     /** F-108: Path-B identity gate. */
     val showIdentityRequired: Boolean = false,
@@ -372,28 +375,47 @@ class ChatViewModel @Inject constructor(
     }
 
     /**
-     * Path-B unlock entry point. Mirrors web's one-tap unlock — no
-     * forced first message. Performs the F-108 LINE identity gate
-     * (AC-LINE-UNLOCK-003) before calling the RPC; the backend
-     * `execute_unlock` enforces the same gate (AC-LINE-UNLOCK-004).
+     * Path-B button entry point. Runs the F-108 LINE identity gate
+     * (AC-LINE-UNLOCK-003); on pass, opens the confirm dialog instead
+     * of charging immediately. The actual RPC call happens in
+     * [confirmUnlock] when the user taps the dialog's confirm button.
      */
-    fun confirmUnlock() {
+    fun requestUnlock() {
         if (_uiState.value.isUnlocking) return
-        _uiState.update { it.copy(isUnlocking = true) }
+        if (_uiState.value.showUnlockConfirm) return
         viewModelScope.launch {
             val verified = when (val r = instructorRepository.getMyProfile()) {
                 is Resource.Success -> r.data.lineUserId != null
                 else -> false
             }
             if (!verified) {
-                _uiState.update {
-                    it.copy(isUnlocking = false, showIdentityRequired = true)
-                }
+                _uiState.update { it.copy(showIdentityRequired = true) }
                 return@launch
             }
+            _uiState.update { it.copy(showUnlockConfirm = true) }
+        }
+    }
+
+    fun dismissUnlockConfirm() {
+        if (_uiState.value.isUnlocking) return
+        _uiState.update { it.copy(showUnlockConfirm = false) }
+    }
+
+    /**
+     * Confirm-side of the Path-B unlock. Triggered by the dialog's
+     * primary CTA. Backend `execute_unlock` enforces the same identity
+     * gate (AC-LINE-UNLOCK-004) as a race fallback against the
+     * pre-check in [requestUnlock].
+     */
+    fun confirmUnlock() {
+        if (_uiState.value.isUnlocking) return
+        _uiState.update { it.copy(isUnlocking = true) }
+        viewModelScope.launch {
             when (val res = chatRepository.unlockPathBConversation(roomId)) {
                 is Resource.Success -> {
-                    _uiState.update { it.copy(isUnlocking = false) }
+                    _uiState.update {
+                        it.copy(isUnlocking = false, showUnlockConfirm = false)
+                    }
                     refresh()
                 }
                 is Resource.Error -> {
@@ -403,6 +425,7 @@ class ChatViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isUnlocking = false,
+                                showUnlockConfirm = false,
                                 showIdentityRequired = true,
                             )
                         }
@@ -410,6 +433,7 @@ class ChatViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isUnlocking = false,
+                                showUnlockConfirm = false,
                                 error = res.message,
                             )
                         }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -159,7 +160,7 @@ fun ChatScreen(
                     ChatUnlockBar(
                         unlockInfo = detail!!.unlockInfo!!,
                         isUnlocking = uiState.isUnlocking,
-                        onUnlockClick = viewModel::confirmUnlock,
+                        onUnlockClick = viewModel::requestUnlock,
                     )
                 }
                 blocked -> {
@@ -339,6 +340,56 @@ fun ChatScreen(
             onDismiss = viewModel::dismissReportDialog,
             onSubmit = viewModel::submitReport,
         )
+    }
+
+    if (uiState.showUnlockConfirm) {
+        val info = uiState.roomDetail?.unlockInfo
+        if (info != null) {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissUnlockConfirm,
+                title = { Text(stringResource(R.string.chat_unlock_confirm_title)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(
+                                R.string.chat_unlock_confirm_message_fmt,
+                                info.cost,
+                                info.balance,
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            text = stringResource(R.string.chat_unlock_confirm_no_refund),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TmsColor.Warning,
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = viewModel::confirmUnlock,
+                        enabled = !uiState.isUnlocking,
+                    ) {
+                        if (uiState.isUnlocking) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Text(stringResource(R.string.chat_unlock_confirm_btn))
+                        }
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = viewModel::dismissUnlockConfirm,
+                        enabled = !uiState.isUnlocking,
+                    ) {
+                        Text(stringResource(R.string.chat_unlock_confirm_cancel))
+                    }
+                },
+            )
+        }
     }
 
     if (uiState.showIdentityRequired) {

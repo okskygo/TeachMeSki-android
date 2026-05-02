@@ -849,6 +849,11 @@
     <string name="chat_unlock_balance_fmt">Balance: %1$d tokens</string>
     <string name="chat_unlock_insufficient">Insufficient balance</string>
     <string name="chat_unlock_btn">Unlock</string>
+    <string name="chat_unlock_confirm_title">Confirm unlock</string>
+    <string name="chat_unlock_confirm_message_fmt">This will spend %1$d credits to unlock this conversation (balance: %2$d).</string>
+    <string name="chat_unlock_confirm_no_refund">Note: this conversation was initiated by the student, so credits will not be refunded once spent.</string>
+    <string name="chat_unlock_confirm_btn">Confirm unlock</string>
+    <string name="chat_unlock_confirm_cancel">Cancel</string>
 
     <!-- Phase 5: First Message Dialog -->
     <string name="first_message_title">Send message to instructor</string>

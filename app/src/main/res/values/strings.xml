@@ -847,6 +847,11 @@
     <string name="chat_unlock_balance_fmt">餘額：%1$d 點</string>
     <string name="chat_unlock_insufficient">餘額不足</string>
     <string name="chat_unlock_btn">解鎖</string>
+    <string name="chat_unlock_confirm_title">確認解鎖此對話</string>
+    <string name="chat_unlock_confirm_message_fmt">將花費 %1$d 點解鎖此對話（目前餘額 %2$d 點）。</string>
+    <string name="chat_unlock_confirm_no_refund">提醒：此對話為學員主動發起，解鎖後不退還點數。</string>
+    <string name="chat_unlock_confirm_btn">確認解鎖</string>
+    <string name="chat_unlock_confirm_cancel">取消</string>
 
     <!-- Phase 5: First Message Dialog -->
     <string name="first_message_title">傳送訊息給教練</string>
