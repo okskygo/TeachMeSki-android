@@ -6,6 +6,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.postgrest.rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -34,6 +35,11 @@ class ExploreDataSource @Inject constructor(
     data class UnlockRow(
         @SerialName("lesson_request_id") val lessonRequestId: String,
         @SerialName("instructor_id") val instructorId: String,
+    )
+
+    @Serializable
+    data class BlockedIdRow(
+        @SerialName("blocked_id") val blockedId: String,
     )
 
     @Serializable
@@ -146,6 +152,20 @@ class ExploreDataSource @Inject constructor(
         val from = (safePage - 1) * PAGE_SIZE
         val to = from + PAGE_SIZE - 1
 
+        // F-112: hide requests from seekers the viewer has blocked.
+        // Enforced in the query layer (not RLS) because the chat-room
+        // read policy on lesson_requests would otherwise leak blocked
+        // seekers' requests back into Explore for instructors with
+        // prior chat rooms.
+        val blockedRows = runCatching {
+            supabaseClient.postgrest.from("blocks")
+                .select(columns = Columns.raw("blocked_id")) {
+                    filter { eq("blocker_id", currentUserId) }
+                }
+                .decodeList<BlockedIdRow>()
+        }.getOrElse { emptyList() }
+        val blockedUserIds: List<String> = blockedRows.map { it.blockedId }
+
         val query = supabaseClient.postgrest.from("lesson_requests")
             .select(
                 columns = Columns.raw(
@@ -155,6 +175,9 @@ class ExploreDataSource @Inject constructor(
                     filter {
                         isIn("status", listOf("active", "locked"))
                         neq("user_id", currentUserId)
+                        if (blockedUserIds.isNotEmpty()) {
+                            filterNot("user_id", FilterOperator.IN, blockedUserIds)
+                        }
                         if (!disciplineFilter.isNullOrEmpty() && disciplineFilter.size == 1) {
                             or {
                                 eq("discipline", disciplineFilter[0])
