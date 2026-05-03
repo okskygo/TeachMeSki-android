@@ -567,12 +567,11 @@ private fun PreferencesInset(
             }
         }
         if (hasCert) {
+            val certLabels = request.certPreferences.map { certDisplayLabel(it) }
             PrefRow(
                 icon = Icons.Filled.WorkspacePremium,
                 label = stringResource(R.string.explore_card_pref_label_cert),
-                value = request.certPreferences.joinToString(" · ") { code ->
-                    certDisplayLabel(code)
-                },
+                value = certLabels.joinToString(" · "),
             )
         }
     }
