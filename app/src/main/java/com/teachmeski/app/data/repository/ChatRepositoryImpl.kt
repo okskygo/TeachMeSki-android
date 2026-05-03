@@ -147,7 +147,13 @@ class ChatRepositoryImpl @Inject constructor(
             if (role == ChatRole.Seeker) {
                 val instructor = chatDataSource.getInstructorProfileDetail(room.instructorId)
                 val isReviewed = chatDataSource.checkIsReviewed(userId, room.instructorId)
-                hasSentMessage = chatDataSource.checkHasSentMessage(roomId, userId)
+                // Review eligibility: both student and instructor must have
+                // sent at least one message (Path-A + Path-B unified rule).
+                hasSentMessage = chatDataSource.checkBothPartiesMessaged(
+                    roomId = roomId,
+                    studentUserId = userId,
+                    instructorUserId = instructor.userId,
+                )
                 otherParty = OtherParty(
                     userId = instructor.userId,
                     name = instructor.displayName ?: "",

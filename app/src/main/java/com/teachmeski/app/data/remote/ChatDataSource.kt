@@ -321,6 +321,22 @@ class ChatDataSource @Inject constructor(
             .isNotEmpty()
     }
 
+    /**
+     * Review eligibility: both student and instructor must have sent at least
+     * one message in the room (applies to Path-A and Path-B). Returns true
+     * only when [studentUserId] AND [instructorUserId] each have ≥1 message
+     * in [roomId].
+     */
+    suspend fun checkBothPartiesMessaged(
+        roomId: String,
+        studentUserId: String,
+        instructorUserId: String,
+    ): Boolean {
+        if (studentUserId.isBlank() || instructorUserId.isBlank()) return false
+        return checkHasSentMessage(roomId, studentUserId) &&
+            checkHasSentMessage(roomId, instructorUserId)
+    }
+
     suspend fun getWalletBalance(instructorProfileId: String): Int =
         supabaseClient.postgrest.from("token_wallets")
             .select(columns = Columns.list("balance")) {
