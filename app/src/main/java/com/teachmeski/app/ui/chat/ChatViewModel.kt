@@ -361,6 +361,7 @@ class ChatViewModel @Inject constructor(
                         it.copy(
                             isSubmittingReport = false,
                             showReportDialog = false,
+                            isBlockedByMe = true,
                             toast = UiText.StringResource(R.string.report_success),
                         )
                     }
