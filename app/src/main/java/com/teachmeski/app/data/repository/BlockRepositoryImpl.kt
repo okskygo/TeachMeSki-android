@@ -36,4 +36,12 @@ class BlockRepositoryImpl @Inject constructor(
             Resource.Error(UiText.StringResource(R.string.error_generic))
         }
     }
+
+    override suspend fun amIBlockedBy(otherUserId: String): Boolean {
+        return try {
+            blockDataSource.amIBlockedBy(otherUserId)
+        } catch (e: Exception) {
+            false
+        }
+    }
 }

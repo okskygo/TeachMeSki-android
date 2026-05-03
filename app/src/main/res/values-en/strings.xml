@@ -779,6 +779,7 @@
     <string name="chat_send_error">Failed to send. Please try again.</string>
     <string name="chat_char_count_fmt">%1$d / 2000</string>
     <string name="chat_blocked_notice">This conversation has been blocked</string>
+    <string name="chat_blocked_by_other_notice">You have been blocked. You cannot send messages.</string>
     <string name="chat_new_messages">New messages</string>
     <string name="chat_loading_older">Loading…</string>
     <string name="chat_no_messages">No messages yet</string>

@@ -151,10 +151,8 @@ fun ChatScreen(
         bottomBar = {
             val needsUnlockPlaceholder =
                 detail?.needsUnlock == true && detail.unlockInfo != null
-            val blocked =
-                uiState.isBlockedByMe ||
-                    uiState.isBlockedByOther ||
-                    detail?.isBlocked == true
+            val blockedByMe = uiState.isBlockedByMe || detail?.isBlocked == true
+            val blockedByOther = uiState.isBlockedByOther
 
             when {
                 needsUnlockPlaceholder -> {
@@ -164,13 +162,33 @@ fun ChatScreen(
                         onUnlockClick = viewModel::requestUnlock,
                     )
                 }
-                blocked -> {
+                blockedByMe -> {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         color = TmsColor.SurfaceLowest,
                     ) {
                         Text(
                             text = stringResource(R.string.chat_blocked_notice),
+                            modifier = Modifier
+                                .windowInsetsPadding(WindowInsets.navigationBars)
+                                .padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TmsColor.OnSurfaceVariant,
+                        )
+                    }
+                }
+                blockedByOther -> {
+                    // F-110: the other party has blocked us. Keep history
+                    // visible (messages section is unaffected) and replace
+                    // the input with an explicit notice. The DB trigger is
+                    // the authoritative gate; this UI just spares the user
+                    // from typing into a void.
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = TmsColor.SurfaceLowest,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.chat_blocked_by_other_notice),
                             modifier = Modifier
                                 .windowInsetsPadding(WindowInsets.navigationBars)
                                 .padding(16.dp),

@@ -777,6 +777,7 @@
     <string name="chat_send_error">傳送失敗，請再試一次</string>
     <string name="chat_char_count_fmt">%1$d / 2000</string>
     <string name="chat_blocked_notice">此對話已被封鎖</string>
+    <string name="chat_blocked_by_other_notice">您已被封鎖，無法傳送訊息。</string>
     <string name="chat_new_messages">新訊息</string>
     <string name="chat_loading_older">載入中…</string>
     <string name="chat_no_messages">尚無訊息</string>

@@ -160,6 +160,16 @@ class ChatViewModel @Inject constructor(
                     detailRes is Resource.Success && msgsRes is Resource.Success -> {
                         val detail = detailRes.data
                         val (msgs, hasMore) = msgsRes.data
+                        // F-110: best-effort reverse-block check via
+                        // SECURITY DEFINER RPC. Failure leaves the flag
+                        // false (input stays enabled and the DB trigger
+                        // remains the authoritative gate).
+                        val otherUserId = detail.otherParty.userId
+                        val blockedByOther = if (otherUserId.isNotBlank()) {
+                            blockRepository.amIBlockedBy(otherUserId)
+                        } else {
+                            false
+                        }
                         _uiState.update {
                             it.copy(
                                 roomDetail = detail,
@@ -169,7 +179,7 @@ class ChatViewModel @Inject constructor(
                                 isLoading = false,
                                 error = null,
                                 isBlockedByMe = false,
-                                isBlockedByOther = false,
+                                isBlockedByOther = blockedByOther,
                             )
                         }
                         startRealtimeSubscription()
