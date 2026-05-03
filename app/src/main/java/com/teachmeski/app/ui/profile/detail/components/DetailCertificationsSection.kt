@@ -38,12 +38,23 @@ fun DetailCertificationsSection(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            certifications.forEach { cert -> CertChip(cert) }
+            certifications.forEach { cert -> CertChip(certDisplayLabel(cert)) }
             if (hasOther) {
                 CertChip(stringResource(R.string.instructor_detail_cert_other_prefix) + certificationOther)
             }
         }
     }
+}
+
+@Composable
+private fun certDisplayLabel(code: String): String = when (code) {
+    "CSIA" -> stringResource(R.string.instructor_wizard_step4_cert_CSIA)
+    "CASI" -> stringResource(R.string.instructor_wizard_step4_cert_CASI)
+    "NZSIA" -> stringResource(R.string.instructor_wizard_step4_cert_NZSIA)
+    "PSIA" -> stringResource(R.string.instructor_wizard_step4_cert_PSIA)
+    "SIA_Japan", "SIA-Japan" -> stringResource(R.string.instructor_wizard_step4_cert_SIA_Japan)
+    "other" -> stringResource(R.string.instructor_wizard_step4_cert_other)
+    else -> code
 }
 
 @Composable
