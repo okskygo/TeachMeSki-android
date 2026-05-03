@@ -120,10 +120,21 @@ fun PreferencesStep(
                 TmsChip(
                     selected = selected,
                     onClick = { onToggleCertPreference(key) },
-                    label = key,
+                    label = certDisplayLabel(key),
                 )
             }
         }
     }
+}
+
+@Composable
+private fun certDisplayLabel(code: String): String = when (code) {
+    "CSIA" -> stringResource(R.string.wizard_cert_csia)
+    "CASI" -> stringResource(R.string.wizard_cert_casi)
+    "NZSIA" -> stringResource(R.string.wizard_cert_nzsia)
+    "PSIA" -> stringResource(R.string.wizard_cert_psia)
+    "SIA_Japan", "SIA-Japan" -> stringResource(R.string.wizard_cert_sia_japan)
+    "other" -> stringResource(R.string.wizard_cert_other)
+    else -> code
 }
 
