@@ -570,10 +570,23 @@ private fun PreferencesInset(
             PrefRow(
                 icon = Icons.Filled.WorkspacePremium,
                 label = stringResource(R.string.explore_card_pref_label_cert),
-                value = request.certPreferences.joinToString(" · "),
+                value = request.certPreferences.joinToString(" · ") { code ->
+                    certDisplayLabel(code)
+                },
             )
         }
     }
+}
+
+@Composable
+private fun certDisplayLabel(code: String): String = when (code) {
+    "CSIA" -> stringResource(R.string.wizard_cert_csia)
+    "CASI" -> stringResource(R.string.wizard_cert_casi)
+    "NZSIA" -> stringResource(R.string.wizard_cert_nzsia)
+    "PSIA" -> stringResource(R.string.wizard_cert_psia)
+    "SIA_Japan", "SIA-Japan" -> stringResource(R.string.wizard_cert_sia_japan)
+    "other" -> stringResource(R.string.wizard_cert_other)
+    else -> code
 }
 
 @Composable
