@@ -14,6 +14,7 @@ import com.teachmeski.app.domain.repository.ReportRepository
 import com.teachmeski.app.domain.repository.ReviewRepository
 import com.teachmeski.app.notifications.ActiveRoomTracker
 import com.teachmeski.app.notifications.NotificationDisplay
+import com.teachmeski.app.notifications.UnreadCountInvalidator
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -73,6 +74,7 @@ class ChatViewModel @Inject constructor(
     private val reviewRepository: ReviewRepository,
     private val instructorRepository: InstructorRepository,
     private val activeRoomTracker: ActiveRoomTracker,
+    private val unreadCountInvalidator: UnreadCountInvalidator,
     @ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -290,7 +292,15 @@ class ChatViewModel @Inject constructor(
         if (now - lastMarkReadAt < 2000L) return
         lastMarkReadAt = now
         viewModelScope.launch {
-            chatRepository.markRoomAsRead(roomId)
+            // F-113 FR-113-007: notify the bottom-tab badge that unread state
+            // changed. Supabase does not broadcast a realtime event for
+            // last_read_at updates, so without this signal the badge would
+            // remain stale until the next time MainViewModel re-fetches on
+            // its own (e.g. tab tap or app foreground).
+            val res = chatRepository.markRoomAsRead(roomId)
+            if (res is Resource.Success) {
+                unreadCountInvalidator.invalidate()
+            }
         }
     }
 

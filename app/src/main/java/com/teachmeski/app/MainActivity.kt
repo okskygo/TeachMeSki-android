@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -270,8 +274,27 @@ private fun AuthenticatedApp(
             activeRole = activeRole,
             onSwitchToStudent = onSwitchToStudent,
             onSwitchToInstructor = onSwitchToInstructor,
+            onRefreshUnreadCount = onRefreshUnreadCount,
             mainViewModel = mainViewModel,
         )
+    }
+
+    // F-113 FR-113-007: re-sync the bottom-tab badge whenever the app
+    // returns to foreground. The MainViewModel inbox subscription handles
+    // realtime updates while the app is alive, but a websocket that
+    // reconnected after a long doze can miss intermediate `room_updated`
+    // broadcasts — so we additionally re-fetch on every ON_START.
+    if (isAuthenticated) {
+        val lifecycleOwner = LocalLifecycleOwner.current
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_START) {
+                    onRefreshUnreadCount()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
     }
 
     Scaffold(
@@ -342,6 +365,7 @@ private fun HandleNotificationDeepLinks(
     activeRole: ActiveRole,
     onSwitchToStudent: () -> Unit,
     onSwitchToInstructor: () -> Unit,
+    onRefreshUnreadCount: () -> Unit,
     mainViewModel: MainViewModel,
 ) {
     // Use rememberUpdatedState so the long-lived LaunchedEffect(Unit) sees fresh
@@ -349,6 +373,7 @@ private fun HandleNotificationDeepLinks(
     val currentRole = rememberUpdatedState(activeRole)
     val switchToStudent = rememberUpdatedState(onSwitchToStudent)
     val switchToInstructor = rememberUpdatedState(onSwitchToInstructor)
+    val refreshUnreadCount = rememberUpdatedState(onRefreshUnreadCount)
 
     // Collect directly from the channel-backed flow rather than via collectAsState().
     // collectAsState uses structuralEqualityPolicy by default — two consecutive
@@ -370,6 +395,13 @@ private fun HandleNotificationDeepLinks(
                 NotificationEvents.N_002,
                 NotificationEvents.N_003,
                 NotificationEvents.N_004 -> {
+                    // F-113 FR-113-007: when a chat-notification tap brings
+                    // the app to foreground, the realtime subscription may
+                    // have missed the `room_updated` broadcast while the
+                    // websocket was disconnected — re-fetch immediately so
+                    // the bottom-tab badge reflects the new unread count
+                    // even if the user does not navigate to ChatRoomList.
+                    refreshUnreadCount.value()
                     val roomId = e.roomId
                     if (roomId != null) {
                         when (e.event) {

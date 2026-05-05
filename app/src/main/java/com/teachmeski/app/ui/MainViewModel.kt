@@ -11,14 +11,17 @@ import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.UserRepository
 import com.teachmeski.app.notifications.NotificationDeepLinkBus
 import com.teachmeski.app.notifications.PushTokenManager
+import com.teachmeski.app.notifications.UnreadCountInvalidator
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.RolePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -49,14 +52,36 @@ class MainViewModel @Inject constructor(
     private val pendingProfile: PendingInstructorProfile,
     private val chatRepository: ChatRepository,
     private val pushTokenManager: PushTokenManager,
+    private val unreadCountInvalidator: UnreadCountInvalidator,
     val notificationDeepLinkBus: NotificationDeepLinkBus,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MainUiState>(MainUiState.Loading)
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    /**
+     * F-113 FR-113-007/008: long-running inbox realtime subscription that
+     * keeps the bottom-tab badge fresh independently of which screen the
+     * user is on. Without this, only `ChatRoomListViewModel` listens to
+     * `inbox:{userId}` broadcasts — so a message arriving while the user
+     * is on Explore/Account/Wallet would not bump the badge until they
+     * manually opened the message tab.
+     */
+    private var inboxJob: Job? = null
+
     init {
         observeSession()
+        observeUnreadInvalidations()
+    }
+
+    private fun observeUnreadInvalidations() {
+        viewModelScope.launch {
+            unreadCountInvalidator.events.collect {
+                if (_uiState.value is MainUiState.Authenticated) {
+                    refreshUnreadCount()
+                }
+            }
+        }
     }
 
     private fun observeSession() {
@@ -73,6 +98,7 @@ class MainViewModel @Inject constructor(
                         // arrived during the signed-out interval is not
                         // replayed after the next sign-in.
                         notificationDeepLinkBus.clearPending()
+                        stopInboxSubscription()
                         _uiState.value = MainUiState.Unauthenticated
                     }
                     SessionStatus.Initializing -> {
@@ -80,6 +106,7 @@ class MainViewModel @Inject constructor(
                     }
                     is SessionStatus.RefreshFailure -> {
                         notificationDeepLinkBus.clearPending()
+                        stopInboxSubscription()
                         _uiState.value = MainUiState.Unauthenticated
                     }
                 }
@@ -154,6 +181,7 @@ class MainViewModel @Inject constructor(
                 rolePreferences.setLastActiveRole(userId, activeRole)
                 _uiState.value = MainUiState.Authenticated(activeRole, user.role)
                 refreshUnreadCount()
+                startInboxSubscription()
                 pushTokenManager.registerCurrentDeviceToken(userId)
             }
             is Resource.Error -> {
@@ -243,10 +271,31 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val userId = authRepository.currentUserId()
             pushTokenManager.unregisterCurrentDeviceToken()
+            stopInboxSubscription()
             if (userId != null) {
                 rolePreferences.clearLastActiveRole(userId)
             }
             authRepository.signOut()
         }
+    }
+
+    /**
+     * F-113 FR-113-007/008: keep the bottom-tab badge in sync the moment a
+     * realtime `inbox:{userId}` broadcast fires — independent of which
+     * screen the user is on. Each event triggers `refreshUnreadCount()`,
+     * which re-queries both panel counts and updates `_uiState`.
+     */
+    private fun startInboxSubscription() {
+        if (inboxJob?.isActive == true) return
+        inboxJob = viewModelScope.launch {
+            chatRepository.subscribeToInboxFlow()
+                .catch { /* Non-fatal: badge still refreshes on resume / tab tap. */ }
+                .collect { refreshUnreadCount() }
+        }
+    }
+
+    private fun stopInboxSubscription() {
+        inboxJob?.cancel()
+        inboxJob = null
     }
 }

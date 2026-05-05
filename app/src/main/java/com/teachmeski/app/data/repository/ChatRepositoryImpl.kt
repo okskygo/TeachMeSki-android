@@ -23,19 +23,37 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
     private val chatDataSource: ChatDataSource,
     private val authRepository: AuthRepository,
 ) : ChatRepository {
+
+    // F-113 FR-113-007: the inbox realtime channel must be safely sharable
+    // across multiple collectors (e.g. `MainViewModel` for the bottom-tab
+    // badge AND `ChatRoomListViewModel` for the list ordering). Without
+    // shareIn, each collector's `awaitClose` would call `channel.unsubscribe()`
+    // on the same Supabase Realtime channel, racing each other and tearing
+    // down the subscription that other collectors still depend on.
+    private val inboxFlowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    @Volatile
+    private var inboxFlowCache: Pair<String, SharedFlow<InboxRoomUpdate>>? = null
+    private val inboxFlowLock = Any()
 
     override suspend fun getChatRooms(activeRole: ActiveRole, offset: Int): Resource<Pair<List<ChatRoom>, Boolean>> {
         return try {
@@ -366,15 +384,35 @@ class ChatRepositoryImpl @Inject constructor(
         flow { emit(authRepository.currentUserId()) }
             .flatMapLatest { userId ->
                 if (userId.isNullOrBlank()) emptyFlow()
-                else chatDataSource.inboxUpdatesFlow(userId).map { dto ->
-                    InboxRoomUpdate(
-                        roomId = dto.roomId,
-                        lastMessage = dto.lastMessage,
-                        lastMessageAt = dto.lastMessageAt,
-                        senderId = dto.senderId,
-                    )
-                }
+                else getOrCreateSharedInboxFlow(userId)
             }
+
+    private fun getOrCreateSharedInboxFlow(userId: String): SharedFlow<InboxRoomUpdate> {
+        inboxFlowCache?.let { if (it.first == userId) return it.second }
+        return synchronized(inboxFlowLock) {
+            val current = inboxFlowCache
+            if (current != null && current.first == userId) {
+                current.second
+            } else {
+                val shared = chatDataSource.inboxUpdatesFlow(userId)
+                    .map { dto ->
+                        InboxRoomUpdate(
+                            roomId = dto.roomId,
+                            lastMessage = dto.lastMessage,
+                            lastMessageAt = dto.lastMessageAt,
+                            senderId = dto.senderId,
+                        )
+                    }
+                    .shareIn(
+                        scope = inboxFlowScope,
+                        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                        replay = 0,
+                    )
+                inboxFlowCache = userId to shared
+                shared
+            }
+        }
+    }
 
     override suspend fun unlockPathBConversation(roomId: String): Resource<String> {
         return try {
