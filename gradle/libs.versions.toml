@@ -1,5 +1,6 @@
 [versions]
 agp = "9.1.1"
+androidDesugarJdkLibs = "2.1.4"
 
 # Kotlin plugins — must match AGP's built-in Kotlin version
 kotlin = "2.2.10"
@@ -52,6 +53,9 @@ espressoCore = "3.6.1"
 mockk = "1.14.2"
 
 [libraries]
+# Desugaring
+android-desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
+
 # AndroidX Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
