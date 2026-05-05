@@ -37,6 +37,15 @@ class BlockRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun haveIBlocked(otherUserId: String): Boolean {
+        return try {
+            val userId = authRepository.currentUserId() ?: return false
+            blockDataSource.haveIBlocked(userId, otherUserId)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     override suspend fun amIBlockedBy(otherUserId: String): Boolean {
         return try {
             blockDataSource.amIBlockedBy(otherUserId)

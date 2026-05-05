@@ -3,6 +3,7 @@ package com.teachmeski.app.data.remote
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
@@ -32,6 +33,22 @@ class BlockDataSource @Inject constructor(
                     eq("blocked_id", blockedId)
                 }
             }
+    }
+
+    /**
+     * Returns true iff the signed-in user has a block row for [blockedId].
+     * The SELECT RLS on `blocks` allows the blocker to read their own rows.
+     */
+    suspend fun haveIBlocked(blockerId: String, blockedId: String): Boolean {
+        val result = supabaseClient.postgrest.from("blocks")
+            .select {
+                filter {
+                    eq("blocker_id", blockerId)
+                    eq("blocked_id", blockedId)
+                }
+                limit(1)
+            }
+        return result.decodeList<kotlinx.serialization.json.JsonObject>().isNotEmpty()
     }
 
     /**

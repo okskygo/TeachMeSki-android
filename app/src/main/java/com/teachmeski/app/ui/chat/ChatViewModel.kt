@@ -170,6 +170,11 @@ class ChatViewModel @Inject constructor(
                         } else {
                             false
                         }
+                        val blockedByMe = if (otherUserId.isNotBlank()) {
+                            blockRepository.haveIBlocked(otherUserId)
+                        } else {
+                            false
+                        }
                         _uiState.update {
                             it.copy(
                                 roomDetail = detail,
@@ -178,7 +183,7 @@ class ChatViewModel @Inject constructor(
                                 hasMoreOlder = hasMore,
                                 isLoading = false,
                                 error = null,
-                                isBlockedByMe = false,
+                                isBlockedByMe = blockedByMe,
                                 isBlockedByOther = blockedByOther,
                             )
                         }
