@@ -212,17 +212,22 @@ class MainViewModel @Inject constructor(
 
     fun refreshUnreadCount() {
         viewModelScope.launch {
-            val current = _uiState.value as? MainUiState.Authenticated ?: return@launch
+            if (_uiState.value !is MainUiState.Authenticated) return@launch
             // F-113 FR-113-008: fetch both panel counts in parallel; tab badge
             // = current panel; icon badge (computed property) = sum.
             val res = chatRepository.getUnreadCountForBothPanels()
             if (res is Resource.Success) {
                 val (instructorCount, studentCount) = res.data
-                val tabBadge = when (current.activeRole) {
+                // Re-read _uiState at write time: switchRole() may have changed
+                // activeRole while the network call was in flight. Using a snapshot
+                // captured before the call would overwrite the new role with the
+                // old one via copy(), reverting any notification-triggered switch.
+                val latest = _uiState.value as? MainUiState.Authenticated ?: return@launch
+                val tabBadge = when (latest.activeRole) {
                     ActiveRole.Instructor -> instructorCount
                     ActiveRole.Student -> studentCount
                 }
-                _uiState.value = current.copy(
+                _uiState.value = latest.copy(
                     unreadCount = tabBadge,
                     instructorPanelUnread = instructorCount,
                     studentPanelUnread = studentCount,
