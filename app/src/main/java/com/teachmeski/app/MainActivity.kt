@@ -19,10 +19,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -344,96 +344,90 @@ private fun HandleNotificationDeepLinks(
     onSwitchToInstructor: () -> Unit,
     mainViewModel: MainViewModel,
 ) {
-    val event = mainViewModel.notificationDeepLinkBus.events.collectAsState(initial = null).value
-    LaunchedEffect(event) {
-        val e = event ?: return@LaunchedEffect
-        when (e.event) {
-            NotificationEvents.N_001 -> {
-                if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
-                navController.navigate(Route.Explore) {
-                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
-                }
-            }
-            NotificationEvents.N_002,
-            NotificationEvents.N_003,
-            NotificationEvents.N_004 -> {
-                val roomId = e.roomId
-                if (roomId != null) {
-                    // N-002 / N-004 => instructor-side message; N-003 => student-side message.
-                    // When a role switch is required we must:
-                    //  1. set suppressGraphNavOnRoleChange so the graph-re-root LaunchedEffect
-                    //     in AuthenticatedApp skips navigation once the async switchRole resolves
-                    //     (otherwise it does popUpTo(0), wiping Chat off the back stack), and
-                    //  2. manually navigate to the correct graph root so the back stack becomes
-                    //     <CorrectGraph> → Chat — pressing Back then shows the right navbar.
-                    when (e.event) {
-                        NotificationEvents.N_002,
-                        NotificationEvents.N_004 -> {
-                            if (activeRole != ActiveRole.Instructor) {
-                                Log.d("TMS_NAV", "notifLE: N-004 role switch Student→Instructor, setting suppressFlag")
-                                mainViewModel.suppressGraphNavOnRoleChange = true
-                                onSwitchToInstructor()
-                                navController.navigate(Route.InstructorGraph) {
-                                    popUpTo(0) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                                Log.d("TMS_NAV", "notifLE: navigated to InstructorGraph")
-                            } else {
-                                Log.d("TMS_NAV", "notifLE: N-004 already Instructor, no role switch")
-                            }
-                        }
-                        NotificationEvents.N_003 -> {
-                            if (activeRole != ActiveRole.Student) {
-                                Log.d("TMS_NAV", "notifLE: N-003 role switch Instructor→Student, setting suppressFlag")
-                                mainViewModel.suppressGraphNavOnRoleChange = true
-                                onSwitchToStudent()
-                                navController.navigate(Route.StudentGraph) {
-                                    popUpTo(0) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                                Log.d("TMS_NAV", "notifLE: navigated to StudentGraph")
-                            } else {
-                                Log.d("TMS_NAV", "notifLE: N-003 already Student, no role switch")
-                            }
-                        }
-                    }
-                    Log.d("TMS_NAV", "notifLE: navigating to Chat($roomId)")
-                    navController.navigate(Route.Chat(roomId)) {
-                        launchSingleTop = true
-                    }
-                    Log.d("TMS_NAV", "notifLE: Chat navigation done")
-                } else {
-                    navController.navigate(Route.ChatRoomList) {
+    // Use rememberUpdatedState so the long-lived LaunchedEffect(Unit) sees fresh
+    // values on every recomposition (activeRole flips, callbacks change identity, etc.).
+    val currentRole = rememberUpdatedState(activeRole)
+    val switchToStudent = rememberUpdatedState(onSwitchToStudent)
+    val switchToInstructor = rememberUpdatedState(onSwitchToInstructor)
+
+    // Collect directly from the channel-backed flow rather than via collectAsState().
+    // collectAsState uses structuralEqualityPolicy by default — two consecutive
+    // emissions with identical NotificationDeepLinkEvent data (same room+event)
+    // would be silently de-duped, swallowing repeat notification taps for the
+    // same chat room while the app is in foreground. Direct collect processes
+    // every emission.
+    LaunchedEffect(Unit) {
+        mainViewModel.notificationDeepLinkBus.events.collect { e ->
+            val role = currentRole.value
+            when (e.event) {
+                NotificationEvents.N_001 -> {
+                    if (role != ActiveRole.Instructor) switchToInstructor.value()
+                    navController.navigate(Route.Explore) {
                         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                         launchSingleTop = true
                     }
                 }
-            }
-            NotificationEvents.N_005 -> {
-                if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
-                navController.navigate(Route.Wallet) {
-                    launchSingleTop = true
+                NotificationEvents.N_002,
+                NotificationEvents.N_003,
+                NotificationEvents.N_004 -> {
+                    val roomId = e.roomId
+                    if (roomId != null) {
+                        when (e.event) {
+                            NotificationEvents.N_002,
+                            NotificationEvents.N_004 -> {
+                                if (role != ActiveRole.Instructor) {
+                                    mainViewModel.suppressGraphNavOnRoleChange = true
+                                    switchToInstructor.value()
+                                    navController.navigate(Route.InstructorGraph) {
+                                        popUpTo(0) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                            NotificationEvents.N_003 -> {
+                                if (role != ActiveRole.Student) {
+                                    mainViewModel.suppressGraphNavOnRoleChange = true
+                                    switchToStudent.value()
+                                    navController.navigate(Route.StudentGraph) {
+                                        popUpTo(0) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                        }
+                        navController.navigate(Route.Chat(roomId)) {
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.navigate(Route.ChatRoomList) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                        }
+                    }
                 }
-            }
-            NotificationEvents.N_007 -> {
-                // F-113 FR-113-018 #3 + AC-113-011: quota-expansion push is
-                // an instructor-side event; switch panel first so the back
-                // stack stays consistent with FR-113-016. Android does not
-                // yet have a standalone request-detail route reachable
-                // outside MyRequests; landing on Explore lets the
-                // instructor see the expanded request via the Explore feed.
-                if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
-                navController.navigate(Route.Explore) {
-                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
+                NotificationEvents.N_005 -> {
+                    if (role != ActiveRole.Instructor) switchToInstructor.value()
+                    navController.navigate(Route.Wallet) {
+                        launchSingleTop = true
+                    }
                 }
+                NotificationEvents.N_007 -> {
+                    // F-113 FR-113-018 #3 + AC-113-011: quota-expansion push is
+                    // an instructor-side event; switch panel first so the back
+                    // stack stays consistent with FR-113-016. Android does not
+                    // yet have a standalone request-detail route reachable
+                    // outside MyRequests; landing on Explore lets the
+                    // instructor see the expanded request via the Explore feed.
+                    if (role != ActiveRole.Instructor) switchToInstructor.value()
+                    navController.navigate(Route.Explore) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                    }
+                }
+                // TODO(F-113 FR-113-018 #4): IAP-success push case. Add a
+                // `NotificationEvents.<IAP_EVENT>` branch here once the Edge
+                // Function emits one (see TODO in NotificationConstants.kt).
             }
-            // TODO(F-113 FR-113-018 #4): IAP-success push case. Add a
-            // `NotificationEvents.<IAP_EVENT>` branch here once the Edge
-            // Function emits one (see TODO in NotificationConstants.kt):
-            //   if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
-            //   navController.navigate(Route.Wallet) { launchSingleTop = true }
         }
     }
 }
