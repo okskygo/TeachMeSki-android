@@ -167,6 +167,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    // Set to true before a notification-triggered role switch so the
+    // graph-re-root LaunchedEffect in AuthenticatedApp skips navigation
+    // (the notification handler already sets up the correct back stack).
+    @Volatile
+    var suppressGraphNavOnRoleChange = false
+
     fun switchRole(newRole: ActiveRole) {
         val userId = authRepository.currentUserId() ?: return
         val current = _uiState.value as? MainUiState.Authenticated ?: return

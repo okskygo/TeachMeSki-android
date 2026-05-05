@@ -224,6 +224,15 @@ private fun AuthenticatedApp(
         if (lastHandled == current) return@LaunchedEffect
         lastHandled = current
 
+        // Notification deep-link handlers set this flag before calling switchRole
+        // and manually build the correct back stack (CorrectGraph → Chat).
+        // Consuming the flag here suppresses the graph re-root so it doesn't
+        // wipe Chat off the back stack after the async role change resolves.
+        if (mainViewModel.suppressGraphNavOnRoleChange) {
+            mainViewModel.suppressGraphNavOnRoleChange = false
+            return@LaunchedEffect
+        }
+
         if (isAuthenticated) {
             val startRoute: Route = when (activeRole) {
                 ActiveRole.Student -> Route.StudentGraph
@@ -254,7 +263,6 @@ private fun AuthenticatedApp(
             onSwitchToStudent = onSwitchToStudent,
             onSwitchToInstructor = onSwitchToInstructor,
             mainViewModel = mainViewModel,
-            onPreemptGraphNav = { newRole -> lastHandled = true to newRole },
         )
     }
 
@@ -327,7 +335,6 @@ private fun HandleNotificationDeepLinks(
     onSwitchToStudent: () -> Unit,
     onSwitchToInstructor: () -> Unit,
     mainViewModel: MainViewModel,
-    onPreemptGraphNav: (ActiveRole) -> Unit,
 ) {
     val event = mainViewModel.notificationDeepLinkBus.events.collectAsState(initial = null).value
     LaunchedEffect(event) {
@@ -347,18 +354,16 @@ private fun HandleNotificationDeepLinks(
                 if (roomId != null) {
                     // N-002 / N-004 => instructor-side message; N-003 => student-side message.
                     // When a role switch is required we must:
-                    //  1. pre-empt the graph-re-root LaunchedEffect (set lastHandled to the
-                    //     incoming role) so it becomes a no-op once switchRole resolves, and
-                    //  2. manually navigate to the correct graph root here so the back stack
-                    //     is <CorrectGraph> → Chat rather than <WrongGraph> → Chat.
-                    // Without (1) the async switchRole state update fires the graph LaunchedEffect
-                    // which does popUpTo(0), wiping Chat off the back stack; without (2) pressing
-                    // Back from Chat lands on the wrong graph and shows the wrong navbar.
+                    //  1. set suppressGraphNavOnRoleChange so the graph-re-root LaunchedEffect
+                    //     in AuthenticatedApp skips navigation once the async switchRole resolves
+                    //     (otherwise it does popUpTo(0), wiping Chat off the back stack), and
+                    //  2. manually navigate to the correct graph root so the back stack becomes
+                    //     <CorrectGraph> → Chat — pressing Back then shows the right navbar.
                     when (e.event) {
                         NotificationEvents.N_002,
                         NotificationEvents.N_004 -> {
                             if (activeRole != ActiveRole.Instructor) {
-                                onPreemptGraphNav(ActiveRole.Instructor)
+                                mainViewModel.suppressGraphNavOnRoleChange = true
                                 onSwitchToInstructor()
                                 navController.navigate(Route.InstructorGraph) {
                                     popUpTo(0) { inclusive = true }
@@ -368,7 +373,7 @@ private fun HandleNotificationDeepLinks(
                         }
                         NotificationEvents.N_003 -> {
                             if (activeRole != ActiveRole.Student) {
-                                onPreemptGraphNav(ActiveRole.Student)
+                                mainViewModel.suppressGraphNavOnRoleChange = true
                                 onSwitchToStudent()
                                 navController.navigate(Route.StudentGraph) {
                                     popUpTo(0) { inclusive = true }
