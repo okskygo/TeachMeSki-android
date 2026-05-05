@@ -254,6 +254,7 @@ private fun AuthenticatedApp(
             onSwitchToStudent = onSwitchToStudent,
             onSwitchToInstructor = onSwitchToInstructor,
             mainViewModel = mainViewModel,
+            onPreemptGraphNav = { newRole -> lastHandled = true to newRole },
         )
     }
 
@@ -326,6 +327,7 @@ private fun HandleNotificationDeepLinks(
     onSwitchToStudent: () -> Unit,
     onSwitchToInstructor: () -> Unit,
     mainViewModel: MainViewModel,
+    onPreemptGraphNav: (ActiveRole) -> Unit,
 ) {
     val event = mainViewModel.notificationDeepLinkBus.events.collectAsState(initial = null).value
     LaunchedEffect(event) {
@@ -343,14 +345,36 @@ private fun HandleNotificationDeepLinks(
             NotificationEvents.N_004 -> {
                 val roomId = e.roomId
                 if (roomId != null) {
-                    // N-002 / N-004 => instructor-side message; N-003 => student-side message
+                    // N-002 / N-004 => instructor-side message; N-003 => student-side message.
+                    // When a role switch is required we must:
+                    //  1. pre-empt the graph-re-root LaunchedEffect (set lastHandled to the
+                    //     incoming role) so it becomes a no-op once switchRole resolves, and
+                    //  2. manually navigate to the correct graph root here so the back stack
+                    //     is <CorrectGraph> → Chat rather than <WrongGraph> → Chat.
+                    // Without (1) the async switchRole state update fires the graph LaunchedEffect
+                    // which does popUpTo(0), wiping Chat off the back stack; without (2) pressing
+                    // Back from Chat lands on the wrong graph and shows the wrong navbar.
                     when (e.event) {
                         NotificationEvents.N_002,
                         NotificationEvents.N_004 -> {
-                            if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
+                            if (activeRole != ActiveRole.Instructor) {
+                                onPreemptGraphNav(ActiveRole.Instructor)
+                                onSwitchToInstructor()
+                                navController.navigate(Route.InstructorGraph) {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         }
                         NotificationEvents.N_003 -> {
-                            if (activeRole != ActiveRole.Student) onSwitchToStudent()
+                            if (activeRole != ActiveRole.Student) {
+                                onPreemptGraphNav(ActiveRole.Student)
+                                onSwitchToStudent()
+                                navController.navigate(Route.StudentGraph) {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         }
                     }
                     navController.navigate(Route.Chat(roomId)) {
