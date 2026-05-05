@@ -369,6 +369,24 @@ private fun HandleNotificationDeepLinks(
                     launchSingleTop = true
                 }
             }
+            NotificationEvents.N_007 -> {
+                // F-113 FR-113-018 #3 + AC-113-011: quota-expansion push is
+                // an instructor-side event; switch panel first so the back
+                // stack stays consistent with FR-113-016. Android does not
+                // yet have a standalone request-detail route reachable
+                // outside MyRequests; landing on Explore lets the
+                // instructor see the expanded request via the Explore feed.
+                if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
+                navController.navigate(Route.Explore) {
+                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                }
+            }
+            // TODO(F-113 FR-113-018 #4): IAP-success push case. Add a
+            // `NotificationEvents.<IAP_EVENT>` branch here once the Edge
+            // Function emits one (see TODO in NotificationConstants.kt):
+            //   if (activeRole != ActiveRole.Instructor) onSwitchToInstructor()
+            //   navController.navigate(Route.Wallet) { launchSingleTop = true }
         }
     }
 }

@@ -122,7 +122,7 @@ class RequestDetailViewModelExpandQuotaTest {
     }
 
     private class FakeChatRepository : ChatRepository {
-        override suspend fun getChatRooms(offset: Int) =
+        override suspend fun getChatRooms(activeRole: com.teachmeski.app.ui.component.ActiveRole, offset: Int) =
             Resource.Success(Pair(emptyList<ChatRoom>(), false))
         override suspend fun getChatRoomDetail(roomId: String): Resource<ChatRoomDetail> =
             Resource.Error(UiText.DynamicString("not used"))
@@ -133,7 +133,8 @@ class RequestDetailViewModelExpandQuotaTest {
         override suspend fun sendMessage(roomId: String, content: String): Resource<ChatMessage> =
             Resource.Error(UiText.DynamicString("not used"))
         override suspend fun markRoomAsRead(roomId: String) = Resource.Success(Unit)
-        override suspend fun getUnreadCount() = Resource.Success(0)
+        override suspend fun getUnreadCount(activeRole: com.teachmeski.app.ui.component.ActiveRole) = Resource.Success(0)
+        override suspend fun getUnreadCountForBothPanels() = Resource.Success(0 to 0)
         override suspend fun createPathBChatRoom(
             instructorProfileId: String,
             lessonRequestId: String,

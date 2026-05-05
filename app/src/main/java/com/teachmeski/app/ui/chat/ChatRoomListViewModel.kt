@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.domain.model.ChatRoom
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ChatRepository
+import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,11 +48,27 @@ class ChatRoomListViewModel @Inject constructor(
     private val loadMutex = Mutex()
     private var inboxJob: Job? = null
 
-    init {
-        viewModelScope.launch {
-            loadPage(reset = true)
+    /**
+     * F-113 FR-113-001..004: the chat list is panel-scoped. The Composable
+     * passes the current `activeRole` via `bind(role)` on first composition
+     * and again whenever the role flips. On role change we reset state and
+     * re-fetch from offset 0 so cross-panel rows never bleed into the list.
+     */
+    private var activeRole: ActiveRole? = null
+
+    fun bind(role: ActiveRole) {
+        if (activeRole == role) return
+        val isFirstBind = activeRole == null
+        activeRole = role
+        if (isFirstBind) {
+            // First bind: kick off initial load + inbox subscription.
+            viewModelScope.launch { loadPage(reset = true) }
+            startInboxSubscription()
+        } else {
+            // Role flipped: reset list and reload from page 0.
+            _uiState.update { ChatRoomListUiState() }
+            viewModelScope.launch { loadPage(reset = true) }
         }
-        startInboxSubscription()
     }
 
     private fun startInboxSubscription() {
@@ -67,7 +84,11 @@ class ChatRoomListViewModel @Inject constructor(
         val currentUserId = authRepository.currentUserId() ?: return
         val existing = _uiState.value.rooms.firstOrNull { it.id == update.roomId }
         if (existing == null) {
-            // New room for this user (e.g. first message in a freshly-created Path-B room).
+            // F-113 FR-113-015: realtime channel is shared across panels
+            // (`inbox:{userId}`). Filter out updates for rooms not in the
+            // current panel — they still bump the icon badge via the
+            // `MainViewModel.refreshUnreadCount()` path, but must not
+            // appear in the panel-scoped list.
             loadPage(reset = true)
             return
         }
@@ -105,6 +126,7 @@ class ChatRoomListViewModel @Inject constructor(
             loadMore()
             return
         }
+        val role = activeRole ?: return
         viewModelScope.launch {
             loadMutex.withLock {
                 val showBlockingLoader = _uiState.value.rooms.isEmpty()
@@ -115,7 +137,7 @@ class ChatRoomListViewModel @Inject constructor(
                     )
                 }
 
-                when (val result = chatRepository.getChatRooms(0)) {
+                when (val result = chatRepository.getChatRooms(role, 0)) {
                     is Resource.Success -> {
                         val (list, more) = result.data
                         _uiState.update {
@@ -148,6 +170,7 @@ class ChatRoomListViewModel @Inject constructor(
     fun loadMore() {
         val s = _uiState.value
         if (s.isLoading || s.isLoadingMore || !s.hasMore) return
+        val role = activeRole ?: return
         viewModelScope.launch {
             loadMutex.withLock {
                 val offset = _uiState.value.rooms.size
@@ -158,7 +181,7 @@ class ChatRoomListViewModel @Inject constructor(
                     )
                 }
 
-                when (val result = chatRepository.getChatRooms(offset)) {
+                when (val result = chatRepository.getChatRooms(role, offset)) {
                     is Resource.Success -> {
                         val (list, more) = result.data
                         _uiState.update { prev ->
@@ -192,10 +215,11 @@ class ChatRoomListViewModel @Inject constructor(
     }
 
     fun pullToRefresh() {
+        val role = activeRole ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(isRefreshing = true, error = null) }
             loadMutex.withLock {
-                when (val result = chatRepository.getChatRooms(0)) {
+                when (val result = chatRepository.getChatRooms(role, 0)) {
                     is Resource.Success -> {
                         val (list, more) = result.data
                         _uiState.update {
@@ -228,6 +252,7 @@ class ChatRoomListViewModel @Inject constructor(
 
     fun refreshOnResume() {
         if (loadMutex.isLocked) return
+        val role = activeRole ?: return
         viewModelScope.launch {
             loadMutex.withLock {
                 val silent = _uiState.value.rooms.isNotEmpty()
@@ -235,7 +260,7 @@ class ChatRoomListViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = true, error = null) }
                 }
 
-                when (val result = chatRepository.getChatRooms(0)) {
+                when (val result = chatRepository.getChatRooms(role, 0)) {
                     is Resource.Success -> {
                         val (list, more) = result.data
                         _uiState.update {

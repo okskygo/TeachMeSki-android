@@ -28,4 +28,16 @@ class NotificationDeepLinkBus @Inject constructor() {
     fun emit(event: NotificationDeepLinkEvent) {
         channel.trySend(event)
     }
+
+    /**
+     * F-113 FR-113-019 / AC-113-014: drain any pending events from the
+     * channel so that a push that arrived while the user was signed out
+     * is NOT replayed after a fresh sign-in. Called by `MainViewModel`
+     * on the Authenticated → Unauthenticated transition.
+     */
+    fun clearPending() {
+        while (channel.tryReceive().isSuccess) {
+            // drop
+        }
+    }
 }

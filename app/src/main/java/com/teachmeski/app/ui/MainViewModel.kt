@@ -27,8 +27,16 @@ sealed interface MainUiState {
     data class Authenticated(
         val activeRole: ActiveRole,
         val userRole: UserRole,
+        /** F-113 FR-113-007: current-panel unread (drives bottom-tab badge). */
         val unreadCount: Int = 0,
-    ) : MainUiState
+        /** F-113 FR-113-008: instructor-panel unread (used for icon-badge sum). */
+        val instructorPanelUnread: Int = 0,
+        /** F-113 FR-113-008: student-panel unread (used for icon-badge sum). */
+        val studentPanelUnread: Int = 0,
+    ) : MainUiState {
+        /** F-113 FR-113-008: app-icon badge stays stable across panel switches. */
+        val iconBadge: Int get() = instructorPanelUnread + studentPanelUnread
+    }
     data object Unauthenticated : MainUiState
 }
 
@@ -60,12 +68,18 @@ class MainViewModel @Inject constructor(
                         resolveRole()
                     }
                     is SessionStatus.NotAuthenticated -> {
+                        // F-113 FR-113-019 / AC-113-014: drop any
+                        // pending notification deep links so a push that
+                        // arrived during the signed-out interval is not
+                        // replayed after the next sign-in.
+                        notificationDeepLinkBus.clearPending()
                         _uiState.value = MainUiState.Unauthenticated
                     }
                     SessionStatus.Initializing -> {
                         _uiState.value = MainUiState.Loading
                     }
                     is SessionStatus.RefreshFailure -> {
+                        notificationDeepLinkBus.clearPending()
                         _uiState.value = MainUiState.Unauthenticated
                     }
                 }
@@ -158,16 +172,42 @@ class MainViewModel @Inject constructor(
         val current = _uiState.value as? MainUiState.Authenticated ?: return
         viewModelScope.launch {
             rolePreferences.setLastActiveRole(userId, newRole)
-            _uiState.value = MainUiState.Authenticated(newRole, current.userRole, current.unreadCount)
+            // F-113 FR-113-008: derive new tab-badge from cached per-panel
+            // counts without re-fetching; icon badge (sum) is unchanged.
+            val newTabBadge = when (newRole) {
+                ActiveRole.Instructor -> current.instructorPanelUnread
+                ActiveRole.Student -> current.studentPanelUnread
+            }
+            _uiState.value = MainUiState.Authenticated(
+                activeRole = newRole,
+                userRole = current.userRole,
+                unreadCount = newTabBadge,
+                instructorPanelUnread = current.instructorPanelUnread,
+                studentPanelUnread = current.studentPanelUnread,
+            )
         }
     }
 
     fun refreshUnreadCount() {
         viewModelScope.launch {
-            val res = chatRepository.getUnreadCount()
+            val current = _uiState.value as? MainUiState.Authenticated ?: return@launch
+            // F-113 FR-113-008: fetch both panel counts in parallel; tab badge
+            // = current panel; icon badge (computed property) = sum.
+            val res = chatRepository.getUnreadCountForBothPanels()
             if (res is Resource.Success) {
-                val current = _uiState.value as? MainUiState.Authenticated ?: return@launch
-                _uiState.value = current.copy(unreadCount = res.data)
+                val (instructorCount, studentCount) = res.data
+                val tabBadge = when (current.activeRole) {
+                    ActiveRole.Instructor -> instructorCount
+                    ActiveRole.Student -> studentCount
+                }
+                _uiState.value = current.copy(
+                    unreadCount = tabBadge,
+                    instructorPanelUnread = instructorCount,
+                    studentPanelUnread = studentCount,
+                )
+                // TODO(F-113 FR-113-008): set system app-icon badge to
+                // `iconBadge` once a launcher-badge mechanism is wired
+                // (no ShortcutBadger / Notification Manager badge today).
             }
         }
     }

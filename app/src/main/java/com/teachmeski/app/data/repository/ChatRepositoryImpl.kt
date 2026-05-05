@@ -15,6 +15,7 @@ import com.teachmeski.app.domain.model.PathType
 import com.teachmeski.app.domain.model.UnlockInfo
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.ChatRepository
+import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.util.PricingCalculator
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
@@ -22,6 +23,8 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -34,14 +37,22 @@ class ChatRepositoryImpl @Inject constructor(
     private val authRepository: AuthRepository,
 ) : ChatRepository {
 
-    override suspend fun getChatRooms(offset: Int): Resource<Pair<List<ChatRoom>, Boolean>> {
+    override suspend fun getChatRooms(activeRole: ActiveRole, offset: Int): Resource<Pair<List<ChatRoom>, Boolean>> {
         return try {
             val userId = authRepository.currentUserId()
                 ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
-            val instructorProfileId = chatDataSource.getInstructorProfileId(userId)
-            val isInstructor = instructorProfileId != null
 
-            val roomDtos = if (instructorProfileId != null) {
+            // F-113 FR-113-001..004: panel filter is `activeRole`-driven, NEVER
+            // "user has an instructor profile". A `Both` user in the student
+            // panel must see student-side rooms even though they have an
+            // instructor profile, and vice versa. Web equivalent:
+            // `app/actions/chat.ts` `fetchSeekerChatRoomsPage` /
+            // `fetchInstructorChatRoomsPage`.
+            val isInstructor = activeRole == ActiveRole.Instructor
+
+            val roomDtos = if (isInstructor) {
+                val instructorProfileId = chatDataSource.getInstructorProfileId(userId)
+                    ?: return Resource.Success(Pair(emptyList(), false))
                 chatDataSource.getChatRoomsForInstructor(instructorProfileId, offset)
             } else {
                 chatDataSource.getChatRoomsForSeeker(userId, offset)
@@ -288,13 +299,15 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUnreadCount(): Resource<Int> {
+    override suspend fun getUnreadCount(activeRole: ActiveRole): Resource<Int> {
         return try {
             val userId = authRepository.currentUserId()
                 ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
-            val instructorProfileId = chatDataSource.getInstructorProfileId(userId)
 
-            val count = if (instructorProfileId != null) {
+            // F-113 FR-113-007: tab-bar badge counts the current panel only.
+            val count = if (activeRole == ActiveRole.Instructor) {
+                val instructorProfileId = chatDataSource.getInstructorProfileId(userId)
+                    ?: return Resource.Success(0)
                 chatDataSource.getUnreadCountForInstructor(instructorProfileId, userId)
             } else {
                 chatDataSource.getUnreadCountForSeeker(userId)
@@ -302,6 +315,31 @@ class ChatRepositoryImpl @Inject constructor(
             Resource.Success(count)
         } catch (e: Exception) {
             Resource.Success(0)
+        }
+    }
+
+    override suspend fun getUnreadCountForBothPanels(): Resource<Pair<Int, Int>> {
+        return try {
+            val userId = authRepository.currentUserId()
+                ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
+
+            // F-113 FR-113-008: app-icon badge = sum of both panels. Run the
+            // two queries in parallel; when the user has no instructor
+            // profile, the instructor count trivially collapses to 0.
+            val (instructorCount, studentCount) = coroutineScope {
+                val instructorAsync = async {
+                    val instructorProfileId = chatDataSource.getInstructorProfileId(userId)
+                        ?: return@async 0
+                    chatDataSource.getUnreadCountForInstructor(instructorProfileId, userId)
+                }
+                val studentAsync = async {
+                    chatDataSource.getUnreadCountForSeeker(userId)
+                }
+                instructorAsync.await() to studentAsync.await()
+            }
+            Resource.Success(instructorCount to studentCount)
+        } catch (e: Exception) {
+            Resource.Success(0 to 0)
         }
     }
 

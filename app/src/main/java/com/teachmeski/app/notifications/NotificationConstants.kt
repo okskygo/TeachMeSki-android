@@ -12,6 +12,22 @@ object NotificationEvents {
     const val N_003 = "N-003"
     const val N_004 = "N-004"
     const val N_005 = "N-005"
+    /**
+     * F-109-N007 / F-113 FR-113-018 #3: lesson-request quota expansion.
+     * Routed in `MainActivity#HandleNotificationDeepLinks` to switch to the
+     * instructor panel and land on Explore (request detail not yet a
+     * standalone route on Android — Explore card surfaces the expanded
+     * request).
+     */
+    const val N_007 = "N-007"
+
+    // TODO(F-113 FR-113-018 #4): IAP-success push event. The
+    // `send-push-notification` Edge Function does NOT yet emit a push when
+    // a token-pack purchase succeeds (only N-006 = IAP refund is wired).
+    // Once an event code (likely "N-008" or "IAP-001") is added server-side,
+    // declare the constant here and add the matching `when` branch in
+    // `MainActivity#HandleNotificationDeepLinks` (switch to instructor +
+    // navigate to `Route.Wallet`).
 }
 
 object NotificationDataKeys {

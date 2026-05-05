@@ -61,6 +61,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.ChatRoom
+import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.ui.component.UserAvatar
 import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.util.RelativeTime
@@ -78,6 +79,17 @@ fun ChatRoomListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
     val context = LocalContext.current
+
+    // F-113 FR-113-001..004: feed `activeRole` into the ViewModel. On the
+    // first composition this triggers the initial load; if the user later
+    // flips panels (e.g. via the "我的" switch row) the root nav graph
+    // re-creates this Composable on a fresh role-specific graph, but in case
+    // a future caller passes a different `isInstructorView` to the same VM,
+    // `bind()` resets the list and reloads from page 0.
+    val activeRole = if (isInstructorView) ActiveRole.Instructor else ActiveRole.Student
+    LaunchedEffect(activeRole) {
+        viewModel.bind(activeRole)
+    }
 
     val displayRooms = remember(uiState.rooms, uiState.selectedTab) {
         when (uiState.selectedTab) {
