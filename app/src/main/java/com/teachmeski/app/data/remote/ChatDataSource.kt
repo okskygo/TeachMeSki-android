@@ -288,11 +288,15 @@ class ChatDataSource @Inject constructor(
     }
 
     /**
-     * F-008 P3: only an `'active'` `request_unlocks` row counts as
-     * "currently unlocked". A `'refunded'` (auto-refunded by daily cron) or
-     * `'completed'` row falls through so the instructor sees `ChatUnlockBar`
-     * and can re-unlock. Without this filter, refunded rooms would
-     * incorrectly remain on `ChatInput`.
+     * F-008 P3: a `'active'` OR `'completed'` `request_unlocks` row counts as
+     * "currently unlocked". `'completed'` is the terminal state set by
+     * `auto_refund_expired_unlocks` when the 48 hr window expires AND the
+     * student has replied at least once — the case is settled, the instructor
+     * was NOT refunded, and the room remains usable. Only `'refunded'` (or no
+     * row at all) falls through to `ChatUnlockBar`, requiring the instructor
+     * to pay again to resume the conversation. Aligns with iOS
+     * `ChatRepositoryImpl.checkHasUnlock` and web
+     * `dashboard/conversation/[room_id]/page.tsx`.
      */
     suspend fun checkHasUnlock(instructorId: String, lessonRequestId: String): Boolean =
         supabaseClient.postgrest.from("request_unlocks")
@@ -300,7 +304,7 @@ class ChatDataSource @Inject constructor(
                 filter {
                     eq("instructor_id", instructorId)
                     eq("lesson_request_id", lessonRequestId)
-                    eq("status", "active")
+                    isIn("status", listOf("active", "completed"))
                 }
             }
             .decodeList<UnlockCheckRow>()
