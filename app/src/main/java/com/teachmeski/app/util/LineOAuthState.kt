@@ -1,6 +1,7 @@
 package com.teachmeski.app.util
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -20,17 +21,31 @@ data class LineOAuthInit(
 @Singleton
 class LineOAuthState @Inject constructor(@ApplicationContext private val context: Context) {
 
-    private val prefs by lazy {
+    private val prefs by lazy { createEncryptedPrefs() }
+
+    private fun createEncryptedPrefs(): SharedPreferences {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
-        EncryptedSharedPreferences.create(
-            context,
-            "line_oauth",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-        )
+        return try {
+            EncryptedSharedPreferences.create(
+                context,
+                "line_oauth",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        } catch (e: Exception) {
+            // Keyset/key mismatch after reinstall or backup-restore. OAuth state is ephemeral — discard and recreate.
+            context.getSharedPreferences("line_oauth", Context.MODE_PRIVATE).edit().clear().commit()
+            EncryptedSharedPreferences.create(
+                context,
+                "line_oauth",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        }
     }
 
     private val random = SecureRandom()
