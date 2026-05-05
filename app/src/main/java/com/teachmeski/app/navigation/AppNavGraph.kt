@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,12 +39,21 @@ fun AppNavGraph(
     onWizardCompleted: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val startDestination: Route = if (!isAuthenticated) {
-        Route.AuthGraph
-    } else {
-        when (activeRole) {
-            ActiveRole.Student -> Route.StudentGraph
-            ActiveRole.Instructor -> Route.InstructorGraph
+    // Lock the NavHost's startDestination at first composition. NavHost calls
+    // remember(startDestination, ...) { createGraph(...) } internally; when the
+    // key changes, it rebuilds the graph and setGraph() resets the back stack.
+    // If startDestination tracked activeRole, a notification-triggered
+    // switchRole() would recompose AppNavGraph with a new startDestination and
+    // wipe the Chat destination we just navigated to. All subsequent graph
+    // re-roots must go through navController.navigate(...) { popUpTo(0) ... }.
+    val startDestination: Route = remember {
+        if (!isAuthenticated) {
+            Route.AuthGraph
+        } else {
+            when (activeRole) {
+                ActiveRole.Student -> Route.StudentGraph
+                ActiveRole.Instructor -> Route.InstructorGraph
+            }
         }
     }
 
