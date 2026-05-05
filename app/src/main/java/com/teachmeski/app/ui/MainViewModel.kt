@@ -137,10 +137,20 @@ class MainViewModel @Inject constructor(
                     UserRole.Student -> ActiveRole.Student
                     UserRole.Instructor -> ActiveRole.Instructor
                     UserRole.Both -> {
-                        rolePreferences.getLastActiveRole(userId)
+                        // For re-auth events (e.g. Supabase token refresh), a
+                        // concurrent switchRole() may have already updated _uiState
+                        // synchronously. Prefer that in-memory value over DataStore,
+                        // which might still hold the previous role if the DataStore
+                        // persist hasn't completed yet — avoiding a race where
+                        // resolveRole() reads stale DataStore and reverts the role.
+                        val inMemory = (_uiState.value as? MainUiState.Authenticated)?.activeRole
+                        Log.d("TMS_NAV", "resolveRole: Both user inMemory=$inMemory")
+                        inMemory
+                            ?: rolePreferences.getLastActiveRole(userId)
                             ?: ActiveRole.Instructor
                     }
                 }
+                Log.d("TMS_NAV", "resolveRole: final activeRole=$activeRole")
                 rolePreferences.setLastActiveRole(userId, activeRole)
                 _uiState.value = MainUiState.Authenticated(activeRole, user.role)
                 refreshUnreadCount()
@@ -177,23 +187,26 @@ class MainViewModel @Inject constructor(
         val userId = authRepository.currentUserId() ?: return
         val current = _uiState.value as? MainUiState.Authenticated ?: return
         Log.d("TMS_NAV", "switchRole: $newRole started, suppressFlag=${suppressGraphNavOnRoleChange}")
+        // F-113 FR-113-008: derive new tab-badge from cached per-panel
+        // counts without re-fetching; icon badge (sum) is unchanged.
+        val newTabBadge = when (newRole) {
+            ActiveRole.Instructor -> current.instructorPanelUnread
+            ActiveRole.Student -> current.studentPanelUnread
+        }
+        // Update _uiState synchronously so that any concurrent resolveRole()
+        // (triggered by a Supabase token-refresh SessionStatus.Authenticated
+        // re-emission) sees the new role immediately and does not overwrite it.
+        _uiState.value = MainUiState.Authenticated(
+            activeRole = newRole,
+            userRole = current.userRole,
+            unreadCount = newTabBadge,
+            instructorPanelUnread = current.instructorPanelUnread,
+            studentPanelUnread = current.studentPanelUnread,
+        )
+        Log.d("TMS_NAV", "switchRole: _uiState updated to $newRole synchronously, suppressFlag=${suppressGraphNavOnRoleChange}")
         viewModelScope.launch {
             rolePreferences.setLastActiveRole(userId, newRole)
-            Log.d("TMS_NAV", "switchRole: DataStore write done, about to update _uiState, suppressFlag=${suppressGraphNavOnRoleChange}")
-            // F-113 FR-113-008: derive new tab-badge from cached per-panel
-            // counts without re-fetching; icon badge (sum) is unchanged.
-            val newTabBadge = when (newRole) {
-                ActiveRole.Instructor -> current.instructorPanelUnread
-                ActiveRole.Student -> current.studentPanelUnread
-            }
-            _uiState.value = MainUiState.Authenticated(
-                activeRole = newRole,
-                userRole = current.userRole,
-                unreadCount = newTabBadge,
-                instructorPanelUnread = current.instructorPanelUnread,
-                studentPanelUnread = current.studentPanelUnread,
-            )
-            Log.d("TMS_NAV", "switchRole: _uiState updated to $newRole, suppressFlag=${suppressGraphNavOnRoleChange}")
+            Log.d("TMS_NAV", "switchRole: DataStore persisted $newRole")
         }
     }
 
