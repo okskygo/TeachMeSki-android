@@ -44,6 +44,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,16 +90,27 @@ fun MyRequestsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val loadError = uiState.error
 
-    // Refresh when returning to this tab (e.g. after posting a new request via the wizard
-    // or switching back from another bottom-nav tab). Skip the very first ON_START since
+    // Refresh when returning to this screen (e.g. after posting a new request via the wizard
+    // or switching back from another bottom-nav tab). Skip the very first ON_RESUME since
     // the ViewModel already loads in init.
-    var skipFirstStart by remember { mutableStateOf(true) }
+    //
+    // rememberSaveable (not remember) is required: Compose Navigation removes this composable
+    // from composition while a full-screen destination (the wizard) is on top, so a plain
+    // remember would reset the flag to true on re-entry, causing the post-wizard refresh to
+    // be silently skipped. rememberSaveable survives the composable leaving/re-entering
+    // composition as long as the NavBackStackEntry remains alive.
+    //
+    // ON_RESUME (not ON_START) is required: Navigation 2.7+ with predictive-back support
+    // only transitions the previous entry from RESUMED → STARTED (not down to CREATED),
+    // so ON_START never fires on return; ON_RESUME fires in both the CREATED→RESUMED and
+    // the STARTED→RESUMED paths.
+    var skipFirstResume by rememberSaveable { mutableStateOf(true) }
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
-                if (skipFirstStart) {
-                    skipFirstStart = false
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (skipFirstResume) {
+                    skipFirstResume = false
                 } else {
                     viewModel.refreshOnResume()
                 }
