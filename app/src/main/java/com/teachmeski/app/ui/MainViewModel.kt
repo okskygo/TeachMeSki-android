@@ -176,8 +176,10 @@ class MainViewModel @Inject constructor(
     fun switchRole(newRole: ActiveRole) {
         val userId = authRepository.currentUserId() ?: return
         val current = _uiState.value as? MainUiState.Authenticated ?: return
+        Log.d("TMS_NAV", "switchRole: $newRole started, suppressFlag=${suppressGraphNavOnRoleChange}")
         viewModelScope.launch {
             rolePreferences.setLastActiveRole(userId, newRole)
+            Log.d("TMS_NAV", "switchRole: DataStore write done, about to update _uiState, suppressFlag=${suppressGraphNavOnRoleChange}")
             // F-113 FR-113-008: derive new tab-badge from cached per-panel
             // counts without re-fetching; icon badge (sum) is unchanged.
             val newTabBadge = when (newRole) {
@@ -191,6 +193,7 @@ class MainViewModel @Inject constructor(
                 instructorPanelUnread = current.instructorPanelUnread,
                 studentPanelUnread = current.studentPanelUnread,
             )
+            Log.d("TMS_NAV", "switchRole: _uiState updated to $newRole, suppressFlag=${suppressGraphNavOnRoleChange}")
         }
     }
 

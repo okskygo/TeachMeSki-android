@@ -42,6 +42,7 @@ import com.teachmeski.app.navigation.Route
 import com.teachmeski.app.notifications.NotificationDeepLinkEvent
 import com.teachmeski.app.notifications.NotificationEvents
 import com.teachmeski.app.notifications.NotificationIntentExtras
+import android.util.Log
 import com.teachmeski.app.ui.MainUiState
 import com.teachmeski.app.ui.MainViewModel
 import com.teachmeski.app.ui.component.ActiveRole
@@ -221,7 +222,11 @@ private fun AuthenticatedApp(
     }
     LaunchedEffect(isAuthenticated, activeRole) {
         val current = isAuthenticated to activeRole
-        if (lastHandled == current) return@LaunchedEffect
+        Log.d("TMS_NAV", "graphLE fired: current=$current lastHandled=$lastHandled suppressFlag=${mainViewModel.suppressGraphNavOnRoleChange}")
+        if (lastHandled == current) {
+            Log.d("TMS_NAV", "graphLE: same as lastHandled, skip")
+            return@LaunchedEffect
+        }
         lastHandled = current
 
         // Notification deep-link handlers set this flag before calling switchRole
@@ -229,6 +234,7 @@ private fun AuthenticatedApp(
         // Consuming the flag here suppresses the graph re-root so it doesn't
         // wipe Chat off the back stack after the async role change resolves.
         if (mainViewModel.suppressGraphNavOnRoleChange) {
+            Log.d("TMS_NAV", "graphLE: suppressFlag=true, skip graph re-root")
             mainViewModel.suppressGraphNavOnRoleChange = false
             return@LaunchedEffect
         }
@@ -238,11 +244,13 @@ private fun AuthenticatedApp(
                 ActiveRole.Student -> Route.StudentGraph
                 ActiveRole.Instructor -> Route.InstructorGraph
             }
+            Log.d("TMS_NAV", "graphLE: navigating to $startRoute (popUpTo 0)")
             navController.navigate(startRoute) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
         } else {
+            Log.d("TMS_NAV", "graphLE: navigating to AuthGraph")
             navController.navigate(Route.AuthGraph) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
@@ -363,28 +371,38 @@ private fun HandleNotificationDeepLinks(
                         NotificationEvents.N_002,
                         NotificationEvents.N_004 -> {
                             if (activeRole != ActiveRole.Instructor) {
+                                Log.d("TMS_NAV", "notifLE: N-004 role switch Student→Instructor, setting suppressFlag")
                                 mainViewModel.suppressGraphNavOnRoleChange = true
                                 onSwitchToInstructor()
                                 navController.navigate(Route.InstructorGraph) {
                                     popUpTo(0) { inclusive = true }
                                     launchSingleTop = true
                                 }
+                                Log.d("TMS_NAV", "notifLE: navigated to InstructorGraph")
+                            } else {
+                                Log.d("TMS_NAV", "notifLE: N-004 already Instructor, no role switch")
                             }
                         }
                         NotificationEvents.N_003 -> {
                             if (activeRole != ActiveRole.Student) {
+                                Log.d("TMS_NAV", "notifLE: N-003 role switch Instructor→Student, setting suppressFlag")
                                 mainViewModel.suppressGraphNavOnRoleChange = true
                                 onSwitchToStudent()
                                 navController.navigate(Route.StudentGraph) {
                                     popUpTo(0) { inclusive = true }
                                     launchSingleTop = true
                                 }
+                                Log.d("TMS_NAV", "notifLE: navigated to StudentGraph")
+                            } else {
+                                Log.d("TMS_NAV", "notifLE: N-003 already Student, no role switch")
                             }
                         }
                     }
+                    Log.d("TMS_NAV", "notifLE: navigating to Chat($roomId)")
                     navController.navigate(Route.Chat(roomId)) {
                         launchSingleTop = true
                     }
+                    Log.d("TMS_NAV", "notifLE: Chat navigation done")
                 } else {
                     navController.navigate(Route.ChatRoomList) {
                         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
