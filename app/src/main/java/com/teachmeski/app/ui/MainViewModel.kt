@@ -3,6 +3,8 @@ package com.teachmeski.app.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teachmeski.app.R
+import com.teachmeski.app.auth.LoginErrorBus
 import com.teachmeski.app.domain.model.PendingInstructorProfile
 import com.teachmeski.app.domain.model.UserRole
 import com.teachmeski.app.domain.repository.AuthRepository
@@ -15,6 +17,7 @@ import com.teachmeski.app.notifications.UnreadCountInvalidator
 import com.teachmeski.app.ui.component.ActiveRole
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.RolePreferences
+import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.Job
@@ -157,6 +160,9 @@ class MainViewModel @Inject constructor(
             is Resource.Success -> {
                 val user = result.data
                 if (user.deletedAt != null) {
+                    LoginErrorBus.emit(
+                        UiText.StringResource(R.string.auth_error_account_unavailable),
+                    )
                     authRepository.signOut()
                     return
                 }

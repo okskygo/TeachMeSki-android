@@ -3,6 +3,7 @@ package com.teachmeski.app.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.R
+import com.teachmeski.app.auth.LoginErrorBus
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
@@ -29,6 +30,19 @@ class LoginViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    init {
+        // Pick up one-shot errors emitted by MainViewModel after it
+        // force-signs-out a soft-deleted account. `consume()` drops the
+        // replay cache so a stale value is not re-applied on the next
+        // login screen instance.
+        viewModelScope.launch {
+            LoginErrorBus.flow.collect { error ->
+                _uiState.update { it.copy(error = error) }
+                LoginErrorBus.consume()
+            }
+        }
+    }
 
     fun onEmailChange(value: String) {
         _uiState.update { it.copy(email = value, error = null) }
