@@ -299,8 +299,11 @@
     <string name="my_requests_status_active">開放中</string>
     <string name="my_requests_status_closed">已關閉</string>
     <string name="my_requests_status_expired">已過期</string>
+    <string name="my_requests_status_expired_inactive">已自動關閉</string>
     <string name="my_requests_status_pending_email_verification">信箱驗證中</string>
     <string name="my_requests_status_expired_unverified">未驗證已過期</string>
+    <string name="lesson_request_expiry_warning_push_title">課程需求即將過期</string>
+    <string name="lesson_request_expiry_warning_push_body_fmt">你的 %1$s 課程需求單將在 %2$d 天後關閉，登入即可延長。</string>
     <string name="my_requests_chat_count_zero">尚無對話</string>
     <string name="my_requests_chat_count_fmt">%1$d 個對話</string>
     <string name="my_requests_created_at_label">發佈於</string>

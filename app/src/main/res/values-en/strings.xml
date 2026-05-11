@@ -293,8 +293,11 @@
     <string name="my_requests_status_active">Active</string>
     <string name="my_requests_status_closed">Closed</string>
     <string name="my_requests_status_expired">Expired</string>
+    <string name="my_requests_status_expired_inactive">Auto-closed</string>
     <string name="my_requests_status_pending_email_verification">Email Verification Pending</string>
     <string name="my_requests_status_expired_unverified">Expired (Unverified)</string>
+    <string name="lesson_request_expiry_warning_push_title">Your lesson request expires soon</string>
+    <string name="lesson_request_expiry_warning_push_body_fmt">Your %1$s lesson request closes in %2$d days. Open the app to extend.</string>
     <string name="my_requests_chat_count_zero">No conversations</string>
     <string name="my_requests_chat_count_fmt">%1$d conversation(s)</string>
     <string name="my_requests_created_at_label">Posted</string>

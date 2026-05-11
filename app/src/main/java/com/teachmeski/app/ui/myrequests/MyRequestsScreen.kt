@@ -77,6 +77,7 @@ import java.util.TimeZone
 private val DIMMED_STATUSES = setOf(
     LessonRequestStatus.ClosedByUser,
     LessonRequestStatus.Expired,
+    LessonRequestStatus.ExpiredInactive,
     LessonRequestStatus.ExpiredUnverified,
 )
 
@@ -421,6 +422,8 @@ private fun statusPillStyle(status: LessonRequestStatus): Pair<String, Color> {
     val label = when (status) {
         LessonRequestStatus.Active -> stringResource(R.string.my_requests_status_active)
         LessonRequestStatus.Expired -> stringResource(R.string.my_requests_status_expired)
+        LessonRequestStatus.ExpiredInactive ->
+            stringResource(R.string.my_requests_status_expired_inactive)
         LessonRequestStatus.ClosedByUser -> stringResource(R.string.my_requests_status_closed)
         LessonRequestStatus.PendingEmailVerification ->
             stringResource(R.string.my_requests_status_pending_email_verification)
@@ -431,6 +434,7 @@ private fun statusPillStyle(status: LessonRequestStatus): Pair<String, Color> {
         LessonRequestStatus.Active -> TmsColor.Primary
         LessonRequestStatus.PendingEmailVerification -> TmsColor.Warning
         LessonRequestStatus.Expired,
+        LessonRequestStatus.ExpiredInactive,
         LessonRequestStatus.ClosedByUser,
         LessonRequestStatus.ExpiredUnverified,
         -> TmsColor.Outline

@@ -41,6 +41,11 @@ enum class EquipmentRental(val value: String) {
 enum class LessonRequestStatus(val value: String) {
     Active("active"),
     Expired("expired"),
+    // Mirrors iOS `.expiredInactive` (F-110): emitted by the auto-expiry job for
+    // requests that closed because the student went inactive (no opens / no
+    // unlocks). Renders identically to `Expired` in UI but stays distinct so
+    // analytics / reactivation flows can filter on it.
+    ExpiredInactive("expired_inactive"),
     ClosedByUser("closed_by_user"),
     PendingEmailVerification("pending_email_verification"),
     ExpiredUnverified("expired_unverified");
@@ -49,6 +54,7 @@ enum class LessonRequestStatus(val value: String) {
         fun fromString(value: String): LessonRequestStatus =
             when (value) {
                 "expired" -> Expired
+                "expired_inactive" -> ExpiredInactive
                 "closed_by_user" -> ClosedByUser
                 "pending_email_verification" -> PendingEmailVerification
                 "expired_unverified" -> ExpiredUnverified

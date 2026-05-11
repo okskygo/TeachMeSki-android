@@ -938,6 +938,8 @@ private fun statusPillColors(status: LessonRequestStatus): Triple<String, Color,
     val label = when (status) {
         LessonRequestStatus.Active -> stringResource(R.string.my_requests_status_active)
         LessonRequestStatus.Expired -> stringResource(R.string.my_requests_status_expired)
+        LessonRequestStatus.ExpiredInactive ->
+            stringResource(R.string.my_requests_status_expired_inactive)
         LessonRequestStatus.ClosedByUser -> stringResource(R.string.my_requests_status_closed)
         LessonRequestStatus.PendingEmailVerification ->
             stringResource(R.string.my_requests_status_pending_email_verification)
@@ -950,7 +952,10 @@ private fun statusPillColors(status: LessonRequestStatus): Triple<String, Color,
             TmsColor.Primary.copy(alpha = 0.1f),
             TmsColor.Primary,
         )
-        LessonRequestStatus.Expired -> Triple(
+        // `ExpiredInactive` renders with the same Error-tone treatment as `Expired`
+        // (mirrors iOS / web); the wire value is preserved upstream for analytics.
+        LessonRequestStatus.Expired,
+        LessonRequestStatus.ExpiredInactive -> Triple(
             label,
             TmsColor.Error.copy(alpha = 0.1f),
             TmsColor.Error,
