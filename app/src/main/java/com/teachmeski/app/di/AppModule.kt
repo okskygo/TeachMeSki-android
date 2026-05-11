@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.teachmeski.app.BuildConfig
+import com.teachmeski.app.data.repository.SupabaseRpcCalling
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +17,8 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
 import javax.inject.Singleton
@@ -47,4 +50,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirebaseMessaging(): FirebaseMessaging = FirebaseMessaging.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideSupabaseRpcCalling(client: SupabaseClient): SupabaseRpcCalling =
+        object : SupabaseRpcCalling {
+            override suspend fun rpc(name: String) {
+                client.postgrest.rpc(name)
+            }
+        }
 }

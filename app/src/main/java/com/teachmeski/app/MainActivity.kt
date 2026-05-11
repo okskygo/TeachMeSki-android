@@ -29,8 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -41,6 +43,7 @@ import com.teachmeski.app.auth.LineBindResultBus
 import com.teachmeski.app.auth.LineBindResultUi
 import com.teachmeski.app.auth.LineCallbackActivity
 import com.teachmeski.app.domain.model.UserRole
+import com.teachmeski.app.domain.repository.UserActivityRepository
 import com.teachmeski.app.navigation.AppNavGraph
 import com.teachmeski.app.navigation.Route
 import com.teachmeski.app.notifications.NotificationDeepLinkEvent
@@ -68,11 +71,24 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var networkMonitor: NetworkMonitor
 
+    @Inject
+    lateinit var userActivityRepository: UserActivityRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         handleNotificationIntent(intent)
         handleLineBindIntent(intent)
+        // Ping touch_last_active on every ON_RESUME so the lesson-request
+        // auto-expiry job knows the user is recently active. Server-side
+        // 1h cooldown; errors are swallowed by the repository.
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                lifecycleScope.launch {
+                    userActivityRepository.touch()
+                }
+            }
+        })
         setContent {
             TeachMeSkiTheme {
                 TeachMeSkiRoot(networkMonitor = networkMonitor)
