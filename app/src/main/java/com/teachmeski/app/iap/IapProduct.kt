@@ -9,7 +9,7 @@ package com.teachmeski.app.iap
  * for card labels.
  */
 data class IapProduct(
-    /** Google Play productId, e.g. "tokens_starter". */
+    /** Google Play productId, e.g. "tokens_starter_v2". */
     val productId: String,
     /** Stable UI key: "starter" / "popular" / "pro" / "premium". */
     val tierKey: String,
