@@ -92,6 +92,50 @@ class ExploreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getLessonRequestById(id: String): Resource<ExploreLessonRequest> {
+        return try {
+            val userId = authRepository.currentUserId()
+                ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
+            val instructorProfileId = exploreDataSource.getInstructorProfileId(userId)
+
+            val raw = exploreDataSource.getExploreLessonRequestById(userId, id)
+                ?: return Resource.Error(UiText.StringResource(R.string.explore_detail_not_found_title))
+
+            val requestIds = listOf(raw.id)
+            val myUnlockRows = if (instructorProfileId != null) {
+                exploreDataSource.getMyUnlockRows(instructorProfileId, requestIds)
+            } else emptyList()
+            val chatRoomRows = if (instructorProfileId != null) {
+                exploreDataSource.getChatRoomsForInstructor(instructorProfileId, requestIds)
+            } else emptyList()
+            val userRows = exploreDataSource.getUserRows(listOf(raw.userId))
+            val resortNameRows = exploreDataSource.getResortNames(raw.resortIds.distinct())
+            val certPrefRows = exploreDataSource.getCertPrefs(requestIds)
+
+            val u = userRows.firstOrNull { it.id == raw.userId }
+            val resortNameMap = resortNameRows.associateBy { it.id }
+            val resortNames = raw.resortIds.mapNotNull { rid ->
+                resortNameMap[rid]?.let { "${it.nameZh} (${it.nameEn})" }
+            }
+            val baseTokenCost = PricingCalculator.calculateUnlockCost(raw.durationDays, raw.groupSize)
+
+            val request = raw.toExploreLessonRequest(
+                isUnlockedByMe = myUnlockRows.any { it.lessonRequestId == raw.id },
+                myChatRoomId = chatRoomRows.firstOrNull { it.lessonRequestId == raw.id }?.id,
+                userDisplayName = u?.displayName ?: "",
+                userAvatarUrl = u?.avatarUrl,
+                resortNames = resortNames,
+                baseTokenCost = baseTokenCost,
+                certPreferences = certPrefRows
+                    .filter { it.lessonRequestId == raw.id }
+                    .map { it.certificationCode },
+            )
+            Resource.Success(request)
+        } catch (e: Exception) {
+            Resource.Error(UiText.StringResource(R.string.error_load_explore))
+        }
+    }
+
     override suspend fun unlockLessonRequest(
         lessonRequestId: String,
         message: String,

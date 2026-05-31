@@ -11,6 +11,8 @@ interface ExploreRepository {
         resortFilter: List<String>?,
     ): Resource<Pair<List<ExploreLessonRequest>, Int>>
 
+    suspend fun getLessonRequestById(id: String): Resource<ExploreLessonRequest>
+
     suspend fun unlockLessonRequest(
         lessonRequestId: String,
         message: String,
