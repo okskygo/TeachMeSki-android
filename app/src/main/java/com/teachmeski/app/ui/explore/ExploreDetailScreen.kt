@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -123,7 +124,7 @@ fun ExploreDetailScreen(
                     }
                 }
 
-                uiState.isLoading -> {
+                uiState.isLoading || uiState.requests.isEmpty() -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
                         color = TmsColor.Primary,
@@ -132,8 +133,8 @@ fun ExploreDetailScreen(
 
                 else -> {
                     EmptyState(
-                        title = stringResource(R.string.explore_empty_title),
-                        description = stringResource(R.string.explore_empty_description),
+                        title = stringResource(R.string.explore_detail_not_found_title),
+                        description = stringResource(R.string.explore_detail_not_found_description),
                         modifier = Modifier.align(Alignment.Center),
                     )
                 }
@@ -175,7 +176,11 @@ private fun ExploreDetailBottomBar(
         color = TmsColor.SurfaceLowest,
         shadowElevation = 8.dp,
     ) {
-        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Box(
+            modifier = Modifier
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+        ) {
             when (val state = exploreCtaState(request)) {
                 is ExploreCtaState.ViewChat -> {
                     Button(

@@ -396,6 +396,8 @@
     <string name="explore_filter_ski">Ski</string>
     <string name="explore_filter_snowboard">Snowboard</string>
     <string name="explore_detail_screen_title">Lesson request</string>
+    <string name="explore_detail_not_found_title">Request not found</string>
+    <string name="explore_detail_not_found_description">This request may have closed or is no longer available.</string>
     <string name="explore_empty_title">No Lesson Requests Available</string>
     <string name="explore_empty_description">Check back later</string>
     <string name="explore_card_group_size">%1$d people</string>
