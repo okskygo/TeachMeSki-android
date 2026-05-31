@@ -15,6 +15,7 @@ sealed interface Route {
     @Serializable data object LessonRequestWizard : Route
 
     @Serializable data object Explore : Route
+    @Serializable data class ExploreDetail(val id: String) : Route
     @Serializable data object Unlocked : Route
 
     @Serializable data object ChatRoomList : Route
