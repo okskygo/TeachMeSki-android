@@ -58,6 +58,19 @@ class ExploreRepositoryByIdTest {
         assertEquals("lr-1", request.id)
         assertEquals(LessonRequestStatus.ClosedByUser, request.status)
         assertEquals(false, request.isUnlockedByMe)
+        assertEquals(2, request.groupSize)
+    }
+
+    @Test
+    fun `unauthenticated returns Error`() = runTest {
+        val ds = mockk<ExploreDataSource>()
+        val auth = mockk<AuthRepository>()
+        coEvery { auth.currentUserId() } returns null
+        val repo = ExploreRepositoryImpl(ds, auth)
+
+        val result = repo.getLessonRequestById("lr-1")
+
+        assertTrue(result is Resource.Error)
     }
 
     @Test

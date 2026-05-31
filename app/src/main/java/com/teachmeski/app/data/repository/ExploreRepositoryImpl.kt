@@ -108,11 +108,10 @@ class ExploreRepositoryImpl @Inject constructor(
             val chatRoomRows = if (instructorProfileId != null) {
                 exploreDataSource.getChatRoomsForInstructor(instructorProfileId, requestIds)
             } else emptyList()
-            val userRows = exploreDataSource.getUserRows(listOf(raw.userId))
+            val userRow = exploreDataSource.getUserRows(listOf(raw.userId)).firstOrNull()
             val resortNameRows = exploreDataSource.getResortNames(raw.resortIds.distinct())
             val certPrefRows = exploreDataSource.getCertPrefs(requestIds)
 
-            val u = userRows.firstOrNull { it.id == raw.userId }
             val resortNameMap = resortNameRows.associateBy { it.id }
             val resortNames = raw.resortIds.mapNotNull { rid ->
                 resortNameMap[rid]?.let { "${it.nameZh} (${it.nameEn})" }
@@ -120,10 +119,10 @@ class ExploreRepositoryImpl @Inject constructor(
             val baseTokenCost = PricingCalculator.calculateUnlockCost(raw.durationDays, raw.groupSize)
 
             val request = raw.toExploreLessonRequest(
-                isUnlockedByMe = myUnlockRows.any { it.lessonRequestId == raw.id },
-                myChatRoomId = chatRoomRows.firstOrNull { it.lessonRequestId == raw.id }?.id,
-                userDisplayName = u?.displayName ?: "",
-                userAvatarUrl = u?.avatarUrl,
+                isUnlockedByMe = myUnlockRows.isNotEmpty(),
+                myChatRoomId = chatRoomRows.firstOrNull()?.id,
+                userDisplayName = userRow?.displayName ?: "",
+                userAvatarUrl = userRow?.avatarUrl,
                 resortNames = resortNames,
                 baseTokenCost = baseTokenCost,
                 certPreferences = certPrefRows
