@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -91,7 +92,11 @@ fun ExploreDetailScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = TmsColor.Background,
         topBar = {
+            // ExploreDetail is a fullscreen route, so MainActivity's outer
+            // Scaffold zeroes content insets and TmsTopBar zeroes its own —
+            // apply the status-bar inset here so the bar sits below the status bar.
             TmsTopBar(
+                modifier = Modifier.statusBarsPadding(),
                 title = stringResource(R.string.explore_detail_screen_title),
                 onBack = onBack,
             )
