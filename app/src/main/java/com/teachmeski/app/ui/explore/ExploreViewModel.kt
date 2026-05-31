@@ -37,6 +37,10 @@ data class ExploreUiState(
     val unlockSuccessChatRoomId: String? = null,
     /** F-108: when true, render IdentityRequiredDialog instead of unlock dialog. */
     val showIdentityRequired: Boolean = false,
+    /** N-001 deep-link: single request fetched by id when not in `requests`. */
+    val detailFallback: ExploreLessonRequest? = null,
+    val detailLoading: Boolean = false,
+    val detailNotFound: Boolean = false,
 )
 
 @HiltViewModel
@@ -127,6 +131,29 @@ class ExploreViewModel @Inject constructor(
         val s = _uiState.value
         if (s.isLoading || s.isLoadingMore || !s.hasMore) return
         loadPage(s.currentPage + 1)
+    }
+
+    /**
+     * N-001 deep-link: ensure the request behind a tapped push is available to
+     * `ExploreDetailScreen`. No-op if it is already in the feed list or already
+     * fetched; otherwise fetch it by id (works for closed/expired requests via
+     * the broadened RLS).
+     */
+    fun ensureRequestLoaded(id: String) {
+        if (_uiState.value.requests.any { it.id == id }) return
+        if (_uiState.value.detailFallback?.id == id) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(detailLoading = true, detailNotFound = false) }
+            when (val result = exploreRepository.getLessonRequestById(id)) {
+                is Resource.Success -> _uiState.update {
+                    it.copy(detailFallback = result.data, detailLoading = false)
+                }
+                is Resource.Error -> _uiState.update {
+                    it.copy(detailLoading = false, detailNotFound = true)
+                }
+                Resource.Loading -> Unit
+            }
+        }
     }
 
     fun setDisciplineFilter(discipline: String?) {
