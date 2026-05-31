@@ -826,6 +826,7 @@ private fun SlotsPill(remaining: Int, quotaLimit: Int) {
 @Composable
 internal fun ExploreRequestCard(
     request: ExploreLessonRequest,
+    onCardClick: () -> Unit,
     onUnlockClick: () -> Unit,
     onViewChatClick: (String) -> Unit,
 ) {
@@ -842,6 +843,7 @@ internal fun ExploreRequestCard(
     }
 
     Surface(
+        onClick = onCardClick,
         color = TmsColor.SurfaceLowest,
         shape = cardShape,
         shadowElevation = 1.dp,

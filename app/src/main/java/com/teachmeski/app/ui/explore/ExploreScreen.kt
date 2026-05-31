@@ -58,6 +58,7 @@ fun ExploreScreen(
     onNavigateToChat: (String) -> Unit,
     onNavigateToWallet: () -> Unit,
     onNavigateToAccountSettings: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -238,6 +239,7 @@ fun ExploreScreen(
                                 ) { request ->
                                     ExploreRequestCard(
                                         request = request,
+                                        onCardClick = { onNavigateToDetail(request.id) },
                                         onUnlockClick = { viewModel.openUnlockDialog(request) },
                                         onViewChatClick = { roomId -> onNavigateToChat(roomId) },
                                     )
