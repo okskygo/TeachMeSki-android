@@ -11,7 +11,12 @@ sealed interface ExploreCtaState {
     data class ViewChat(val roomId: String) : ExploreCtaState
     data object AlreadyUnlocked : ExploreCtaState
     data class Unlock(val tokenCost: Int) : ExploreCtaState
+
+    /** Active but quota is full — instructor cannot unlock right now. */
     data object SlotsFull : ExploreCtaState
+
+    /** Request is closed/expired — no longer unlockable. */
+    data object Unavailable : ExploreCtaState
 }
 
 fun exploreCtaState(request: ExploreLessonRequest): ExploreCtaState {
@@ -22,6 +27,7 @@ fun exploreCtaState(request: ExploreLessonRequest): ExploreCtaState {
             ExploreCtaState.ViewChat(request.myChatRoomId)
         request.isUnlockedByMe -> ExploreCtaState.AlreadyUnlocked
         isActive && remaining > 0 -> ExploreCtaState.Unlock(request.baseTokenCost)
-        else -> ExploreCtaState.SlotsFull
+        isActive -> ExploreCtaState.SlotsFull
+        else -> ExploreCtaState.Unavailable
     }
 }

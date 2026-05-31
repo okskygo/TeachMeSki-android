@@ -444,6 +444,7 @@
     <string name="explore_card_show_more">Show more</string>
     <string name="explore_card_show_less">Show less</string>
     <string name="explore_card_slots_full">Fully Booked</string>
+    <string name="explore_cta_unavailable">Request unavailable</string>
     <string name="explore_card_remaining_slots_zero">0 slots remaining</string>
     <string name="explore_card_discipline_badge_ski">Ski</string>
     <string name="explore_card_discipline_badge_snowboard">Snowboard</string>

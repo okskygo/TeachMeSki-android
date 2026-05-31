@@ -450,6 +450,7 @@
     <string name="explore_card_show_more">顯示更多</string>
     <string name="explore_card_show_less">收起</string>
     <string name="explore_card_slots_full">名額已滿</string>
+    <string name="explore_cta_unavailable">需求單已關閉</string>
     <string name="explore_card_remaining_slots_zero">剩餘 0 個名額</string>
     <string name="explore_card_discipline_badge_ski">雙板 SKI</string>
     <string name="explore_card_discipline_badge_snowboard">單板 SNOWBOARD</string>

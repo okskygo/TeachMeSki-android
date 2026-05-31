@@ -69,10 +69,24 @@ class ExploreCtaStateTest {
     }
 
     @Test
-    fun inactive_is_SlotsFull() {
+    fun `closed request is Unavailable`() {
         val state = exploreCtaState(
             req(status = LessonRequestStatus.ClosedByUser, quotaLimit = 3, unlockCount = 0),
         )
+        assertEquals(ExploreCtaState.Unavailable, state)
+    }
+
+    @Test
+    fun `expired request is Unavailable`() {
+        val state = exploreCtaState(
+            req(status = LessonRequestStatus.Expired, quotaLimit = 3, unlockCount = 0),
+        )
+        assertEquals(ExploreCtaState.Unavailable, state)
+    }
+
+    @Test
+    fun `active but quota full is still SlotsFull`() {
+        val state = exploreCtaState(req(quotaLimit = 3, unlockCount = 3))
         assertEquals(ExploreCtaState.SlotsFull, state)
     }
 
