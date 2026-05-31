@@ -204,6 +204,27 @@ class ExploreDataSource @Inject constructor(
     }
 
     /**
+     * N-001 push deep-link: fetch a single lesson request by id for the Explore
+     * detail screen when it is not in the in-memory feed list (cold start, not on
+     * page 1, or already closed/expired). No `status` filter — the broadened
+     * `lesson_requests` SELECT RLS decides visibility. Returns null when the row
+     * is absent or RLS hides it.
+     */
+    suspend fun getExploreLessonRequestById(
+        currentUserId: String,
+        requestId: String,
+    ): ExploreRawRequestDto? =
+        supabaseClient.postgrest.from("lesson_requests")
+            .select(
+                columns = Columns.raw(
+                    "id, status, created_at, discipline, skill_level, group_size, has_children, duration_days, date_start, date_end, dates_flexible, languages, additional_notes, equipment_rental, needs_transport, transport_note, quota_limit, unlock_count, all_regions_selected, resort_ids, user_id",
+                ),
+            ) {
+                filter { eq("id", requestId) }
+            }
+            .decodeSingleOrNull<ExploreRawRequestDto>()
+
+    /**
      * Returns the calling instructor's own unlock rows for the given requests.
      *
      * Used only to compute "is_unlocked_by_me" on the explore feed. The global
