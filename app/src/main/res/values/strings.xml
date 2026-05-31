@@ -401,6 +401,7 @@
     <string name="explore_filter_all_disciplines">全部</string>
     <string name="explore_filter_ski">雙板 Ski</string>
     <string name="explore_filter_snowboard">單板 Snowboard</string>
+    <string name="explore_detail_screen_title">課程需求詳情</string>
     <string name="explore_empty_title">目前沒有課程需求</string>
     <string name="explore_empty_description">稍後再來看看吧</string>
     <string name="explore_card_group_size">%1$d 人</string>
