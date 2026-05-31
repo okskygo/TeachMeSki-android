@@ -403,10 +403,29 @@ private fun HandleNotificationDeepLinks(
             val role = currentRole.value
             when (e.event) {
                 NotificationEvents.N_001 -> {
-                    if (role != ActiveRole.Instructor) switchToInstructor.value()
-                    navController.navigate(Route.Explore) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
+                    // New lesson request (instructor). Open the specific request
+                    // detail; keep Explore beneath it so Back returns to the feed.
+                    val requestId = e.requestId
+                    if (role != ActiveRole.Instructor) {
+                        // Cross-role: suppress the role-change graph re-root and
+                        // build InstructorGraph (start dest = Explore) ourselves,
+                        // mirroring the N-002/N-004 chat deep-link pattern.
+                        mainViewModel.suppressGraphNavOnRoleChange = true
+                        switchToInstructor.value()
+                        navController.navigate(Route.InstructorGraph) {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.navigate(Route.Explore) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                        }
+                    }
+                    if (!requestId.isNullOrBlank()) {
+                        navController.navigate(Route.ExploreDetail(requestId)) {
+                            launchSingleTop = true
+                        }
                     }
                 }
                 NotificationEvents.N_002,
