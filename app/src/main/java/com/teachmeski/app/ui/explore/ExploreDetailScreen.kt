@@ -81,6 +81,11 @@ fun ExploreDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val request = uiState.requests.firstOrNull { it.id == requestId }
+        ?: uiState.detailFallback?.takeIf { it.id == requestId }
+
+    LaunchedEffect(requestId) {
+        viewModel.ensureRequestLoaded(requestId)
+    }
 
     LaunchedEffect(uiState.unlockSuccessChatRoomId) {
         val roomId = uiState.unlockSuccessChatRoomId ?: return@LaunchedEffect
@@ -129,7 +134,7 @@ fun ExploreDetailScreen(
                     }
                 }
 
-                uiState.isLoading || uiState.requests.isEmpty() -> {
+                uiState.detailLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
                         color = TmsColor.Primary,
