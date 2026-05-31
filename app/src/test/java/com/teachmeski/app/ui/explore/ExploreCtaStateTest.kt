@@ -75,4 +75,12 @@ class ExploreCtaStateTest {
         )
         assertEquals(ExploreCtaState.SlotsFull, state)
     }
+
+    @Test
+    fun inactive_but_already_unlocked_with_room_is_ViewChat() {
+        val state = exploreCtaState(
+            req(status = LessonRequestStatus.ClosedByUser, isUnlockedByMe = true, myChatRoomId = "room-5"),
+        )
+        assertEquals(ExploreCtaState.ViewChat("room-5"), state)
+    }
 }

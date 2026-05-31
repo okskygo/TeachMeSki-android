@@ -55,6 +55,7 @@ fun NavGraphBuilder.instructorNavGraph(
                 onNavigateToChat = { roomId ->
                     navController.navigate(Route.Chat(roomId))
                 },
+                onNavigateToWallet = { navController.navigate(Route.Wallet) },
                 onNavigateToAccountSettings = {
                     navController.navigate(Route.InstructorAccountSettings)
                 },
