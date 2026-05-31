@@ -152,7 +152,7 @@ private fun skillLevelDescriptionRes(discipline: Discipline, level: Int): Int? {
 }
 
 @Composable
-private fun formatRelativeTime(createdAt: String): String {
+internal fun formatRelativeTime(createdAt: String): String {
     val parsed = parseIsoMillis(createdAt) ?: return stringResource(R.string.explore_time_just_now)
     val now = System.currentTimeMillis()
     val diffMs = (now - parsed).coerceAtLeast(0L)
