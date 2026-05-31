@@ -76,7 +76,6 @@ fun ExploreDetailScreen(
     viewModel: ExploreViewModel,
     onBack: () -> Unit,
     onNavigateToChat: (String) -> Unit,
-    onNavigateToWallet: () -> Unit,
     onNavigateToAccountSettings: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,22 +94,6 @@ fun ExploreDetailScreen(
             TmsTopBar(
                 title = stringResource(R.string.explore_detail_screen_title),
                 onBack = onBack,
-                actions = {
-                    Surface(
-                        color = TmsColor.PrimaryFixed,
-                        shape = RoundedCornerShape(8.dp),
-                        onClick = onNavigateToWallet,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.wallet_tokens_fmt, uiState.tokenBalance),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TmsColor.Primary,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                },
             )
         },
         bottomBar = {
