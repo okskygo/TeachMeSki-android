@@ -140,12 +140,14 @@ class InstructorDataSource @Inject constructor(
     }
 
     suspend fun deletePortfolioImage(profileId: String, imageUrl: String, currentUrls: List<String>) {
-        deleteStorageObject(imageUrl)
         val updated = currentUrls.filter { it != imageUrl }
         supabaseClient.postgrest.from("instructor_profiles")
             .update({ set("portfolio_urls", updated) }) {
                 filter { eq("id", profileId) }
             }
+        // Best-effort cleanup AFTER the DB update — the array is the
+        // source of truth (PRD §5).
+        deleteStorageObject(imageUrl)
     }
 
     // F-117: Certificate review rows (instructor_certificates)
@@ -172,9 +174,12 @@ class InstructorDataSource @Inject constructor(
             .decodeSingle<InstructorCertificateDto>()
 
     suspend fun deleteCertificateRow(certificateId: String, imageUrl: String) {
-        deleteStorageObject(imageUrl)
         supabaseClient.postgrest.from("instructor_certificates")
             .delete { filter { eq("id", certificateId) } }
+        // Best-effort cleanup AFTER the row delete — the row is the
+        // source of truth (PRD §5), and deleting it first lifts the
+        // approved-file storage freeze.
+        deleteStorageObject(imageUrl)
     }
 
     /**
