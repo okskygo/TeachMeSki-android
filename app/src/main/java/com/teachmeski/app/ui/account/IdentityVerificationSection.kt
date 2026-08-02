@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teachmeski.app.R
+import com.teachmeski.app.ui.component.CertifiedBadge
 import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.theme.TmsColor
 
@@ -93,11 +94,17 @@ fun IdentityVerificationSection(
                 color = TmsColor.OnSurface,
                 modifier = Modifier.weight(1f),
             )
-            IdentityVerifiedBadge(
-                verified = state.isVerified,
-                verifiedLabel = stringResource(R.string.identity_verified_label),
-                unverifiedLabel = stringResource(R.string.identity_unverified_label),
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                IdentityVerifiedBadge(
+                    verified = state.isVerified,
+                    verifiedLabel = stringResource(R.string.identity_verified_label),
+                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                )
+                CertifiedBadge(
+                    visible = state.hasVerifiedCertificate,
+                    label = stringResource(R.string.certified_badge_label),
+                )
+            }
         }
 
         if (state.isVerified) {

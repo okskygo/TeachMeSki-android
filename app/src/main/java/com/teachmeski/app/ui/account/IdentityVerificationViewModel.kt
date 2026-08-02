@@ -20,6 +20,8 @@ import kotlinx.coroutines.launch
 
 data class IdentityVerificationState(
     val isVerified: Boolean = false,
+    /** F-117: true when the instructor has at least one approved certificate. Drives the CertifiedBadge TAG. */
+    val hasVerifiedCertificate: Boolean = false,
     val isLoading: Boolean = true,
     /** Set when the section should launch a Custom Tab; cleared by [authorizeUrlConsumed]. */
     val authorizeUrl: String? = null,
@@ -51,11 +53,22 @@ class IdentityVerificationViewModel @Inject constructor(
 
     private fun loadProfile() {
         viewModelScope.launch {
-            val verified = when (val r = instructorRepository.getMyProfile()) {
-                is Resource.Success -> r.data.lineUserId != null
+            val result = instructorRepository.getMyProfile()
+            val verified = when (result) {
+                is Resource.Success -> result.data.lineUserId != null
                 else -> false
             }
-            _state.update { it.copy(isVerified = verified, isLoading = false) }
+            val hasVerifiedCertificate = when (result) {
+                is Resource.Success -> result.data.hasVerifiedCertificate
+                else -> false
+            }
+            _state.update {
+                it.copy(
+                    isVerified = verified,
+                    hasVerifiedCertificate = hasVerifiedCertificate,
+                    isLoading = false,
+                )
+            }
         }
     }
 

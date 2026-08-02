@@ -89,6 +89,7 @@ import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.model.Region
 import com.teachmeski.app.domain.model.SkiResort
 import com.teachmeski.app.ui.account.MAX_DISPLAY_NAME_LENGTH
+import com.teachmeski.app.ui.component.CertifiedBadge
 import com.teachmeski.app.ui.component.IdentityRequiredDialog
 import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.TmsTopBar
@@ -700,20 +701,26 @@ private fun HeaderCard(
                     }
                 }
             }
-            IdentityVerifiedBadge(
-                verified = identityVerified,
-                verifiedLabel = stringResource(R.string.identity_verified_label),
-                unverifiedLabel = stringResource(R.string.identity_unverified_label),
-                modifier =
-                    if (!identityVerified) {
-                        Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) { showVerifyPhoneDialog = true }
-                    } else {
-                        Modifier
-                    },
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                IdentityVerifiedBadge(
+                    verified = identityVerified,
+                    verifiedLabel = stringResource(R.string.identity_verified_label),
+                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                    modifier =
+                        if (!identityVerified) {
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) { showVerifyPhoneDialog = true }
+                        } else {
+                            Modifier
+                        },
+                )
+                CertifiedBadge(
+                    visible = profile.hasVerifiedCertificate,
+                    label = stringResource(R.string.certified_badge_label),
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

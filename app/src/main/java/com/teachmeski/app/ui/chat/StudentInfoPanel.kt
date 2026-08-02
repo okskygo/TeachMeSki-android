@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.BorderStroke
 import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InfoPanelData
+import com.teachmeski.app.ui.component.CertifiedBadge
 import com.teachmeski.app.ui.component.ExpandableText
 import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.UserAvatar
@@ -92,11 +93,17 @@ private fun InstructorHeaderCard(
                     color = TmsColor.OnSurface,
                     fontWeight = FontWeight.SemiBold,
                 )
-                IdentityVerifiedBadge(
-                    verified = data.instructorLineUserId != null,
-                    verifiedLabel = stringResource(R.string.identity_verified_label),
-                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    IdentityVerifiedBadge(
+                        verified = data.instructorLineUserId != null,
+                        verifiedLabel = stringResource(R.string.identity_verified_label),
+                        unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                    )
+                    CertifiedBadge(
+                        visible = data.instructorHasVerifiedCertificate,
+                        label = stringResource(R.string.certified_badge_label),
+                    )
+                }
             }
         }
 

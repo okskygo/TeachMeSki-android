@@ -86,6 +86,7 @@ import com.teachmeski.app.domain.model.EquipmentRental
 import com.teachmeski.app.domain.model.InstructorPreview
 import com.teachmeski.app.domain.model.LessonRequest
 import com.teachmeski.app.domain.model.LessonRequestStatus
+import com.teachmeski.app.ui.component.CertifiedBadge
 import com.teachmeski.app.ui.component.EmptyState
 import com.teachmeski.app.ui.component.IdentityVerifiedBadge
 import com.teachmeski.app.ui.component.TmsTopBar
@@ -1135,11 +1136,17 @@ private fun UnlockedInstructorCard(
                         color = TmsColor.OnSurface,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    IdentityVerifiedBadge(
-                        verified = preview.lineUserId != null,
-                        verifiedLabel = stringResource(R.string.identity_verified_label),
-                        unverifiedLabel = stringResource(R.string.identity_unverified_label),
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        IdentityVerifiedBadge(
+                            verified = preview.lineUserId != null,
+                            verifiedLabel = stringResource(R.string.identity_verified_label),
+                            unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                        )
+                        CertifiedBadge(
+                            visible = preview.hasVerifiedCertificate,
+                            label = stringResource(R.string.certified_badge_label),
+                        )
+                    }
                     Spacer(modifier = Modifier.height(2.dp))
                     StarRatingRow(
                         avg = preview.ratingAvg ?: 0.0,
@@ -1210,11 +1217,17 @@ private fun RecommendedInstructorCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                IdentityVerifiedBadge(
-                    verified = preview.lineUserId != null,
-                    verifiedLabel = stringResource(R.string.identity_verified_label),
-                    unverifiedLabel = stringResource(R.string.identity_unverified_label),
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    IdentityVerifiedBadge(
+                        verified = preview.lineUserId != null,
+                        verifiedLabel = stringResource(R.string.identity_verified_label),
+                        unverifiedLabel = stringResource(R.string.identity_unverified_label),
+                    )
+                    CertifiedBadge(
+                        visible = preview.hasVerifiedCertificate,
+                        label = stringResource(R.string.certified_badge_label),
+                    )
+                }
                 Spacer(modifier = Modifier.height(2.dp))
                 StarRatingRow(
                     avg = preview.ratingAvg ?: 0.0,

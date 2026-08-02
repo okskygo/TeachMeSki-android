@@ -167,8 +167,17 @@ private fun SuccessContent(bundle: InstructorDetailBundle) {
         }
         item { DetailPricingSection(profile.priceHalfDay, profile.priceFullDay) }
         item { DetailServicesSection(profile.offersTransport, profile.offersPhotography) }
-        if (profile.certificateUrls.isNotEmpty()) {
-            item { DetailCertificatesSection(profile.certificateUrls) }
+        if (profile.portfolioUrls.isNotEmpty()) {
+            item { DetailCertificatesSection(profile.portfolioUrls, R.string.instructor_detail_portfolio_title, 8) }
+        }
+        if (bundle.approvedCertificates.isNotEmpty()) {
+            item {
+                DetailCertificatesSection(
+                    bundle.approvedCertificates.map { it.imageUrl },
+                    R.string.instructor_detail_certificates_title,
+                    4,
+                )
+            }
         }
     }
 }

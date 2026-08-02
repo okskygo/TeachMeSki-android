@@ -27,13 +27,17 @@ import coil3.compose.AsyncImage
 import com.teachmeski.app.R
 
 @Composable
-fun DetailCertificatesSection(certificates: List<String>) {
+fun DetailCertificatesSection(
+    certificates: List<String>,
+    titleRes: Int,
+    maxShown: Int,
+) {
     if (certificates.isEmpty()) return
-    val shown = certificates.take(8)
+    val shown = certificates.take(maxShown)
     var lightboxIndex by remember { mutableStateOf<Int?>(null) }
 
     SectionCard {
-        SectionLabel(text = stringResource(R.string.instructor_detail_certificates_title))
+        SectionLabel(text = stringResource(titleRes))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 4.dp),
