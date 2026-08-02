@@ -55,6 +55,8 @@ data class InstructorProfileUiState(
     val saveError: UiText? = null,
     val saveSuccess: Boolean = false,
     val openDialog: ProfileEditDialog = ProfileEditDialog.None,
+    val isUploadingPortfolio: Boolean = false,
+    val uploadPortfolioError: UiText? = null,
     val isUploadingCert: Boolean = false,
     val uploadCertError: UiText? = null,
 )
@@ -189,21 +191,21 @@ class InstructorProfileViewModel @Inject constructor(
             if (count >= MAX_PORTFOLIO_IMAGES) {
                 _uiState.update {
                     it.copy(
-                        uploadCertError = UiText.StringResource(R.string.instructor_profile_portfolio_limit),
+                        uploadPortfolioError = UiText.StringResource(R.string.instructor_profile_portfolio_limit),
                     )
                 }
                 return@launch
             }
-            _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
+            _uiState.update { it.copy(isUploadingPortfolio = true, uploadPortfolioError = null) }
             when (val result = instructorRepository.uploadPortfolioImage(bytes, contentType)) {
                 is Resource.Error -> {
                     _uiState.update {
-                        it.copy(isUploadingCert = false, uploadCertError = result.message)
+                        it.copy(isUploadingPortfolio = false, uploadPortfolioError = result.message)
                     }
                 }
                 is Resource.Loading -> Unit
                 is Resource.Success -> {
-                    _uiState.update { it.copy(isUploadingCert = false) }
+                    _uiState.update { it.copy(isUploadingPortfolio = false) }
                     load()
                 }
             }
@@ -212,16 +214,16 @@ class InstructorProfileViewModel @Inject constructor(
 
     fun deletePortfolio(url: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
+            _uiState.update { it.copy(isUploadingPortfolio = true, uploadPortfolioError = null) }
             when (val result = instructorRepository.deletePortfolioImage(url)) {
                 is Resource.Error -> {
                     _uiState.update {
-                        it.copy(isUploadingCert = false, uploadCertError = result.message)
+                        it.copy(isUploadingPortfolio = false, uploadPortfolioError = result.message)
                     }
                 }
                 is Resource.Loading -> Unit
                 is Resource.Success -> {
-                    _uiState.update { it.copy(isUploadingCert = false) }
+                    _uiState.update { it.copy(isUploadingPortfolio = false) }
                     load()
                 }
             }
@@ -274,6 +276,10 @@ class InstructorProfileViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun clearUploadPortfolioError() {
+        _uiState.update { it.copy(uploadPortfolioError = null) }
     }
 
     fun clearUploadCertError() {

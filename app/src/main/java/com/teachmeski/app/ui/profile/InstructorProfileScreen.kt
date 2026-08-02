@@ -106,6 +106,9 @@ private const val SITE_BASE_URL = "https://www.teachmeski.com"
 
 private enum class UploadTarget { Portfolio, Certificate }
 
+private const val MAX_PORTFOLIO_IMAGES_UI = 8
+private const val MAX_CERTIFICATE_IMAGES_UI = 4
+
 private val certificationOptionIds = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "other")
 
 @Composable
@@ -182,6 +185,12 @@ fun InstructorProfileScreen(
             snackbarHostState.showSnackbar(err.toMessage(context))
             viewModel.clearSaveError()
         }
+    }
+
+    LaunchedEffect(state.uploadPortfolioError) {
+        val err = state.uploadPortfolioError ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(err.toMessage(context))
+        viewModel.clearUploadPortfolioError()
     }
 
     LaunchedEffect(state.uploadCertError) {
@@ -433,7 +442,7 @@ fun InstructorProfileScreen(
                     }
                     PortfolioSection(
                         urls = profile.portfolioUrls,
-                        isBusy = state.isUploadingCert,
+                        isBusy = state.isUploadingPortfolio,
                         onAdd = {
                             pendingUploadTarget = UploadTarget.Portfolio
                             certPicker.launch("image/*")
@@ -1000,11 +1009,22 @@ private fun PortfolioSection(
         tonalElevation = 1.dp,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.instructor_profile_portfolio_label),
-                style = MaterialTheme.typography.titleMedium,
-                color = TmsColor.OnSurface,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    text = stringResource(R.string.instructor_profile_portfolio_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TmsColor.OnSurface,
+                )
+                Text(
+                    text = "${urls.size}/$MAX_PORTFOLIO_IMAGES_UI",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TmsColor.Outline,
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.instructor_profile_portfolio_limit),
@@ -1052,30 +1072,32 @@ private fun PortfolioSection(
                         }
                     }
                 }
-                Box(
-                    modifier =
-                        Modifier
-                            .width(96.dp)
-                            .height(120.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(TmsColor.SurfaceLow)
-                            .clickable(
-                                enabled = !isBusy && urls.size < 8,
-                                onClick = onAdd,
-                            ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (isBusy) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(32.dp),
-                            color = TmsColor.Primary,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = stringResource(R.string.instructor_profile_certs_upload),
-                            tint = TmsColor.Primary,
-                        )
+                if (urls.size < MAX_PORTFOLIO_IMAGES_UI) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .width(96.dp)
+                                .height(120.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(TmsColor.SurfaceLow)
+                                .clickable(
+                                    enabled = !isBusy,
+                                    onClick = onAdd,
+                                ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (isBusy) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = TmsColor.Primary,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.instructor_profile_certs_upload),
+                                tint = TmsColor.Primary,
+                            )
+                        }
                     }
                 }
             }
@@ -1122,11 +1144,22 @@ private fun CertificatesSection(
         tonalElevation = 1.dp,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.instructor_profile_certificates_label),
-                style = MaterialTheme.typography.titleMedium,
-                color = TmsColor.OnSurface,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    text = stringResource(R.string.instructor_profile_certificates_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TmsColor.OnSurface,
+                )
+                Text(
+                    text = "${certificates.size}/$MAX_CERTIFICATE_IMAGES_UI",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TmsColor.Outline,
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.instructor_profile_certificates_limit),
@@ -1187,30 +1220,32 @@ private fun CertificatesSection(
                         }
                     }
                 }
-                Box(
-                    modifier =
-                        Modifier
-                            .width(96.dp)
-                            .height(120.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(TmsColor.SurfaceLow)
-                            .clickable(
-                                enabled = !isBusy && certificates.size < 4,
-                                onClick = onAdd,
-                            ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (isBusy) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(32.dp),
-                            color = TmsColor.Primary,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = stringResource(R.string.instructor_profile_certs_upload),
-                            tint = TmsColor.Primary,
-                        )
+                if (certificates.size < MAX_CERTIFICATE_IMAGES_UI) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .width(96.dp)
+                                .height(120.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(TmsColor.SurfaceLow)
+                                .clickable(
+                                    enabled = !isBusy,
+                                    onClick = onAdd,
+                                ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (isBusy) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = TmsColor.Primary,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.instructor_profile_certs_upload),
+                                tint = TmsColor.Primary,
+                            )
+                        }
                     }
                 }
             }
