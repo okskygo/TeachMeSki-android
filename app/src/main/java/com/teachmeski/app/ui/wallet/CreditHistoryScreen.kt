@@ -34,7 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -264,8 +264,7 @@ fun CreditHistoryScreen(
 private fun TransactionRow(
     transaction: TokenTransaction,
 ) {
-    val context = LocalContext.current
-    val locale = context.resources.configuration.locales[0]
+    val locale = LocalConfiguration.current.locales[0]
     val dateLabel = formatTransactionDate(iso = transaction.createdAt, locale = locale)
     val typeLabel = stringResource(
         resolveTransactionLabelRes(transaction.type, transaction.referenceType),

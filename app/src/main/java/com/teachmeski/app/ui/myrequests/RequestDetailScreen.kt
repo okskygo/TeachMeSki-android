@@ -71,6 +71,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -106,12 +107,13 @@ fun RequestDetailScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val resources = LocalResources.current
     var showCloseDialog by remember { mutableStateOf(false) }
     var showExpandConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.closeSuccess) {
         if (state.closeSuccess) {
-            snackbarHostState.showSnackbar(context.getString(R.string.request_detail_close_success))
+            snackbarHostState.showSnackbar(resources.getString(R.string.request_detail_close_success))
             viewModel.consumeCloseSuccess()
         }
     }
@@ -128,7 +130,7 @@ fun RequestDetailScreen(
     LaunchedEffect(expandToast) {
         if (expandToast != null) {
             val message = when (expandToast) {
-                is UiText.StringResource -> context.getString(
+                is UiText.StringResource -> resources.getString(
                     expandToast.resId,
                     *expandToast.args.toTypedArray(),
                 )
