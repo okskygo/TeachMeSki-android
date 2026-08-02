@@ -471,8 +471,8 @@ fun InstructorProfileScreen(
         portfolioPendingDelete?.let { url ->
             AlertDialog(
                 onDismissRequest = { portfolioPendingDelete = null },
-                title = { Text(stringResource(R.string.instructor_profile_delete_cert_title)) },
-                text = { Text(stringResource(R.string.instructor_profile_delete_cert_message)) },
+                title = { Text(stringResource(R.string.instructor_profile_delete_portfolio_title)) },
+                text = { Text(stringResource(R.string.instructor_profile_delete_portfolio_message)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -1047,11 +1047,16 @@ private fun PortfolioSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                urls.forEach { url ->
+                urls.forEachIndexed { index, url ->
                     Box {
                         AsyncImage(
                             model = url,
-                            contentDescription = null,
+                            contentDescription =
+                                stringResource(
+                                    R.string.instructor_profile_portfolio_photo_cd_fmt,
+                                    index + 1,
+                                    urls.size,
+                                ),
                             contentScale = ContentScale.Crop,
                             modifier =
                                 Modifier
@@ -1072,7 +1077,12 @@ private fun PortfolioSection(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Close,
-                                contentDescription = stringResource(R.string.instructor_profile_cert_delete_cd),
+                                contentDescription =
+                                    stringResource(
+                                        R.string.instructor_profile_portfolio_delete_cd_fmt,
+                                        index + 1,
+                                        urls.size,
+                                    ),
                                 tint = TmsColor.OnPrimary,
                                 modifier = Modifier.size(16.dp),
                             )
@@ -1101,7 +1111,7 @@ private fun PortfolioSection(
                         } else {
                             Icon(
                                 imageVector = Icons.Filled.Add,
-                                contentDescription = stringResource(R.string.instructor_profile_certs_upload),
+                                contentDescription = stringResource(R.string.instructor_profile_portfolio_upload),
                                 tint = TmsColor.Primary,
                             )
                         }
@@ -1188,11 +1198,16 @@ private fun CertificatesSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                certificates.forEach { cert ->
+                certificates.forEachIndexed { index, cert ->
                     Box {
                         AsyncImage(
                             model = cert.imageUrl,
-                            contentDescription = null,
+                            contentDescription =
+                                stringResource(
+                                    R.string.instructor_profile_cert_photo_cd_fmt,
+                                    index + 1,
+                                    certificates.size,
+                                ),
                             contentScale = ContentScale.Crop,
                             modifier =
                                 Modifier
@@ -1220,7 +1235,12 @@ private fun CertificatesSection(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Close,
-                                contentDescription = stringResource(R.string.instructor_profile_cert_delete_cd),
+                                contentDescription =
+                                    stringResource(
+                                        R.string.instructor_profile_cert_delete_cd_fmt,
+                                        index + 1,
+                                        certificates.size,
+                                    ),
                                 tint = TmsColor.OnPrimary,
                                 modifier = Modifier.size(16.dp),
                             )
