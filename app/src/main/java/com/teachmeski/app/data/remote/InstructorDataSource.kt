@@ -128,7 +128,8 @@ class InstructorDataSource @Inject constructor(
     /** Shared upload for portfolio (`folder = "portfolio"`) and certificate (`folder = "certificates"`) images. */
     suspend fun uploadImage(userId: String, bytes: ByteArray, contentType: String, folder: String): String {
         val ext = if (contentType == "image/png") "png" else "jpg"
-        val filename = "${System.currentTimeMillis()}.$ext"
+        // SEC-CERT-001: random filename so public-bucket paths are unguessable
+        val filename = "${UUID.randomUUID()}.$ext"
         val path = "$userId/$folder/$filename"
         val bucket = supabaseClient.storage.from("avatars")
         val parsedType = ContentType.parse(contentType)
