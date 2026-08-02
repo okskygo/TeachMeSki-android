@@ -18,7 +18,13 @@ data class InstructorProfile(
     val offersTransport: Boolean,
     val offersPhotography: Boolean,
     val isAcceptingRequests: Boolean,
-    val certificateUrls: List<String>,
+    /** F-117 free-form portfolio images (instant public, max 8). */
+    val portfolioUrls: List<String>,
+    /**
+     * F-117 trigger-maintained flag: true when the instructor has at
+     * least one approved certificate. Drives the CertifiedBadge TAG.
+     */
+    val hasVerifiedCertificate: Boolean,
     val ratingAvg: Double?,
     val ratingCount: Int,
     val viewCount: Int,

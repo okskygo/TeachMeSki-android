@@ -3,6 +3,7 @@ package com.teachmeski.app.data.repository
 import com.teachmeski.app.R
 import com.teachmeski.app.data.model.toDomain
 import com.teachmeski.app.data.remote.InstructorDataSource
+import com.teachmeski.app.domain.model.InstructorCertificate
 import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
@@ -77,28 +78,69 @@ class InstructorRepositoryImpl @Inject constructor(
         Resource.Error(UiText.StringResource(R.string.error_update_profile))
     }
 
-    override suspend fun uploadCertificate(bytes: ByteArray, contentType: String): Resource<String> = try {
+    override suspend fun getMyCertificates(): Resource<List<InstructorCertificate>> = try {
         val userId = authRepository.currentUserId()
             ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
-        val url = instructorDataSource.uploadCertificate(userId, bytes, contentType)
-        val dto = instructorDataSource.getProfileByUserId(userId)
-            ?: return Resource.Error(UiText.StringResource(R.string.error_no_instructor_profile))
-        val updated = dto.certificateUrls + url
-        instructorDataSource.updateProfile(dto.id, mapOf("certificate_urls" to updated))
-        Resource.Success(url)
+        val dtos = instructorDataSource.getCertificates(userId, approvedOnly = false)
+        Resource.Success(dtos.map { it.toDomain() })
+    } catch (e: Exception) {
+        Resource.Error(UiText.StringResource(R.string.error_load_instructor_profile))
+    }
+
+    override suspend fun getApprovedCertificates(userId: String): Resource<List<InstructorCertificate>> = try {
+        val dtos = instructorDataSource.getCertificates(userId, approvedOnly = true)
+        Resource.Success(dtos.map { it.toDomain() })
+    } catch (e: Exception) {
+        Resource.Error(UiText.StringResource(R.string.error_load_instructor_profile))
+    }
+
+    override suspend fun uploadCertificateImage(bytes: ByteArray, contentType: String): Resource<InstructorCertificate> = try {
+        val userId = authRepository.currentUserId()
+            ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
+        val url = instructorDataSource.uploadImage(userId, bytes, contentType, folder = "certificates")
+        try {
+            val dto = instructorDataSource.insertCertificate(userId, url)
+            Resource.Success(dto.toDomain())
+        } catch (e: Exception) {
+            // Roll back the uploaded file when the row insert fails.
+            instructorDataSource.deleteStorageObject(url)
+            throw e
+        }
     } catch (e: Exception) {
         Resource.Error(UiText.StringResource(R.string.error_upload_certificate))
     }
 
-    override suspend fun deleteCertificate(imageUrl: String): Resource<Unit> = try {
+    override suspend fun deleteCertificate(id: String, imageUrl: String): Resource<Unit> = try {
+        val userId = authRepository.currentUserId()
+            ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
+        instructorDataSource.deleteCertificateRow(id, imageUrl)
+        Resource.Success(Unit)
+    } catch (e: Exception) {
+        Resource.Error(UiText.StringResource(R.string.error_delete_certificate))
+    }
+
+    override suspend fun uploadPortfolioImage(bytes: ByteArray, contentType: String): Resource<String> = try {
+        val userId = authRepository.currentUserId()
+            ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
+        val url = instructorDataSource.uploadImage(userId, bytes, contentType, folder = "portfolio")
+        val dto = instructorDataSource.getProfileByUserId(userId)
+            ?: return Resource.Error(UiText.StringResource(R.string.error_no_instructor_profile))
+        val updated = dto.portfolioUrls + url
+        instructorDataSource.updateProfile(dto.id, mapOf("portfolio_urls" to updated))
+        Resource.Success(url)
+    } catch (e: Exception) {
+        Resource.Error(UiText.StringResource(R.string.error_upload_portfolio))
+    }
+
+    override suspend fun deletePortfolioImage(imageUrl: String): Resource<Unit> = try {
         val userId = authRepository.currentUserId()
             ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
         val dto = instructorDataSource.getProfileByUserId(userId)
             ?: return Resource.Error(UiText.StringResource(R.string.error_no_instructor_profile))
-        instructorDataSource.deleteCertificate(dto.id, userId, imageUrl, dto.certificateUrls)
+        instructorDataSource.deletePortfolioImage(dto.id, imageUrl, dto.portfolioUrls)
         Resource.Success(Unit)
     } catch (e: Exception) {
-        Resource.Error(UiText.StringResource(R.string.error_delete_certificate))
+        Resource.Error(UiText.StringResource(R.string.error_delete_portfolio))
     }
 
     override suspend fun createProfile(

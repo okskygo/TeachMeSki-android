@@ -1,5 +1,6 @@
 package com.teachmeski.app.domain.repository
 
+import com.teachmeski.app.domain.model.InstructorCertificate
 import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.util.Resource
 
@@ -8,8 +9,24 @@ interface InstructorRepository {
     suspend fun getProfileByShortId(shortId: String): Resource<InstructorProfile>
     suspend fun updateProfile(updates: Map<String, Any?>): Resource<Unit>
     suspend fun toggleAcceptingRequests(isAccepting: Boolean): Resource<Unit>
-    suspend fun uploadCertificate(bytes: ByteArray, contentType: String): Resource<String>
-    suspend fun deleteCertificate(imageUrl: String): Resource<Unit>
+
+    /** F-117: the signed-in instructor's own certificates, all statuses, oldest first. */
+    suspend fun getMyCertificates(): Resource<List<InstructorCertificate>>
+
+    /** F-117: approved certificates of any instructor (public detail page). */
+    suspend fun getApprovedCertificates(userId: String): Resource<List<InstructorCertificate>>
+
+    /** F-117: upload a certificate image and INSERT a pending `instructor_certificates` row. Client-side limit is 4. */
+    suspend fun uploadCertificateImage(bytes: ByteArray, contentType: String): Resource<InstructorCertificate>
+
+    /** F-117: delete a certificate row (owner-only) + best-effort storage removal. */
+    suspend fun deleteCertificate(id: String, imageUrl: String): Resource<Unit>
+
+    /** F-117: upload a portfolio image, append to `portfolio_urls`. */
+    suspend fun uploadPortfolioImage(bytes: ByteArray, contentType: String): Resource<String>
+
+    /** F-117: remove a portfolio image URL + best-effort storage removal. */
+    suspend fun deletePortfolioImage(imageUrl: String): Resource<Unit>
     suspend fun createProfile(
         discipline: String,
         teachableLevels: List<Int>,

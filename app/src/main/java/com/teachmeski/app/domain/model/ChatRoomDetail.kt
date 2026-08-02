@@ -62,6 +62,8 @@ sealed class InfoPanelData {
         val instructorRatingCount: Int,
         val instructorBio: String?,
         val instructorLineUserId: String?,
+        /** F-117: true when the instructor has at least one approved certificate. Drives the CertifiedBadge TAG. */
+        val instructorHasVerifiedCertificate: Boolean = false,
         val instructorId: String,
         val instructorUserId: String,
         val isReviewed: Boolean,

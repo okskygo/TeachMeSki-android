@@ -122,6 +122,8 @@
     <string name="error_update_profile">Failed to update profile</string>
     <string name="error_upload_certificate">Failed to upload certificate</string>
     <string name="error_delete_certificate">Failed to delete certificate</string>
+    <string name="error_upload_portfolio">Failed to upload portfolio photo</string>
+    <string name="error_delete_portfolio">Failed to delete portfolio photo</string>
     <string name="error_create_instructor_profile">Failed to create instructor profile</string>
     <string name="error_load_explore">Failed to load explore requests</string>
     <string name="error_load_unlocked">Failed to load unlocked lessons</string>

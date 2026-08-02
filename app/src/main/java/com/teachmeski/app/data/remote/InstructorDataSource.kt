@@ -1,11 +1,13 @@
 package com.teachmeski.app.data.remote
 
+import com.teachmeski.app.data.model.InstructorCertificateDto
 import com.teachmeski.app.data.model.InstructorProfileDto
 import com.teachmeski.app.data.model.SkiResortDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.storage
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -123,10 +125,11 @@ class InstructorDataSource @Inject constructor(
             }
     }
 
-    suspend fun uploadCertificate(userId: String, bytes: ByteArray, contentType: String): String {
+    /** Shared upload for portfolio (`folder = "portfolio"`) and certificate (`folder = "certificates"`) images. */
+    suspend fun uploadImage(userId: String, bytes: ByteArray, contentType: String, folder: String): String {
         val ext = if (contentType == "image/png") "png" else "jpg"
         val filename = "${System.currentTimeMillis()}.$ext"
-        val path = "$userId/certificates/$filename"
+        val path = "$userId/$folder/$filename"
         val bucket = supabaseClient.storage.from("avatars")
         val parsedType = ContentType.parse(contentType)
         bucket.upload(path, bytes) {
@@ -136,8 +139,51 @@ class InstructorDataSource @Inject constructor(
         return bucket.publicUrl(path)
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    suspend fun deleteCertificate(profileId: String, userId: String, imageUrl: String, currentUrls: List<String>) {
+    suspend fun deletePortfolioImage(profileId: String, imageUrl: String, currentUrls: List<String>) {
+        deleteStorageObject(imageUrl)
+        val updated = currentUrls.filter { it != imageUrl }
+        supabaseClient.postgrest.from("instructor_profiles")
+            .update({ set("portfolio_urls", updated) }) {
+                filter { eq("id", profileId) }
+            }
+    }
+
+    // F-117: Certificate review rows (instructor_certificates)
+
+    suspend fun getCertificates(userId: String, approvedOnly: Boolean): List<InstructorCertificateDto> =
+        supabaseClient.postgrest.from("instructor_certificates")
+            .select {
+                filter {
+                    eq("user_id", userId)
+                    if (approvedOnly) eq("status", "approved")
+                }
+                order("created_at", Order.ASCENDING)
+            }
+            .decodeList<InstructorCertificateDto>()
+
+    suspend fun insertCertificate(userId: String, imageUrl: String): InstructorCertificateDto =
+        supabaseClient.postgrest.from("instructor_certificates")
+            .insert(
+                buildJsonObject {
+                    put("user_id", userId)
+                    put("image_url", imageUrl)
+                },
+            ) { select() }
+            .decodeSingle<InstructorCertificateDto>()
+
+    suspend fun deleteCertificateRow(certificateId: String, imageUrl: String) {
+        deleteStorageObject(imageUrl)
+        supabaseClient.postgrest.from("instructor_certificates")
+            .delete { filter { eq("id", certificateId) } }
+    }
+
+    /**
+     * Best-effort storage removal shared by [deletePortfolioImage] and
+     * [deleteCertificateRow], and by the upload-rollback path in
+     * `InstructorRepositoryImpl` when an `instructor_certificates` INSERT
+     * fails after the file has already landed in storage.
+     */
+    suspend fun deleteStorageObject(imageUrl: String) {
         val prefix = "/storage/v1/object/public/avatars/"
         val idx = imageUrl.indexOf(prefix)
         if (idx != -1) {
@@ -147,11 +193,6 @@ class InstructorDataSource @Inject constructor(
             } catch (_: Exception) {
             }
         }
-        val updated = currentUrls.filter { it != imageUrl }
-        supabaseClient.postgrest.from("instructor_profiles")
-            .update({ set("certificate_urls", updated) }) {
-                filter { eq("id", profileId) }
-            }
     }
 
     suspend fun updateDisplayName(userId: String, displayName: String) {

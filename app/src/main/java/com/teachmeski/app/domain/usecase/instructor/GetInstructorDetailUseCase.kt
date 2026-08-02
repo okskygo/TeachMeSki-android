@@ -35,10 +35,23 @@ class GetInstructorDetailUseCase @Inject constructor(
         val grouped = groupResortsByRegion(allRegions, dto.resortIds)
         val resortNames = grouped.flatMap { it.resorts }.map { "${it.nameZh} (${it.nameEn})" }
 
+        // F-117: approved certificates power the public detail page's
+        // CertificatesSection. A failure here should not sink the whole
+        // profile load — treat it as "no certificates" and let the
+        // section hide.
+        val approvedCertificates = try {
+            instructorDataSource.getCertificates(dto.userId, approvedOnly = true).map { it.toDomain() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            emptyList()
+        }
+
         return DetailLoadResult.Ok(
             InstructorDetailBundle(
                 profile = dto.toDomain(resortNames = resortNames),
                 resortsByRegion = grouped,
+                approvedCertificates = approvedCertificates,
             ),
         )
     }

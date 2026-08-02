@@ -23,6 +23,7 @@ fun ChatRoomPreviewDto.toInstructorPreview(
         ratingAvg = profile?.ratingAvg,
         ratingCount = profile?.ratingCount ?: 0,
         lineUserId = profile?.lineUserId,
+        hasVerifiedCertificate = profile?.hasVerifiedCertificate ?: false,
         shortId = profile?.shortId,
         section = section,
         lastMessageContent = lastMessageContent,

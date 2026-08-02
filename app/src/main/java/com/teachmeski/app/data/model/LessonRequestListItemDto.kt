@@ -39,4 +39,5 @@ data class InstructorProfilePreviewDto(
     @SerialName("rating_avg") val ratingAvg: Double? = null,
     @SerialName("rating_count") val ratingCount: Int = 0,
     @SerialName("line_user_id") val lineUserId: String? = null,
+    @SerialName("has_verified_certificate") val hasVerifiedCertificate: Boolean = false,
 )

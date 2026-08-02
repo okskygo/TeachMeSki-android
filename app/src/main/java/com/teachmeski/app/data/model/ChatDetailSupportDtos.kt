@@ -39,6 +39,7 @@ data class InstructorProfileDetailDto(
     @SerialName("rating_count") val ratingCount: Int = 0,
     val bio: String? = null,
     @SerialName("line_user_id") val lineUserId: String? = null,
+    @SerialName("has_verified_certificate") val hasVerifiedCertificate: Boolean = false,
 )
 
 @Serializable

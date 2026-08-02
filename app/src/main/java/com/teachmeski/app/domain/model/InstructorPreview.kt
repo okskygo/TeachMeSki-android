@@ -14,6 +14,8 @@ data class InstructorPreview(
     val ratingCount: Int = 0,
     /** F-108: non-null = LINE identity verified. */
     val lineUserId: String? = null,
+    /** F-117: true when the instructor has at least one approved certificate. Drives the CertifiedBadge TAG. */
+    val hasVerifiedCertificate: Boolean = false,
     val shortId: String? = null,
     val section: InstructorSection = InstructorSection.UserInitiated,
     val lastMessageContent: String? = null,

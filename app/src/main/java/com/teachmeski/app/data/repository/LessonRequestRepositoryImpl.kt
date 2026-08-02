@@ -200,6 +200,7 @@ class LessonRequestRepositoryImpl @Inject constructor(
                 ratingAvg = dto.ratingAvg,
                 ratingCount = dto.ratingCount,
                 lineUserId = dto.lineUserId,
+                hasVerifiedCertificate = dto.hasVerifiedCertificate,
                 shortId = dto.shortId,
             )
         }

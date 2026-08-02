@@ -196,6 +196,7 @@ class ChatRepositoryImpl @Inject constructor(
                     instructorRatingCount = instructor.ratingCount,
                     instructorBio = instructor.bio,
                     instructorLineUserId = instructor.lineUserId,
+                    instructorHasVerifiedCertificate = instructor.hasVerifiedCertificate,
                     instructorId = room.instructorId,
                     instructorUserId = instructor.userId,
                     isReviewed = isReviewed,
