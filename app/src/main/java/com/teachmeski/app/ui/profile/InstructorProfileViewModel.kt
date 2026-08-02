@@ -14,17 +14,20 @@ import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.ResortRepository
 import com.teachmeski.app.domain.repository.UserRepository
+import com.teachmeski.app.util.ImageNormalizer
 import com.teachmeski.app.util.Resource
 import com.teachmeski.app.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import kotlin.math.max
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val MAX_ORIGINAL_BYTES = 10 * 1024 * 1024
 private const val MAX_DIMENSION = 1024
@@ -197,7 +200,15 @@ class InstructorProfileViewModel @Inject constructor(
                 return@launch
             }
             _uiState.update { it.copy(isUploadingPortfolio = true, uploadPortfolioError = null) }
-            when (val result = instructorRepository.uploadPortfolioImage(bytes, contentType)) {
+            // M-IMG-001: HEIC/oversized originals → JPEG ≤2048px/≤4MB (bucket
+            // only accepts image/jpeg + image/png).
+            val normalized = withContext(Dispatchers.Default) {
+                ImageNormalizer.normalizeToJpeg(bytes, contentType)
+            }
+            when (
+                val result =
+                    instructorRepository.uploadPortfolioImage(normalized.bytes, normalized.contentType)
+            ) {
                 is Resource.Error -> {
                     _uiState.update {
                         it.copy(isUploadingPortfolio = false, uploadPortfolioError = result.message)
@@ -242,7 +253,15 @@ class InstructorProfileViewModel @Inject constructor(
                 return@launch
             }
             _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
-            when (val result = instructorRepository.uploadCertificateImage(bytes, contentType)) {
+            // M-IMG-001: HEIC/oversized originals → JPEG ≤2048px/≤4MB (bucket
+            // only accepts image/jpeg + image/png).
+            val normalized = withContext(Dispatchers.Default) {
+                ImageNormalizer.normalizeToJpeg(bytes, contentType)
+            }
+            when (
+                val result =
+                    instructorRepository.uploadCertificateImage(normalized.bytes, normalized.contentType)
+            ) {
                 is Resource.Error -> {
                     _uiState.update {
                         it.copy(isUploadingCert = false, uploadCertError = result.message)
