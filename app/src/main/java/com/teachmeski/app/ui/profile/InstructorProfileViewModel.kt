@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.InstructorCertificate
 import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.model.Region
 import com.teachmeski.app.domain.repository.AuthRepository
@@ -28,7 +29,8 @@ import kotlinx.coroutines.launch
 private const val MAX_ORIGINAL_BYTES = 10 * 1024 * 1024
 private const val MAX_DIMENSION = 1024
 private const val TARGET_UPLOAD_BYTES = 1024 * 1024
-private const val MAX_CERTIFICATE_IMAGES = 8
+private const val MAX_PORTFOLIO_IMAGES = 8
+private const val MAX_CERTIFICATE_IMAGES = 4
 
 enum class ProfileEditDialog {
     None,
@@ -46,6 +48,7 @@ enum class ProfileEditDialog {
 data class InstructorProfileUiState(
     val profile: InstructorProfile? = null,
     val regions: List<Region> = emptyList(),
+    val certificates: List<InstructorCertificate> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: UiText? = null,
@@ -97,10 +100,16 @@ class InstructorProfileViewModel @Inject constructor(
                             is Resource.Success -> r.data
                             else -> emptyList()
                         }
+                    val certificates =
+                        when (val c = instructorRepository.getMyCertificates()) {
+                            is Resource.Success -> c.data
+                            else -> emptyList()
+                        }
                     _uiState.update {
                         it.copy(
                             profile = profileResult.data,
                             regions = regions,
+                            certificates = certificates,
                             isLoading = false,
                             error = null,
                         )
@@ -174,19 +183,19 @@ class InstructorProfileViewModel @Inject constructor(
         }
     }
 
-    fun uploadCertificate(bytes: ByteArray, contentType: String) {
+    fun uploadPortfolio(bytes: ByteArray, contentType: String) {
         viewModelScope.launch {
-            val count = _uiState.value.profile?.certificateUrls?.size ?: 0
-            if (count >= MAX_CERTIFICATE_IMAGES) {
+            val count = _uiState.value.profile?.portfolioUrls?.size ?: 0
+            if (count >= MAX_PORTFOLIO_IMAGES) {
                 _uiState.update {
                     it.copy(
-                        uploadCertError = UiText.StringResource(R.string.instructor_profile_cert_limit),
+                        uploadCertError = UiText.StringResource(R.string.instructor_profile_portfolio_limit),
                     )
                 }
                 return@launch
             }
             _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
-            when (val result = instructorRepository.uploadCertificate(bytes, contentType)) {
+            when (val result = instructorRepository.uploadPortfolioImage(bytes, contentType)) {
                 is Resource.Error -> {
                     _uiState.update {
                         it.copy(isUploadingCert = false, uploadCertError = result.message)
@@ -201,10 +210,58 @@ class InstructorProfileViewModel @Inject constructor(
         }
     }
 
-    fun deleteCertificate(url: String) {
+    fun deletePortfolio(url: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
-            when (val result = instructorRepository.deleteCertificate(url)) {
+            when (val result = instructorRepository.deletePortfolioImage(url)) {
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(isUploadingCert = false, uploadCertError = result.message)
+                    }
+                }
+                is Resource.Loading -> Unit
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isUploadingCert = false) }
+                    load()
+                }
+            }
+        }
+    }
+
+    fun uploadCertificate(bytes: ByteArray, contentType: String) {
+        viewModelScope.launch {
+            val count = _uiState.value.certificates.size
+            if (count >= MAX_CERTIFICATE_IMAGES) {
+                _uiState.update {
+                    it.copy(
+                        uploadCertError = UiText.StringResource(R.string.instructor_profile_certificates_limit),
+                    )
+                }
+                return@launch
+            }
+            _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
+            when (val result = instructorRepository.uploadCertificateImage(bytes, contentType)) {
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(isUploadingCert = false, uploadCertError = result.message)
+                    }
+                }
+                is Resource.Loading -> Unit
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isUploadingCert = false) }
+                    load()
+                }
+            }
+        }
+    }
+
+    fun deleteCertificate(certificate: InstructorCertificate) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUploadingCert = true, uploadCertError = null) }
+            when (
+                val result =
+                    instructorRepository.deleteCertificate(certificate.id, certificate.imageUrl)
+            ) {
                 is Resource.Error -> {
                     _uiState.update {
                         it.copy(isUploadingCert = false, uploadCertError = result.message)

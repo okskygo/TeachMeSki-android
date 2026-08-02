@@ -592,6 +592,16 @@
     <string name="instructor_profile_share">分享</string>
     <string name="instructor_profile_delete_cert_title">刪除證照</string>
     <string name="instructor_profile_delete_cert_message">確定要刪除此證照圖片嗎？此操作無法復原。</string>
+    <string name="certified_badge_label">滑雪教練證書</string>
+    <string name="instructor_profile_portfolio_label">作品集</string>
+    <string name="instructor_profile_portfolio_limit">最多 8 張</string>
+    <string name="instructor_profile_certificates_label">證書</string>
+    <string name="instructor_profile_certificates_limit">最多 4 張</string>
+    <string name="instructor_profile_cert_review_hint">上傳後需人工審核，通過後才會公開顯示</string>
+    <string name="cert_status_pending">審核中</string>
+    <string name="cert_status_approved">已通過</string>
+    <string name="cert_status_rejected">未通過</string>
+    <string name="instructor_detail_portfolio_title">作品集</string>
     <string name="instructor_profile_level_0">初學者</string>
     <string name="instructor_profile_level_1">初學進階</string>
     <string name="instructor_profile_level_2">中級</string>
@@ -945,7 +955,7 @@
     <string name="instructor_detail_service_photography">滑雪攝影</string>
     <string name="instructor_detail_service_yes">有提供</string>
     <string name="instructor_detail_service_no">無</string>
-    <string name="instructor_detail_certificates_title">作品集 / 證書</string>
+    <string name="instructor_detail_certificates_title">證書</string>
     <string name="instructor_detail_rating_count_fmt">%1$d 則評價</string>
     <string name="instructor_detail_error_generic">發生錯誤，請稍後再試</string>
     <string name="instructor_detail_error_not_found">找不到此教練</string>

@@ -77,11 +77,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.CertificateStatus
 import com.teachmeski.app.domain.model.Discipline
+import com.teachmeski.app.domain.model.InstructorCertificate
 import com.teachmeski.app.domain.model.InstructorProfile
 import com.teachmeski.app.domain.model.Region
 import com.teachmeski.app.domain.model.SkiResort
@@ -100,6 +103,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val SITE_BASE_URL = "https://www.teachmeski.com"
+
+private enum class UploadTarget { Portfolio, Certificate }
 
 private val certificationOptionIds = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "other")
 
@@ -159,7 +164,9 @@ fun InstructorProfileScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var certPendingDelete by remember { mutableStateOf<String?>(null) }
+    var portfolioPendingDelete by remember { mutableStateOf<String?>(null) }
+    var certPendingDeleteCert by remember { mutableStateOf<InstructorCertificate?>(null) }
+    var pendingUploadTarget by remember { mutableStateOf(UploadTarget.Portfolio) }
     val saveSuccessMessage = stringResource(R.string.account_save_success)
 
     LaunchedEffect(state.saveSuccess) {
@@ -208,7 +215,10 @@ fun InstructorProfileScreen(
                 if (bytes != null && bytes.isNotEmpty()) {
                     val payload = bytes
                     withContext(Dispatchers.Main) {
-                        viewModel.uploadCertificate(payload, mime)
+                        when (pendingUploadTarget) {
+                            UploadTarget.Portfolio -> viewModel.uploadPortfolio(payload, mime)
+                            UploadTarget.Certificate -> viewModel.uploadCertificate(payload, mime)
+                        }
                     }
                 }
             }
@@ -421,11 +431,23 @@ fun InstructorProfileScreen(
                             offersPhotography = profile.offersPhotography,
                         )
                     }
-                    CertificatesSection(
-                        urls = profile.certificateUrls,
+                    PortfolioSection(
+                        urls = profile.portfolioUrls,
                         isBusy = state.isUploadingCert,
-                        onAdd = { certPicker.launch("image/*") },
-                        onRequestDelete = { certPendingDelete = it },
+                        onAdd = {
+                            pendingUploadTarget = UploadTarget.Portfolio
+                            certPicker.launch("image/*")
+                        },
+                        onRequestDelete = { portfolioPendingDelete = it },
+                    )
+                    CertificatesSection(
+                        certificates = state.certificates,
+                        isBusy = state.isUploadingCert,
+                        onAdd = {
+                            pendingUploadTarget = UploadTarget.Certificate
+                            certPicker.launch("image/*")
+                        },
+                        onRequestDelete = { certPendingDeleteCert = it },
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -436,16 +458,16 @@ fun InstructorProfileScreen(
 
     val profile = state.profile
     if (profile != null) {
-        certPendingDelete?.let { url ->
+        portfolioPendingDelete?.let { url ->
             AlertDialog(
-                onDismissRequest = { certPendingDelete = null },
+                onDismissRequest = { portfolioPendingDelete = null },
                 title = { Text(stringResource(R.string.instructor_profile_delete_cert_title)) },
                 text = { Text(stringResource(R.string.instructor_profile_delete_cert_message)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.deleteCertificate(url)
-                            certPendingDelete = null
+                            viewModel.deletePortfolio(url)
+                            portfolioPendingDelete = null
                         },
                         colors =
                             ButtonDefaults.textButtonColors(
@@ -456,7 +478,33 @@ fun InstructorProfileScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { certPendingDelete = null }) {
+                    TextButton(onClick = { portfolioPendingDelete = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                },
+            )
+        }
+        certPendingDeleteCert?.let { cert ->
+            AlertDialog(
+                onDismissRequest = { certPendingDeleteCert = null },
+                title = { Text(stringResource(R.string.instructor_profile_delete_cert_title)) },
+                text = { Text(stringResource(R.string.instructor_profile_delete_cert_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteCertificate(cert)
+                            certPendingDeleteCert = null
+                        },
+                        colors =
+                            ButtonDefaults.textButtonColors(
+                                contentColor = TmsColor.Error,
+                            ),
+                    ) {
+                        Text(stringResource(R.string.common_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { certPendingDeleteCert = null }) {
                         Text(stringResource(R.string.common_cancel))
                     }
                 },
@@ -939,7 +987,7 @@ private fun ResortsGroupedDisplay(
 }
 
 @Composable
-private fun CertificatesSection(
+private fun PortfolioSection(
     urls: List<String>,
     isBusy: Boolean,
     onAdd: () -> Unit,
@@ -953,13 +1001,13 @@ private fun CertificatesSection(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = stringResource(R.string.instructor_profile_certs_label),
+                text = stringResource(R.string.instructor_profile_portfolio_label),
                 style = MaterialTheme.typography.titleMedium,
                 color = TmsColor.OnSurface,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.instructor_profile_cert_limit),
+                text = stringResource(R.string.instructor_profile_portfolio_limit),
                 style = MaterialTheme.typography.bodySmall,
                 color = TmsColor.OnSurfaceVariant,
             )
@@ -1013,6 +1061,141 @@ private fun CertificatesSection(
                             .background(TmsColor.SurfaceLow)
                             .clickable(
                                 enabled = !isBusy && urls.size < 8,
+                                onClick = onAdd,
+                            ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (isBusy) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            color = TmsColor.Primary,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.instructor_profile_certs_upload),
+                            tint = TmsColor.Primary,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CertStatusChip(status: CertificateStatus, modifier: Modifier = Modifier) {
+    val (labelRes, tint) =
+        when (status) {
+            CertificateStatus.PENDING -> R.string.cert_status_pending to TmsColor.Warning
+            CertificateStatus.APPROVED -> R.string.cert_status_approved to TmsColor.Success
+            CertificateStatus.REJECTED -> R.string.cert_status_rejected to TmsColor.Error
+        }
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(4.dp),
+        color = TmsColor.SurfaceLowest.copy(alpha = 0.95f),
+        border = BorderStroke(1.dp, tint.copy(alpha = 0.5f)),
+    ) {
+        Text(
+            text = stringResource(labelRes),
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium,
+            color = tint,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+        )
+    }
+}
+
+@Composable
+private fun CertificatesSection(
+    certificates: List<InstructorCertificate>,
+    isBusy: Boolean,
+    onAdd: () -> Unit,
+    onRequestDelete: (InstructorCertificate) -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = TmsColor.SurfaceLowest,
+        tonalElevation = 1.dp,
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(R.string.instructor_profile_certificates_label),
+                style = MaterialTheme.typography.titleMedium,
+                color = TmsColor.OnSurface,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.instructor_profile_certificates_limit),
+                style = MaterialTheme.typography.bodySmall,
+                color = TmsColor.OnSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = stringResource(R.string.instructor_profile_cert_review_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = TmsColor.OnSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                certificates.forEach { cert ->
+                    Box {
+                        AsyncImage(
+                            model = cert.imageUrl,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier =
+                                Modifier
+                                    .width(96.dp)
+                                    .height(120.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                        )
+                        CertStatusChip(
+                            status = cert.status,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(4.dp),
+                        )
+                        Box(
+                            modifier =
+                                Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(4.dp)
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(TmsColor.Error)
+                                    .clickable(onClick = { onRequestDelete(cert) }),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.instructor_profile_cert_delete_cd),
+                                tint = TmsColor.OnPrimary,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier =
+                        Modifier
+                            .width(96.dp)
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(TmsColor.SurfaceLow)
+                            .clickable(
+                                enabled = !isBusy && certificates.size < 4,
                                 onClick = onAdd,
                             ),
                     contentAlignment = Alignment.Center,
