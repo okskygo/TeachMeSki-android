@@ -53,6 +53,7 @@ private fun certDisplayLabel(code: String): String = when (code) {
     "NZSIA" -> stringResource(R.string.instructor_wizard_step4_cert_NZSIA)
     "PSIA" -> stringResource(R.string.instructor_wizard_step4_cert_PSIA)
     "SIA_Japan", "SIA-Japan" -> stringResource(R.string.instructor_wizard_step4_cert_SIA_Japan)
+    "AADIDESS" -> stringResource(R.string.instructor_wizard_step4_cert_AADIDESS)
     "other" -> stringResource(R.string.instructor_wizard_step4_cert_other)
     else -> code
 }

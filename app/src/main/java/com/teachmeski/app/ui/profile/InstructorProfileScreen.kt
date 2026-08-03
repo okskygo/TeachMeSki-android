@@ -110,7 +110,7 @@ private enum class UploadTarget { Portfolio, Certificate }
 private const val MAX_PORTFOLIO_IMAGES_UI = 8
 private const val MAX_CERTIFICATE_IMAGES_UI = 4
 
-private val certificationOptionIds = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "other")
+private val certificationOptionIds = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "AADIDESS", "other")
 
 @Composable
 private fun certificationLabelRes(id: String): Int =
@@ -120,6 +120,7 @@ private fun certificationLabelRes(id: String): Int =
         "NZSIA" -> R.string.instructor_wizard_step4_cert_NZSIA
         "PSIA" -> R.string.instructor_wizard_step4_cert_PSIA
         "SIA_Japan" -> R.string.instructor_wizard_step4_cert_SIA_Japan
+        "AADIDESS" -> R.string.instructor_wizard_step4_cert_AADIDESS
         "other" -> R.string.instructor_wizard_step4_cert_other
         else -> R.string.instructor_wizard_step4_cert_other
     }

@@ -690,6 +690,7 @@
     <string name="instructor_wizard_step4_cert_NZSIA">NZSIA</string>
     <string name="instructor_wizard_step4_cert_PSIA">PSIA</string>
     <string name="instructor_wizard_step4_cert_SIA_Japan">SIA Japan</string>
+    <string name="instructor_wizard_step4_cert_AADIDESS">AADIDESS</string>
     <string name="instructor_wizard_step4_cert_other">其他</string>
     <string name="instructor_wizard_step4_other_placeholder">請輸入證照名稱</string>
     <string name="instructor_wizard_step5_heading">個人檔案</string>

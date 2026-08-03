@@ -22,7 +22,7 @@ import com.teachmeski.app.ui.instructorwizard.InstructorWizardUiState
 import com.teachmeski.app.ui.theme.TmsColor
 
 internal val instructorWizardCertificationIds =
-    listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "other")
+    listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "AADIDESS", "other")
 
 private fun certificationLabelRes(id: String): Int =
     when (id) {
@@ -31,6 +31,7 @@ private fun certificationLabelRes(id: String): Int =
         "NZSIA" -> R.string.instructor_wizard_step4_cert_NZSIA
         "PSIA" -> R.string.instructor_wizard_step4_cert_PSIA
         "SIA_Japan" -> R.string.instructor_wizard_step4_cert_SIA_Japan
+        "AADIDESS" -> R.string.instructor_wizard_step4_cert_AADIDESS
         "other" -> R.string.instructor_wizard_step4_cert_other
         else -> R.string.instructor_wizard_step4_cert_other
     }
