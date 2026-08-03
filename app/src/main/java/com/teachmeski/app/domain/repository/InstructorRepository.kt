@@ -2,6 +2,7 @@ package com.teachmeski.app.domain.repository
 
 import com.teachmeski.app.domain.model.InstructorCertificate
 import com.teachmeski.app.domain.model.InstructorProfile
+import com.teachmeski.app.domain.model.ReferralSubmissionError
 import com.teachmeski.app.util.Resource
 
 interface InstructorRepository {
@@ -27,6 +28,15 @@ interface InstructorRepository {
 
     /** F-117: remove a portfolio image URL + best-effort storage removal. */
     suspend fun deletePortfolioImage(imageUrl: String): Resource<Unit>
+    /**
+     * F-116: `referralCode` is the optional code the new instructor typed in
+     * during onboarding (submitted via `submit_referral_code` RPC after the
+     * profile row is created). `Resource.Success(null)` means the profile
+     * was created fine and either no code was entered or it was accepted;
+     * a non-null [ReferralSubmissionError] means the profile still succeeded
+     * but the referral code itself was rejected — surfaced as a muted,
+     * non-blocking notice on the wizard's Success phase (FR-116-010).
+     */
     suspend fun createProfile(
         discipline: String,
         teachableLevels: List<Int>,
@@ -40,6 +50,7 @@ interface InstructorRepository {
         priceFullDay: Int?,
         offersTransport: Boolean,
         offersPhotography: Boolean,
-    ): Resource<Unit>
+        referralCode: String?,
+    ): Resource<ReferralSubmissionError?>
     suspend fun checkProfileExists(): Resource<Boolean>
 }

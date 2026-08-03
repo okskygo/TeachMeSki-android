@@ -11,6 +11,7 @@ import com.teachmeski.app.data.repository.LessonRequestRepositoryImpl
 import com.teachmeski.app.data.repository.LineBindingRepositoryImpl
 import com.teachmeski.app.data.repository.ResortRepositoryImpl
 import com.teachmeski.app.data.repository.UserRepositoryImpl
+import com.teachmeski.app.data.repository.ReferralRepositoryImpl
 import com.teachmeski.app.data.repository.ReportRepositoryImpl
 import com.teachmeski.app.data.repository.ReviewRepositoryImpl
 import com.teachmeski.app.data.repository.UserActivityRepositoryImpl
@@ -26,6 +27,7 @@ import com.teachmeski.app.domain.repository.LessonRequestRepository
 import com.teachmeski.app.domain.repository.LineBindingRepository
 import com.teachmeski.app.domain.repository.ResortRepository
 import com.teachmeski.app.domain.repository.UserRepository
+import com.teachmeski.app.domain.repository.ReferralRepository
 import com.teachmeski.app.domain.repository.ReportRepository
 import com.teachmeski.app.domain.repository.ReviewRepository
 import com.teachmeski.app.domain.repository.UserActivityRepository
@@ -100,4 +102,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserActivityRepository(impl: UserActivityRepositoryImpl): UserActivityRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReferralRepository(impl: ReferralRepositoryImpl): ReferralRepository
 }

@@ -16,6 +16,8 @@ data class InstructorProfileData(
     val priceFullDay: Int?,
     val offersTransport: Boolean,
     val offersPhotography: Boolean,
+    /** F-116: referral code typed in during onboarding, submitted after signup completes. */
+    val referralCode: String?,
 )
 
 @Singleton

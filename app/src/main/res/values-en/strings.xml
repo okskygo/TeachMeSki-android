@@ -644,6 +644,11 @@
     <string name="instructor_wizard_checking_profile">Checking instructor profile…</string>
     <string name="instructor_wizard_complete_celebration_title">You\'re all set!</string>
     <string name="instructor_wizard_complete_bonus_granted">Welcome bonus granted — 500 credits</string>
+    <string name="instructor_wizard_referral_failed_notice_fmt">Note: your referral code was not applied (%1$s). This does not affect your account.</string>
+    <string name="instructor_wizard_referral_reason_invalid_code">code not found</string>
+    <string name="instructor_wizard_referral_reason_self_referral">you cannot use your own code</string>
+    <string name="instructor_wizard_referral_reason_already_referred">this account has already used a referral code</string>
+    <string name="instructor_wizard_referral_reason_generic">temporary system issue</string>
     <string name="instructor_wizard_complete_start_exploring">Start exploring</string>
     <string name="instructor_wizard_step7_error_invalid_price">Enter valid numbers for pricing</string>
     <string name="instructor_wizard_nav_skip">Skip</string>
@@ -688,6 +693,9 @@
     <string name="instructor_wizard_step5_bio_placeholder">e.g., 5 years of teaching experience, specializing in building confidence for beginners. Patient and adaptive teaching style.</string>
     <string name="instructor_wizard_step5_bio_error_too_long">Bio must be 2,000 characters or fewer</string>
     <string name="instructor_wizard_step5_bio_hint">This appears on your instructor profile to help students get to know you</string>
+    <string name="instructor_wizard_step5_referral_label">Referral code (optional)</string>
+    <string name="instructor_wizard_step5_referral_placeholder">6-digit code</string>
+    <string name="instructor_wizard_step5_referral_hint">Got a referral code from an instructor friend? Enter it here.</string>
     <string name="instructor_wizard_step6_heading">Teaching Languages</string>
     <string name="instructor_wizard_step6_subheading">Select the languages you can teach in (multiple OK)</string>
     <string name="instructor_wizard_step6_lang_zh">Chinese</string>

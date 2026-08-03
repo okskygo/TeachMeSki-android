@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
+import com.teachmeski.app.domain.model.ReferralSubmissionError
 import com.teachmeski.app.ui.theme.TmsColor
 
 @Composable
@@ -32,6 +33,7 @@ fun CompleteStep(
     profileAlreadyExists: Boolean,
     onStartExploring: () -> Unit,
     modifier: Modifier = Modifier,
+    referralError: ReferralSubmissionError? = null,
 ) {
     Column(
         modifier =
@@ -82,6 +84,22 @@ fun CompleteStep(
             )
         }
 
+        // F-116 FR-116-010: non-blocking, muted notice — the account/profile
+        // itself is fine, only the referral-code attribution failed, so this
+        // must never read as an error (no error-red, no alert styling).
+        referralError?.let { error ->
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(
+                    R.string.instructor_wizard_referral_failed_notice_fmt,
+                    stringResource(referralReasonRes(error)),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = TmsColor.Outline,
+                textAlign = TextAlign.Center,
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
@@ -91,4 +109,11 @@ fun CompleteStep(
             Text(text = stringResource(R.string.instructor_wizard_complete_start_exploring))
         }
     }
+}
+
+private fun referralReasonRes(error: ReferralSubmissionError): Int = when (error) {
+    ReferralSubmissionError.INVALID_CODE -> R.string.instructor_wizard_referral_reason_invalid_code
+    ReferralSubmissionError.SELF_REFERRAL -> R.string.instructor_wizard_referral_reason_self_referral
+    ReferralSubmissionError.ALREADY_REFERRED -> R.string.instructor_wizard_referral_reason_already_referred
+    ReferralSubmissionError.GENERIC -> R.string.instructor_wizard_referral_reason_generic
 }

@@ -119,6 +119,7 @@ fun InstructorWizardScreen(
         state.phase == InstructorWizardPhase.Success -> {
             CompleteStep(
                 profileAlreadyExists = state.profileAlreadyExists,
+                referralError = state.referralError,
                 onStartExploring = {
                     if (state.profileAlreadyExists) {
                         onAlreadyInstructor()
@@ -308,6 +309,7 @@ private fun InstructorWizardStepsScaffold(
                             state = state,
                             onDisplayNameChange = viewModel::setDisplayName,
                             onBioChange = viewModel::setBio,
+                            onReferralCodeChange = viewModel::setReferralCode,
                         )
                     6 ->
                         LanguagesStep(

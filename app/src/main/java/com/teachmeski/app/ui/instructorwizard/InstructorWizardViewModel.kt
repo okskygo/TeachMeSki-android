@@ -7,6 +7,7 @@ import com.teachmeski.app.R
 import com.teachmeski.app.domain.model.InstructorProfileData
 import com.teachmeski.app.domain.model.PendingInstructorProfile
 import com.teachmeski.app.domain.model.Region
+import com.teachmeski.app.domain.model.ReferralSubmissionError
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.domain.repository.ResortRepository
@@ -47,8 +48,12 @@ data class InstructorWizardUiState(
     val priceFullDay: String = "",
     val offersTransport: Boolean = false,
     val offersPhotography: Boolean = false,
+    /** F-116: optional referral code (digits only, max 6) typed in on Step 5. */
+    val referralCode: String = "",
     val isSubmitting: Boolean = false,
     val submitError: UiText? = null,
+    /** F-116: non-blocking outcome of the referral code submission, shown on the Success phase. */
+    val referralError: ReferralSubmissionError? = null,
     val isCheckingProfile: Boolean = true,
     val profileAlreadyExists: Boolean = false,
     val isGuestMode: Boolean = false,
@@ -327,6 +332,11 @@ class InstructorWizardViewModel @Inject constructor(
         _uiState.update { it.copy(bio = value) }
     }
 
+    /** F-116: digits only, max 6 characters (matches `instructor_profiles.referral_code`). */
+    fun setReferralCode(value: String) {
+        _uiState.update { it.copy(referralCode = value.filter { ch -> ch.isDigit() }.take(6)) }
+    }
+
     fun toggleLanguage(code: String) {
         _uiState.update { s ->
             if (code in s.languages) {
@@ -411,6 +421,7 @@ class InstructorWizardViewModel @Inject constructor(
                 priceFullDay = s.priceFullDay.trim().toIntOrNull(),
                 offersTransport = s.offersTransport,
                 offersPhotography = s.offersPhotography,
+                referralCode = s.referralCode.ifBlank { null },
             ),
         )
     }
@@ -572,6 +583,7 @@ class InstructorWizardViewModel @Inject constructor(
                         priceFullDay = full,
                         offersTransport = s.offersTransport,
                         offersPhotography = s.offersPhotography,
+                        referralCode = s.referralCode.ifBlank { null },
                     )
             ) {
                 is Resource.Success -> {
@@ -580,6 +592,7 @@ class InstructorWizardViewModel @Inject constructor(
                             isSubmitting = false,
                             phase = InstructorWizardPhase.Success,
                             submitError = null,
+                            referralError = result.data,
                         )
                     }
                 }

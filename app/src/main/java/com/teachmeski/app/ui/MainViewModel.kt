@@ -135,8 +135,19 @@ class MainViewModel @Inject constructor(
                         priceFullDay = data.priceFullDay,
                         offersTransport = data.offersTransport,
                         offersPhotography = data.offersPhotography,
+                        referralCode = data.referralCode,
                     )
             ) {
+                // F-116: `result.data` (a `ReferralSubmissionError?`) is intentionally
+                // dropped here rather than surfaced as a wizard notice. By the time this
+                // flush runs, `SessionStatus.Authenticated` has already fired and
+                // `AuthenticatedApp`'s graph-re-root `LaunchedEffect` (MainActivity)
+                // navigates straight to `Route.InstructorGraph` — the guest wizard's
+                // `InstructorWizardScreen`/`InstructorWizardViewModel` (and its
+                // Success-phase `CompleteStep`) is popped off the back stack before
+                // this coroutine resumes, so there is no wizard UI left to show the
+                // referral-failed notice to. Only the non-guest `submit()` path (an
+                // already-authenticated user adding the instructor role) can render it.
                 is Resource.Success ->
                     Log.d("MainViewModel", "Created instructor profile from pending wizard data")
                 is Resource.Error ->

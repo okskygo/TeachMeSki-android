@@ -649,6 +649,11 @@
     <string name="instructor_wizard_checking_profile">檢查教練檔案中…</string>
     <string name="instructor_wizard_complete_celebration_title">恭喜完成註冊！</string>
     <string name="instructor_wizard_complete_bonus_granted">歡迎獎勵已發放（500 點）</string>
+    <string name="instructor_wizard_referral_failed_notice_fmt">提醒：你填寫的推薦碼未生效（%1$s），不影響你的帳號。</string>
+    <string name="instructor_wizard_referral_reason_invalid_code">查無此推薦碼</string>
+    <string name="instructor_wizard_referral_reason_self_referral">不能使用自己的推薦碼</string>
+    <string name="instructor_wizard_referral_reason_already_referred">此帳號已使用過推薦碼</string>
+    <string name="instructor_wizard_referral_reason_generic">系統暫時無法處理</string>
     <string name="instructor_wizard_complete_start_exploring">開始使用</string>
     <string name="instructor_wizard_step7_error_invalid_price">請輸入有效的價格數字</string>
     <string name="instructor_wizard_nav_skip">跳過</string>
@@ -693,6 +698,9 @@
     <string name="instructor_wizard_step5_bio_placeholder">例如：擁有 5 年教學經驗，擅長帶初學者從零開始建立信心。教學風格耐心細緻，會根據學員程度調整節奏。</string>
     <string name="instructor_wizard_step5_bio_error_too_long">自我介紹最多 2000 個字元</string>
     <string name="instructor_wizard_step5_bio_hint">這些資訊會顯示在您的教練頁面，幫助學員了解您</string>
+    <string name="instructor_wizard_step5_referral_label">推薦碼（選填）</string>
+    <string name="instructor_wizard_step5_referral_placeholder">6 碼數字</string>
+    <string name="instructor_wizard_step5_referral_hint">有教練朋友推薦你嗎？填入他的推薦碼。</string>
     <string name="instructor_wizard_step6_heading">教學語言</string>
     <string name="instructor_wizard_step6_subheading">選擇您可以使用的教學語言（可複選）</string>
     <string name="instructor_wizard_step6_lang_zh">中文</string>

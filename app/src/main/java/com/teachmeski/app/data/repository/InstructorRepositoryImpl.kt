@@ -3,8 +3,10 @@ package com.teachmeski.app.data.repository
 import com.teachmeski.app.R
 import com.teachmeski.app.data.model.toDomain
 import com.teachmeski.app.data.remote.InstructorDataSource
+import com.teachmeski.app.data.remote.ReferralDataSource
 import com.teachmeski.app.domain.model.InstructorCertificate
 import com.teachmeski.app.domain.model.InstructorProfile
+import com.teachmeski.app.domain.model.ReferralSubmissionError
 import com.teachmeski.app.domain.repository.AuthRepository
 import com.teachmeski.app.domain.repository.InstructorRepository
 import com.teachmeski.app.util.Resource
@@ -16,6 +18,7 @@ import javax.inject.Singleton
 class InstructorRepositoryImpl @Inject constructor(
     private val instructorDataSource: InstructorDataSource,
     private val authRepository: AuthRepository,
+    private val referralDataSource: ReferralDataSource,
 ) : InstructorRepository {
 
     override suspend fun getMyProfile(): Resource<InstructorProfile> = try {
@@ -156,7 +159,8 @@ class InstructorRepositoryImpl @Inject constructor(
         priceFullDay: Int?,
         offersTransport: Boolean,
         offersPhotography: Boolean,
-    ): Resource<Unit> = try {
+        referralCode: String?,
+    ): Resource<ReferralSubmissionError?> = try {
         val userId = authRepository.currentUserId()
             ?: return Resource.Error(UiText.StringResource(R.string.auth_error_not_authenticated))
         instructorDataSource.createProfile(
@@ -169,7 +173,15 @@ class InstructorRepositoryImpl @Inject constructor(
         )
         instructorDataSource.updateUserRole(userId, "both")
         try { instructorDataSource.grantWelcomeBonus() } catch (_: Exception) {}
-        Resource.Success(Unit)
+        var referralError: ReferralSubmissionError? = null
+        if (!referralCode.isNullOrBlank()) {
+            try {
+                referralDataSource.submitReferralCode(referralCode)
+            } catch (e: Exception) {
+                referralError = ReferralSubmissionError.fromErrorCode(e.message)
+            }
+        }
+        Resource.Success(referralError)
     } catch (e: Exception) {
         Resource.Error(UiText.StringResource(R.string.error_create_instructor_profile))
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.teachmeski.app.R
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardUiState
@@ -22,6 +24,7 @@ fun ProfileStep(
     state: InstructorWizardUiState,
     onDisplayNameChange: (String) -> Unit,
     onBioChange: (String) -> Unit,
+    onReferralCodeChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val nameTooLong = state.displayName.length > 50
@@ -70,6 +73,18 @@ fun ProfileStep(
                 },
             minLines = 5,
             maxLines = 8,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        // F-116: shown in both guest and logged-in modes — either signup path
+        // can attribute the new instructor to a referrer.
+        OutlinedTextField(
+            value = state.referralCode,
+            onValueChange = onReferralCodeChange,
+            label = { Text(stringResource(R.string.instructor_wizard_step5_referral_label)) },
+            placeholder = { Text(stringResource(R.string.instructor_wizard_step5_referral_placeholder)) },
+            supportingText = { Text(stringResource(R.string.instructor_wizard_step5_referral_hint)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
     }
