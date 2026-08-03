@@ -556,6 +556,7 @@
     <string name="instructor_account_wallet_entry">我的點數</string>
     <string name="instructor_account_profile_entry">教練檔案</string>
     <string name="instructor_account_settings_entry">帳號設定</string>
+    <string name="instructor_account_referral_entry">推薦碼</string>
     <string name="instructor_account_user_id_label">使用者 ID</string>
     <string name="instructor_account_switch_to_student">切換為學員</string>
     <string name="instructor_account_become_instructor">成為教練</string>
@@ -1016,4 +1017,17 @@
          identity_not_verified; the ViewModel intercepts this and
          shows IdentityRequiredDialog instead of rendering the text. -->
     <string name="error_identity_not_verified">需要先完成身分驗證</string>
+
+    <!-- F-116 Referral program: ReferralScreen (mirrors teachmeski-web/content/zh-TW/referral.json) -->
+    <string name="referral_title">推薦碼</string>
+    <string name="referral_code_section_label">我的推薦碼</string>
+    <string name="referral_share_button">分享推薦碼</string>
+    <string name="referral_share_text_fmt">歡迎使用我的推薦碼 %1$s 加入教我滑雪，一起在日本教滑雪！https://teachmeski.com/for-instructors</string>
+    <string name="referral_rules_title">推薦獎勵怎麼拿？</string>
+    <string name="referral_rules_body_fmt">好友在註冊成為教練時填入你的推薦碼，並且他的教練證書通過人工審核後，你將獲得 %1$d 點。獎勵金額以好友填寫推薦碼當下的活動為準。</string>
+    <string name="referral_rules_note">證書通過審核是發放點數的唯一條件；僅註冊尚未通過審核不會發放。</string>
+    <string name="referral_campaign_title">限時加碼中</string>
+    <string name="referral_campaign_body_fmt">現在推薦成功每位可獲得 %1$d 點（原 %2$d 點）</string>
+    <string name="referral_campaign_deadline_fmt">活動至 %1$s 止</string>
+    <string name="error_load_referral">無法載入推薦資訊</string>
 </resources>

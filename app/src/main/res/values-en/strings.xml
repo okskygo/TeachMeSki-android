@@ -550,6 +550,7 @@
     <string name="instructor_account_wallet_entry">My Credits</string>
     <string name="instructor_account_profile_entry">Instructor Profile</string>
     <string name="instructor_account_settings_entry">Account Settings</string>
+    <string name="instructor_account_referral_entry">Referral Code</string>
     <string name="instructor_account_user_id_label">User ID</string>
     <string name="instructor_account_switch_to_student">Switch to Student</string>
     <string name="instructor_account_become_instructor">Become an Instructor</string>
@@ -1016,4 +1017,17 @@
     <string name="identity_bind_required_modal_cta">Bind now</string>
     <string name="identity_bind_required_modal_cancel">Cancel</string>
     <string name="error_identity_not_verified">Identity verification required</string>
+
+    <!-- F-116 Referral program: ReferralScreen (mirrors teachmeski-web/content/en/referral.json) -->
+    <string name="referral_title">Referral Code</string>
+    <string name="referral_code_section_label">My referral code</string>
+    <string name="referral_share_button">Share my code</string>
+    <string name="referral_share_text_fmt">Join TeachMeSki with my referral code %1$s and teach skiing in Japan! https://teachmeski.com/for-instructors</string>
+    <string name="referral_rules_title">How do I earn the reward?</string>
+    <string name="referral_rules_body_fmt">When a friend enters your code while registering as an instructor and their instructor certificate passes manual review, you receive %1$d tokens. The reward amount is locked in when your friend enters the code.</string>
+    <string name="referral_rules_note">Certificate approval is the only payout condition — registration alone does not pay out.</string>
+    <string name="referral_campaign_title">Limited-time boost</string>
+    <string name="referral_campaign_body_fmt">Earn %1$d tokens per successful referral (normally %2$d)</string>
+    <string name="referral_campaign_deadline_fmt">Campaign ends %1$s</string>
+    <string name="error_load_referral">Couldn\'t load referral info.</string>
 </resources>

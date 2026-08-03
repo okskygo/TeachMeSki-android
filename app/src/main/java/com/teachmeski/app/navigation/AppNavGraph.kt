@@ -24,6 +24,7 @@ import com.teachmeski.app.ui.component.TmsTopBar
 import com.teachmeski.app.ui.instructorwizard.InstructorWizardScreen
 import com.teachmeski.app.ui.profile.detail.InstructorDetailScreen
 import com.teachmeski.app.ui.profile.InstructorProfileScreen
+import com.teachmeski.app.ui.referral.ReferralScreen
 import com.teachmeski.app.ui.chat.ChatScreen
 import com.teachmeski.app.ui.wallet.CreditHistoryScreen
 import com.teachmeski.app.ui.wallet.WalletScreen
@@ -84,6 +85,11 @@ fun AppNavGraph(
         }
         composable<Route.InstructorDetail> {
             InstructorDetailScreen(
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<Route.InstructorReferral> {
+            ReferralScreen(
                 onBack = { navController.popBackStack() },
             )
         }

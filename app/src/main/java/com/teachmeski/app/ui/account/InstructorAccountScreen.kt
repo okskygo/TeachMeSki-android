@@ -51,6 +51,7 @@ fun InstructorAccountScreen(
     onNavigateToAccountSettings: () -> Unit = {},
     onNavigateToWallet: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
+    onNavigateToReferral: () -> Unit = {},
     onNavigateToContact: () -> Unit = {},
     onNavigateToTerms: () -> Unit = {},
     onNavigateToPrivacy: () -> Unit = {},
@@ -111,6 +112,11 @@ fun InstructorAccountScreen(
             InstructorAccountMenuRow(
                 title = stringResource(R.string.instructor_account_settings_entry),
                 onClick = onNavigateToAccountSettings,
+            )
+            InstructorAccountRowDivider()
+            InstructorAccountMenuRow(
+                title = stringResource(R.string.instructor_account_referral_entry),
+                onClick = onNavigateToReferral,
             )
         }
 

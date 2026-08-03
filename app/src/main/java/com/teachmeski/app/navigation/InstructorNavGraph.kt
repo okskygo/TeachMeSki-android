@@ -101,6 +101,7 @@ fun NavGraphBuilder.instructorNavGraph(
                 },
                 onNavigateToWallet = { navController.navigate(Route.Wallet) },
                 onNavigateToProfile = { navController.navigate(Route.InstructorProfile) },
+                onNavigateToReferral = { navController.navigate(Route.InstructorReferral) },
                 onNavigateToContact = { navController.navigate(Route.Contact) },
                 onNavigateToTerms = { navController.navigate(Route.Legal(type = "terms")) },
                 onNavigateToPrivacy = { navController.navigate(Route.Legal(type = "privacy")) },
