@@ -735,6 +735,7 @@ private fun certLabel(code: String): String = when (code) {
     "NZSIA" -> stringResource(R.string.wizard_cert_nzsia)
     "PSIA" -> stringResource(R.string.wizard_cert_psia)
     "SIA_Japan", "SIA-Japan" -> stringResource(R.string.wizard_cert_sia_japan)
+    "AADIDESS" -> stringResource(R.string.wizard_cert_aadidess)
     "other" -> stringResource(R.string.wizard_cert_other)
     else -> code
 }

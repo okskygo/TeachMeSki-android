@@ -262,6 +262,7 @@
     <string name="wizard_cert_nzsia">NZSIA</string>
     <string name="wizard_cert_psia">PSIA</string>
     <string name="wizard_cert_sia_japan">SIA Japan</string>
+    <string name="wizard_cert_aadidess">AADIDESS</string>
     <string name="wizard_cert_other">其他</string>
 
     <!-- Wizard — Step 8: Notes -->

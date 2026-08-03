@@ -22,7 +22,7 @@ import com.teachmeski.app.ui.component.TmsChip
 import com.teachmeski.app.ui.theme.TmsColor
 import com.teachmeski.app.ui.wizard.WizardUiState
 
-private val CertKeys = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "other")
+private val CertKeys = listOf("CSIA", "CASI", "NZSIA", "PSIA", "SIA_Japan", "AADIDESS", "other")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -134,6 +134,7 @@ private fun certDisplayLabel(code: String): String = when (code) {
     "NZSIA" -> stringResource(R.string.wizard_cert_nzsia)
     "PSIA" -> stringResource(R.string.wizard_cert_psia)
     "SIA_Japan", "SIA-Japan" -> stringResource(R.string.wizard_cert_sia_japan)
+    "AADIDESS" -> stringResource(R.string.wizard_cert_aadidess)
     "other" -> stringResource(R.string.wizard_cert_other)
     else -> code
 }
