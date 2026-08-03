@@ -50,6 +50,7 @@ import java.text.DateFormat
 import java.time.Instant
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * F-116: instructor's referral-code share screen. Mirrors web
@@ -260,4 +261,6 @@ private fun ReferralCampaignCard(info: ReferralInfo) {
 }
 
 private fun formatCampaignDeadline(endsAt: Instant, locale: Locale): String =
-    DateFormat.getDateInstance(DateFormat.LONG, locale).format(Date.from(endsAt))
+    DateFormat.getDateInstance(DateFormat.LONG, locale).apply {
+        timeZone = TimeZone.getTimeZone("Asia/Taipei")
+    }.format(Date.from(endsAt))
