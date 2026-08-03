@@ -7,7 +7,8 @@ import org.junit.Test
 /**
  * F-008 P3 — `resolveTransactionLabelRes` precedence:
  *   1. `referenceType == "unlock_auto_refund"` wins regardless of `type`.
- *   2. Otherwise the legacy `type`-only mapping is preserved.
+ *   2. `referenceType == "referral_bonus"` wins regardless of `type` (F-116).
+ *   3. Otherwise the legacy `type`-only mapping is preserved.
  */
 class TransactionLabelTest {
 
@@ -16,6 +17,14 @@ class TransactionLabelTest {
         assertEquals(
             R.string.wallet_transaction_unlock_auto_refund,
             resolveTransactionLabelRes("refund", "unlock_auto_refund"),
+        )
+    }
+
+    @Test
+    fun `referral_bonus reference_type wins over bonus type`() {
+        assertEquals(
+            R.string.wallet_transaction_referral_bonus,
+            resolveTransactionLabelRes("bonus", "referral_bonus"),
         )
     }
 

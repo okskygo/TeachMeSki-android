@@ -29,6 +29,7 @@ fun ProfileStep(
 ) {
     val nameTooLong = state.displayName.length > 50
     val bioTooLong = state.bio.length > 2000
+    val referralCodeIncomplete = state.referralCode.length in 1..5
 
     Column(
         modifier =
@@ -82,7 +83,13 @@ fun ProfileStep(
             onValueChange = onReferralCodeChange,
             label = { Text(stringResource(R.string.instructor_wizard_step5_referral_label)) },
             placeholder = { Text(stringResource(R.string.instructor_wizard_step5_referral_placeholder)) },
-            supportingText = { Text(stringResource(R.string.instructor_wizard_step5_referral_hint)) },
+            isError = referralCodeIncomplete,
+            supportingText =
+                if (referralCodeIncomplete) {
+                    { Text(stringResource(R.string.instructor_wizard_step5_referral_error_format)) }
+                } else {
+                    { Text(stringResource(R.string.instructor_wizard_step5_referral_hint)) }
+                },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),

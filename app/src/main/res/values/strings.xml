@@ -503,6 +503,7 @@
     <string name="wallet_transaction_compensation">系統贈送</string>
     <string name="wallet_transaction_refund">退還</string>
     <string name="wallet_transaction_unlock_auto_refund">自動退款（學員未回覆）</string>
+    <string name="wallet_transaction_referral_bonus">推薦獎勵</string>
     <string name="wallet_transaction_other">其他</string>
     <string name="wallet_empty_transactions">尚無異動紀錄</string>
     <string name="wallet_tokens_fmt">%1$d 點</string>
@@ -702,6 +703,7 @@
     <string name="instructor_wizard_step5_referral_label">推薦碼（選填）</string>
     <string name="instructor_wizard_step5_referral_placeholder">6 碼數字</string>
     <string name="instructor_wizard_step5_referral_hint">有教練朋友推薦你嗎？填入他的推薦碼。</string>
+    <string name="instructor_wizard_step5_referral_error_format">推薦碼為 6 碼數字</string>
     <string name="instructor_wizard_step6_heading">教學語言</string>
     <string name="instructor_wizard_step6_subheading">選擇您可以使用的教學語言（可複選）</string>
     <string name="instructor_wizard_step6_lang_zh">中文</string>

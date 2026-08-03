@@ -80,7 +80,10 @@ data class InstructorWizardUiState(
             4 -> ("other" !in certifications) || certificationOther.isNotBlank()
             5 -> {
                 val name = displayName.trim()
-                name.isNotEmpty() && name.length <= 50 && bio.length <= 2000
+                name.isNotEmpty() &&
+                    name.length <= 50 &&
+                    bio.length <= 2000 &&
+                    (referralCode.isEmpty() || referralCode.length == 6)
             }
             6 -> languages.isNotEmpty()
             7 -> pricingStepValid()

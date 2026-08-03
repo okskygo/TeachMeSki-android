@@ -497,6 +497,7 @@
     <string name="wallet_transaction_compensation">System Grant</string>
     <string name="wallet_transaction_refund">Refund</string>
     <string name="wallet_transaction_unlock_auto_refund">Auto refund (no reply from student)</string>
+    <string name="wallet_transaction_referral_bonus">Referral bonus</string>
     <string name="wallet_transaction_other">Other</string>
     <string name="wallet_empty_transactions">No Transactions Yet</string>
     <string name="wallet_tokens_fmt">%1$d credits</string>
@@ -697,6 +698,7 @@
     <string name="instructor_wizard_step5_referral_label">Referral code (optional)</string>
     <string name="instructor_wizard_step5_referral_placeholder">6-digit code</string>
     <string name="instructor_wizard_step5_referral_hint">Got a referral code from an instructor friend? Enter it here.</string>
+    <string name="instructor_wizard_step5_referral_error_format">Referral code must be 6 digits</string>
     <string name="instructor_wizard_step6_heading">Teaching Languages</string>
     <string name="instructor_wizard_step6_subheading">Select the languages you can teach in (multiple OK)</string>
     <string name="instructor_wizard_step6_lang_zh">Chinese</string>
